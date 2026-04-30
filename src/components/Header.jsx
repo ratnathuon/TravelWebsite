@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import profile from '../assets/profile.jpg'
 import { Link, useLocation } from 'react-router-dom'
 
-export default function Header() {
+export default function Header({ onOpenAccount, user, onSignOut }) {
   const [userDropdownOpen, setUserDropdownOpen] = useState(false)
   const [navDropdownOpen, setNavDropdownOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -46,31 +46,43 @@ export default function Header() {
 
           <div className="flex items-center md:order-2 space-x-3 relative">
 
-            {/* Profile Button */}
-            <div ref={userDropdownRef} className="relative">
-              <button
-                onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                className="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300"
+            {!user ? (
+              <button 
+                onClick={onOpenAccount}
+                className="text-white bg-[#3a6b53] hover:bg-[#2f5341] px-4 py-2 rounded-full font-medium transition-colors"
               >
-                <span className="sr-only">Open user menu</span>
-                <img className="w-8 h-8 rounded-full" src={profile} alt="user photo" />
+                Sign Up
               </button>
-
-              {/* Profile Dropdown */}
-              {userDropdownOpen && (
-                <div className="absolute right-0 mt-2 z-50 text-base list-none bg-gradient-to-r from-[#0F2027] via-[#28623a] to-[#28623a] divide-y divide-gray-600 rounded-lg shadow-lg w-48">
-                  <div className="px-4 py-3">
-                    <span className="block text-sm text-white">Bonnie Green</span>
-                    <span className="block text-sm text-gray-400 truncate">name@flowbite.com</span>
+            ) : (
+              <div ref={userDropdownRef} className="relative">
+                {/* Profile Button */}
+                <button
+                  onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                  className="flex items-center space-x-2 focus:ring-4 focus:ring-gray-300 rounded-full transition-all"
+                >
+                  <span className="sr-only">Open user menu</span>
+                  <div className="flex items-center justify-center w-10 h-10 rounded-full bg-[#E5DFFF] text-[#3D1A6A] font-bold text-sm">
+                    {user.initials}
                   </div>
-                  <ul className="py-2">
-                    <li><Link to="#" className="block px-4 py-2 text-sm text-gray-200 hover:underline hover:bg-blue-600 rounded">Account information</Link></li>
-                    <li><Link to="#" className="block px-4 py-2 text-sm text-gray-200 hover:underline hover:bg-blue-600 rounded">Favorite places</Link></li>
-                    <li><Link to="#" className="block px-4 py-2 text-sm text-gray-200 hover:underline hover:bg-blue-600 rounded">Sign out</Link></li>
-                  </ul>
-                </div>
-              )}
-            </div>
+                  <span className="text-white font-medium hidden md:block text-sm mr-2">{user.name}</span>
+                </button>
+
+                {/* Profile Dropdown */}
+                {userDropdownOpen && (
+                  <div className="absolute right-0 mt-2 z-50 text-base list-none bg-gradient-to-r from-[#0F2027] via-[#28623a] to-[#28623a] divide-y divide-gray-600 rounded-lg shadow-lg w-48">
+                    <div className="px-4 py-3">
+                      <span className="block text-sm text-white font-bold">{user.name}</span>
+                      <span className="block text-sm text-gray-300 truncate">{user.email}</span>
+                    </div>
+                    <ul className="py-2">
+                      <li><Link to="#" className="block px-4 py-2 text-sm text-gray-200 hover:underline hover:bg-blue-600 rounded">Account information</Link></li>
+                      <li><Link to="#" className="block px-4 py-2 text-sm text-gray-200 hover:underline hover:bg-blue-600 rounded">Favorite places</Link></li>
+                      <li><button onClick={() => { onSignOut(); setUserDropdownOpen(false); }} className="w-full text-left block px-4 py-2 text-sm text-gray-200 hover:underline hover:bg-blue-600 rounded">Sign out</button></li>
+                    </ul>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Mobile Menu Button */}
             <button
