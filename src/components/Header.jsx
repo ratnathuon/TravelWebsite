@@ -1,8 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 
 // ─── localStorage helpers ───────────────────────────────────────────────────
 const STORAGE_KEY = 'travel_cambodia_user'
+const DB_KEY = 'travel_cambodia_users_db'
+
+function getUsersDb() {
+  try {
+    return JSON.parse(localStorage.getItem(DB_KEY)) || {};
+  } catch {
+    return {};
+  }
+}
 
 export function loadUser() {
   try {
@@ -16,13 +25,31 @@ export function loadUser() {
 export function saveUser(user) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(user))
-  } catch {}
+    if (user && user.email) {
+      const db = getUsersDb();
+      // Only keep the fields we want to save across sessions
+      db[user.email] = user;
+      localStorage.setItem(DB_KEY, JSON.stringify(db));
+    }
+  } catch { }
 }
 
 export function clearUser() {
   try {
     localStorage.removeItem(STORAGE_KEY)
-  } catch {}
+  } catch { }
+}
+
+export function enrichUserFromDb(userData) {
+  if (!userData || !userData.email) return userData;
+  const db = getUsersDb();
+  const savedData = db[userData.email];
+  if (!savedData) return userData;
+  return {
+    ...savedData,
+    ...userData,
+    photoURL: userData.photoURL || savedData.photoURL
+  };
 }
 // ───────────────────────────────────────────────────────────────────────────
 
@@ -30,6 +57,7 @@ export default function Header({ onOpenAccount, user, onSignOut }) {
   const [userDropdownOpen, setUserDropdownOpen] = useState(false)
   const [navDropdownOpen, setNavDropdownOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [isSigningOut, setIsSigningOut] = useState(false)
 
   const location = useLocation()
 
@@ -49,11 +77,30 @@ export default function Header({ onOpenAccount, user, onSignOut }) {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
+  const navigate = useNavigate();
+
+  const handleSignOut = () => {
+    setIsSigningOut(true)
+    setTimeout(() => {
+      onSignOut()
+      setIsSigningOut(false)
+      setUserDropdownOpen(false)
+
+      // Also actually log out of Firebase
+      import('firebase/auth').then(({ getAuth, signOut }) => {
+        const auth = getAuth();
+        signOut(auth).catch(() => console.log("Firebase signout error"));
+      });
+
+      // Redirect to home page
+      navigate("/");
+    }, 1500)
+  }
+
   const navLinkClass = (path) =>
-    `block py-2 px-3 rounded-sm md:p-0 transition-colors duration-200 ${
-      location.pathname === path
-        ? 'text-blue-400 underline md:text-blue-400'
-        : 'text-white hover:bg-blue-600 md:hover:bg-transparent md:hover:underline'
+    `block py-2 px-3 rounded-sm md:p-0 transition-colors duration-200 ${location.pathname === path
+      ? 'text-blue-400 underline md:text-blue-400'
+      : 'text-white hover:bg-blue-600 md:hover:bg-transparent md:hover:underline'
     }`
 
   return (
@@ -86,9 +133,9 @@ export default function Header({ onOpenAccount, user, onSignOut }) {
                   <span className="sr-only">Open user menu</span>
                   <div className="flex items-center justify-center w-10 h-10 rounded-full bg-[#E5DFFF] text-[#3D1A6A] font-bold text-sm overflow-hidden">
                     {user.photoURL ? (
-                        <img src={user.photoURL} alt="Profile" className="w-full h-full object-cover" />
+                      <img src={user.photoURL} alt="Profile" className="w-full h-full object-cover" />
                     ) : (
-                        user.initials
+                      user.initials
                     )}
                   </div>
                   <span className="text-white font-medium hidden md:block text-sm mr-2">{user.name}</span>
@@ -106,10 +153,21 @@ export default function Header({ onOpenAccount, user, onSignOut }) {
                       <li><Link to="#" className="block px-4 py-2 text-sm text-gray-200 hover:underline hover:bg-blue-600 rounded">Favorite places</Link></li>
                       <li>
                         <button
-                          onClick={() => { onSignOut(); setUserDropdownOpen(false); }}
-                          className="w-full text-left block px-4 py-2 text-sm text-gray-200 hover:underline hover:bg-blue-600 rounded"
+                          onClick={handleSignOut}
+                          disabled={isSigningOut}
+                          className="w-full text-left px-4 py-2 text-sm text-gray-200 hover:underline hover:bg-blue-600 rounded flex items-center disabled:opacity-70 disabled:cursor-not-allowed"
                         >
-                          Sign out
+                          {isSigningOut ? (
+                            <>
+                              <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                              </svg>
+                              Signing out...
+                            </>
+                          ) : (
+                            'Sign out'
+                          )}
                         </button>
                       </li>
                     </ul>
@@ -144,9 +202,8 @@ export default function Header({ onOpenAccount, user, onSignOut }) {
               <li ref={navDropdownRef} className="relative">
                 <button
                   onClick={() => setNavDropdownOpen(!navDropdownOpen)}
-                  className={`flex items-center justify-between w-full py-2 px-3 rounded font-medium md:w-auto md:p-0 transition-colors duration-200 ${
-                    navDropdownOpen ? 'text-blue-400 underline' : 'text-white hover:bg-blue-600 md:hover:bg-transparent md:hover:underline'
-                  }`}
+                  className={`flex items-center justify-between w-full py-2 px-3 rounded font-medium md:w-auto md:p-0 transition-colors duration-200 ${navDropdownOpen ? 'text-blue-400 underline' : 'text-white hover:bg-blue-600 md:hover:bg-transparent md:hover:underline'
+                    }`}
                 >
                   Destinations
                   <svg className="w-4 h-4 ms-1.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

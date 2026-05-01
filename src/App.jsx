@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Header, { loadUser, saveUser, clearUser } from "./components/Header"
+import Header, { loadUser, saveUser, clearUser, enrichUserFromDb } from "./components/Header"
 import Search from "./components/Search"
 import Footer from "./components/Footer"
 import About from "./Pages/About"
@@ -32,7 +32,7 @@ function App() {
         isOpen={isAccountOpen} 
         onClose={() => setIsAccountOpen(false)} 
         onSignIn={(userData) => {
-          setUser(userData);
+          setUser(enrichUserFromDb(userData));
           setIsAccountOpen(false);
         }}
       />

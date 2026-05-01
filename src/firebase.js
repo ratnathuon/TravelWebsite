@@ -19,8 +19,7 @@ const firebaseConfig = {
   projectId: "travel-cambodia",
   storageBucket: "travel-cambodia.firebasestorage.app",
   messagingSenderId: "663707695228",
-  appId: "1:663707695228:web:5f0035293e03697a34b1f9",
-  measurementId: "G-FL1PM0BRW3"
+  appId: "1:663707695228:web:5f0035293e03697a34b1f9"
 };
 
 const app = initializeApp(firebaseConfig);

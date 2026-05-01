@@ -1,41 +1,106 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { auth } from '../firebase';
+import { updateProfile } from 'firebase/auth';
 
 export default function AccountInfo({ user, onUpdateUser }) {
+    const displayUser = user || {
+        name: 'Guest Explorer',
+        email: 'Sign up to sync your profile',
+        initials: 'G',
+        photoURL: null,
+    };
+
     const [activeTab, setActiveTab] = useState('profile');
+    const [isSaving, setIsSaving] = useState(false);
+    const [saveSuccess, setSaveSuccess] = useState(false);
+    const [pendingPhotoFile, setPendingPhotoFile] = useState(null);
+    const [previewPhotoURL, setPreviewPhotoURL] = useState(null);
+    const [removePhoto, setRemovePhoto] = useState(false);
+
+    const currentDisplayPhoto = removePhoto ? null : (previewPhotoURL || displayUser.photoURL);
+    const [formData, setFormData] = useState({
+        name: displayUser.name || '',
+        phone: displayUser.phone || '',
+        location: displayUser.location || '',
+        bio: displayUser.bio || ''
+    });
+
+    useEffect(() => {
+        setFormData({
+            name: displayUser.name || '',
+            phone: displayUser.phone || '',
+            location: displayUser.location || '',
+            bio: displayUser.bio || ''
+        });
+    }, [user]);
+
     const fileInputRef = useRef(null);
 
+    const handleInputChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    const handleSaveProfile = () => {
+        if (!user) {
+            alert("Please sign up or log in to save your profile changes permanently!");
+            return;
+        }
+        setIsSaving(true);
+        setSaveSuccess(false);
+
+        let finalPhotoURL = displayUser.photoURL;
+
+        if (removePhoto) {
+            finalPhotoURL = null;
+            if (auth.currentUser) updateProfile(auth.currentUser, { photoURL: null }).catch(()=>{});
+        } else if (pendingPhotoFile && previewPhotoURL) {
+            // Save the image directly to the browser's local storage (100% Free)
+            finalPhotoURL = previewPhotoURL;
+        }
+
+        // We can still safely update the name in Firebase Auth (100% Free)
+        if (auth.currentUser) {
+            updateProfile(auth.currentUser, { displayName: formData.name }).catch(()=>{});
+        }
+
+        setTimeout(() => {
+            if (onUpdateUser) {
+                onUpdateUser({ ...displayUser, ...formData, photoURL: finalPhotoURL });
+            }
+
+            setPendingPhotoFile(null);
+            setRemovePhoto(false);
+
+            setIsSaving(false);
+            setSaveSuccess(true);
+            setTimeout(() => setSaveSuccess(false), 3000);
+        }, 1500);
+    };
+
     const handleFileChange = (e) => {
+        if (!user) {
+            alert("Please sign up or log in to upload a profile picture!");
+            return;
+        }
         const file = e.target.files[0];
         if (file) {
+            setPendingPhotoFile(file);
+            setRemovePhoto(false);
+
             const reader = new FileReader();
             reader.onloadend = () => {
-                if (onUpdateUser) {
-                    onUpdateUser({ ...user, photoURL: reader.result });
-                }
+                setPreviewPhotoURL(reader.result);
             };
             reader.readAsDataURL(file);
         }
     };
 
     const handleRemovePhoto = () => {
-        if (onUpdateUser) {
-            onUpdateUser({ ...user, photoURL: null });
-        }
+        if (!user) return;
+        setPendingPhotoFile(null);
+        setPreviewPhotoURL(null);
+        setRemovePhoto(true);
     };
-
-    if (!user) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50">
-                <div className="text-center p-8 bg-white shadow-xl rounded-3xl max-w-md w-full border border-gray-100">
-                    <svg className="w-20 h-20 text-gray-300 mx-auto mb-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                    </svg>
-                    <h2 className="text-3xl font-extrabold text-gray-800 mb-3 tracking-tight">Access Denied</h2>
-                    <p className="text-gray-500 mb-6">Please sign in to view your account information and preferences.</p>
-                </div>
-            </div>
-        );
-    }
 
     return (
         <div className="min-h-screen bg-gray-50/50 pt-10 pb-16">
@@ -53,15 +118,15 @@ export default function AccountInfo({ user, onUpdateUser }) {
                     <div className="w-full md:w-80 bg-gradient-to-br from-[#0F2027] via-[#204E2E] to-[#28623a] text-white p-8">
                         <div className="flex items-center space-x-5 mb-12">
                             <div className="flex-shrink-0 w-16 h-16 bg-white/10 backdrop-blur-md text-white rounded-full flex items-center justify-center text-2xl font-bold border-2 border-white/20 shadow-lg overflow-hidden">
-                                {user.photoURL ? (
-                                    <img src={user.photoURL} alt="Profile" className="w-full h-full object-cover" />
+                                {currentDisplayPhoto ? (
+                                    <img src={currentDisplayPhoto} alt="Profile" className="w-full h-full object-cover" />
                                 ) : (
-                                    user.initials
+                                    displayUser.initials
                                 )}
                             </div>
                             <div className="overflow-hidden">
-                                <h3 className="font-bold text-xl truncate">{user.name}</h3>
-                                <p className="text-sm text-gray-300 truncate opacity-80">{user.email}</p>
+                                <h3 className="font-bold text-xl truncate">{displayUser.name}</h3>
+                                <p className="text-sm text-gray-300 truncate opacity-80">{displayUser.email}</p>
                             </div>
                         </div>
 
@@ -76,8 +141,8 @@ export default function AccountInfo({ user, onUpdateUser }) {
                                     key={tab.id}
                                     onClick={() => setActiveTab(tab.id)}
                                     className={`w-full flex items-center space-x-4 px-5 py-4 rounded-2xl transition-all duration-300 capitalize ${activeTab === tab.id
-                                            ? 'bg-white/15 font-semibold shadow-inner text-white'
-                                            : 'hover:bg-white/5 text-gray-300 hover:text-white'
+                                        ? 'bg-white/15 font-semibold shadow-inner text-white'
+                                        : 'hover:bg-white/5 text-gray-300 hover:text-white'
                                         }`}
                                 >
                                     <svg className="w-5 h-5 opacity-80" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -101,28 +166,28 @@ export default function AccountInfo({ user, onUpdateUser }) {
                                 {/* Profile Photo Section */}
                                 <div className="flex items-center space-x-8">
                                     <div className="w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 text-gray-600 rounded-full flex items-center justify-center text-4xl font-bold shadow-inner overflow-hidden">
-                                        {user.photoURL ? (
-                                            <img src={user.photoURL} alt="Profile" className="w-full h-full object-cover" />
+                                        {currentDisplayPhoto ? (
+                                            <img src={currentDisplayPhoto} alt="Profile" className="w-full h-full object-cover" />
                                         ) : (
-                                            user.initials
+                                            displayUser.initials
                                         )}
                                     </div>
                                     <div>
                                         <div className="flex space-x-3 mb-2">
-                                            <input 
-                                                type="file" 
-                                                accept="image/*" 
-                                                className="hidden" 
-                                                ref={fileInputRef} 
-                                                onChange={handleFileChange} 
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                className="hidden"
+                                                ref={fileInputRef}
+                                                onChange={handleFileChange}
                                             />
-                                            <button 
+                                            <button
                                                 onClick={() => fileInputRef.current?.click()}
                                                 className="px-5 py-2.5 bg-gray-900 hover:bg-gray-800 text-white text-sm font-medium rounded-xl transition-colors shadow-md"
                                             >
                                                 Upload New
                                             </button>
-                                            <button 
+                                            <button
                                                 onClick={handleRemovePhoto}
                                                 className="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-xl transition-colors"
                                             >
@@ -139,7 +204,9 @@ export default function AccountInfo({ user, onUpdateUser }) {
                                         <label className="block text-sm font-semibold text-gray-700 mb-2">Full Name</label>
                                         <input
                                             type="text"
-                                            defaultValue={user.name}
+                                            name="name"
+                                            value={formData.name}
+                                            onChange={handleInputChange}
                                             className="w-full px-5 py-3.5 bg-gray-50 rounded-xl border-transparent focus:bg-white focus:border-[#28623a] focus:ring-2 focus:ring-[#28623a]/20 outline-none transition-all text-gray-800"
                                         />
                                     </div>
@@ -156,6 +223,9 @@ export default function AccountInfo({ user, onUpdateUser }) {
                                         <label className="block text-sm font-semibold text-gray-700 mb-2">Phone Number</label>
                                         <input
                                             type="tel"
+                                            name="phone"
+                                            value={formData.phone}
+                                            onChange={handleInputChange}
                                             placeholder="+855 12 345 678"
                                             className="w-full px-5 py-3.5 bg-gray-50 rounded-xl border-transparent focus:bg-white focus:border-[#28623a] focus:ring-2 focus:ring-[#28623a]/20 outline-none transition-all text-gray-800"
                                         />
@@ -164,6 +234,9 @@ export default function AccountInfo({ user, onUpdateUser }) {
                                         <label className="block text-sm font-semibold text-gray-700 mb-2">Location</label>
                                         <input
                                             type="text"
+                                            name="location"
+                                            value={formData.location}
+                                            onChange={handleInputChange}
                                             placeholder="Phnom Penh, Cambodia"
                                             className="w-full px-5 py-3.5 bg-gray-50 rounded-xl border-transparent focus:bg-white focus:border-[#28623a] focus:ring-2 focus:ring-[#28623a]/20 outline-none transition-all text-gray-800"
                                         />
@@ -172,15 +245,33 @@ export default function AccountInfo({ user, onUpdateUser }) {
                                         <label className="block text-sm font-semibold text-gray-700 mb-2">Bio</label>
                                         <textarea
                                             rows="4"
+                                            name="bio"
+                                            value={formData.bio}
+                                            onChange={handleInputChange}
                                             placeholder="Tell us a little about your travel interests..."
                                             className="w-full px-5 py-3.5 bg-gray-50 rounded-xl border-transparent focus:bg-white focus:border-[#28623a] focus:ring-2 focus:ring-[#28623a]/20 outline-none transition-all resize-none text-gray-800"
                                         ></textarea>
                                     </div>
                                 </div>
 
-                                <div className="flex justify-end pt-6 border-t border-gray-100">
-                                    <button className="px-8 py-3.5 bg-gradient-to-r from-[#28623a] to-[#1e4b2c] text-white font-medium rounded-xl shadow-lg shadow-[#28623a]/30 transition-all duration-200 transform hover:-translate-y-0.5 hover:shadow-xl">
-                                        Save Profile Changes
+                                <div className="flex justify-end pt-6 border-t border-gray-100 items-center space-x-4">
+                                    {saveSuccess && <span className="text-green-600 font-medium">Profile saved successfully!</span>}
+                                    <button
+                                        onClick={handleSaveProfile}
+                                        disabled={isSaving}
+                                        className="flex items-center justify-center px-8 py-3.5 bg-gradient-to-r from-[#28623a] to-[#1e4b2c] text-white font-medium rounded-xl shadow-lg shadow-[#28623a]/30 transition-all duration-200 transform hover:-translate-y-0.5 hover:shadow-xl disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
+                                    >
+                                        {isSaving ? (
+                                            <>
+                                                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                </svg>
+                                                Saving...
+                                            </>
+                                        ) : (
+                                            'Save Profile Changes'
+                                        )}
                                     </button>
                                 </div>
                             </div>
