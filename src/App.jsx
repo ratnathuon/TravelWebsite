@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Home from "./Pages/Home"
 import CardPlace from "./components/CardPlace"
 import Account from "./components/Account"
+import AccountInfo from "./components/Account_Info"
 
 function App() {
   const [isAccountOpen, setIsAccountOpen] = useState(false);
@@ -39,6 +40,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/destinaton" element={<h1></h1>} />
+        <Route path="/account" element={<AccountInfo user={user} />} />
       </Routes>
     </BrowserRouter>
   )

@@ -98,7 +98,7 @@ export default function Header({ onOpenAccount, user, onSignOut }) {
                       <span className="block text-sm text-gray-300 truncate">{user.email}</span>
                     </div>
                     <ul className="py-2">
-                      <li><Link to="#" className="block px-4 py-2 text-sm text-gray-200 hover:underline hover:bg-blue-600 rounded">Account information</Link></li>
+                      <li><Link to="/account" className="block px-4 py-2 text-sm text-gray-200 hover:underline hover:bg-blue-600 rounded">Account information</Link></li>
                       <li><Link to="#" className="block px-4 py-2 text-sm text-gray-200 hover:underline hover:bg-blue-600 rounded">Favorite places</Link></li>
                       <li>
                         <button
