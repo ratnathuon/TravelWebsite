@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import Header from "./components/Header"
+import React, { useState, useEffect } from 'react';
+import Header, { loadUser, saveUser, clearUser } from "./components/Header"
 import Search from "./components/Search"
 import Footer from "./components/Footer"
 import About from "./Pages/About"
@@ -10,7 +10,15 @@ import Account from "./components/Account"
 
 function App() {
   const [isAccountOpen, setIsAccountOpen] = useState(false);
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(() => loadUser());
+
+  useEffect(() => {
+    if (user) {
+      saveUser(user);
+    } else {
+      clearUser();
+    }
+  }, [user]);
 
   return (
     <BrowserRouter>

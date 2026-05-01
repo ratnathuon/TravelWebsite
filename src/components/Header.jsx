@@ -1,13 +1,37 @@
 import React, { useState, useRef, useEffect } from 'react'
-import profile from '../assets/profile.jpg'
 import { Link, useLocation } from 'react-router-dom'
+
+// ─── localStorage helpers ───────────────────────────────────────────────────
+const STORAGE_KEY = 'travel_cambodia_user'
+
+export function loadUser() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    return raw ? JSON.parse(raw) : null
+  } catch {
+    return null
+  }
+}
+
+export function saveUser(user) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(user))
+  } catch {}
+}
+
+export function clearUser() {
+  try {
+    localStorage.removeItem(STORAGE_KEY)
+  } catch {}
+}
+// ───────────────────────────────────────────────────────────────────────────
 
 export default function Header({ onOpenAccount, user, onSignOut }) {
   const [userDropdownOpen, setUserDropdownOpen] = useState(false)
   const [navDropdownOpen, setNavDropdownOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
-  const location = useLocation() // 👈 get current URL path
+  const location = useLocation()
 
   const userDropdownRef = useRef(null)
   const navDropdownRef = useRef(null)
@@ -25,7 +49,6 @@ export default function Header({ onOpenAccount, user, onSignOut }) {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  // 👈 helper: returns blue underline if path matches, white if not
   const navLinkClass = (path) =>
     `block py-2 px-3 rounded-sm md:p-0 transition-colors duration-200 ${
       location.pathname === path
@@ -47,7 +70,7 @@ export default function Header({ onOpenAccount, user, onSignOut }) {
           <div className="flex items-center md:order-2 space-x-3 relative">
 
             {!user ? (
-              <button 
+              <button
                 onClick={onOpenAccount}
                 className="text-white bg-[#3a6b53] hover:bg-[#2f5341] px-4 py-2 rounded-full font-medium transition-colors"
               >
@@ -69,7 +92,7 @@ export default function Header({ onOpenAccount, user, onSignOut }) {
 
                 {/* Profile Dropdown */}
                 {userDropdownOpen && (
-                  <div className="absolute right-0 mt-2 z-50 text-base list-none bg-gradient-to-r from-[#0F2027] via-[#28623a] to-[#28623a] divide-y divide-gray-600 rounded-lg shadow-lg w-48">
+                  <div className="absolute right-0 mt-2 z-50 text-base list-none bg-gradient-to-r from-[#0F2027] via-[#28623a] to-[#28623a] divide-y divide-gray-600 rounded-lg shadow-lg w-50">
                     <div className="px-4 py-3">
                       <span className="block text-sm text-white font-bold">{user.name}</span>
                       <span className="block text-sm text-gray-300 truncate">{user.email}</span>
@@ -77,7 +100,14 @@ export default function Header({ onOpenAccount, user, onSignOut }) {
                     <ul className="py-2">
                       <li><Link to="#" className="block px-4 py-2 text-sm text-gray-200 hover:underline hover:bg-blue-600 rounded">Account information</Link></li>
                       <li><Link to="#" className="block px-4 py-2 text-sm text-gray-200 hover:underline hover:bg-blue-600 rounded">Favorite places</Link></li>
-                      <li><button onClick={() => { onSignOut(); setUserDropdownOpen(false); }} className="w-full text-left block px-4 py-2 text-sm text-gray-200 hover:underline hover:bg-blue-600 rounded">Sign out</button></li>
+                      <li>
+                        <button
+                          onClick={() => { onSignOut(); setUserDropdownOpen(false); }}
+                          className="w-full text-left block px-4 py-2 text-sm text-gray-200 hover:underline hover:bg-blue-600 rounded"
+                        >
+                          Sign out
+                        </button>
+                      </li>
                     </ul>
                   </div>
                 )}
@@ -100,14 +130,10 @@ export default function Header({ onOpenAccount, user, onSignOut }) {
           <div className={`${mobileMenuOpen ? 'flex' : 'hidden'} items-center justify-between w-full md:flex md:w-auto md:order-1`}>
             <ul className="flex flex-col font-medium p-4 md:p-0 mt-4 border border-gray-700 rounded-lg md:space-x-16 md:flex-row md:mt-0 md:border-0">
               <li>
-                <Link to="/" className={navLinkClass('/')}>
-                  Home
-                </Link>
+                <Link to="/" className={navLinkClass('/')}>Home</Link>
               </li>
               <li>
-                <Link to="/about" className={navLinkClass('/about')}>
-                  About
-                </Link>
+                <Link to="/about" className={navLinkClass('/about')}>About</Link>
               </li>
 
               {/* Nav Dropdown */}

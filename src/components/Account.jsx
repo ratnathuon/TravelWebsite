@@ -1,37 +1,105 @@
 import React, { useState } from 'react';
+import {
+  auth,
+  googleProvider,
+  signInWithPopup,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  updateProfile
+} from '../firebase';
 
 function Account({ isOpen, onClose, onSignIn }) {
   const [isLogin, setIsLogin] = useState(false);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [errors, setErrors] = useState({});
+  const [authError, setAuthError] = useState('');
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const validate = () => {
+    const newErrors = {};
+
+    if (!isLogin && !name.trim()) {
+      newErrors.name = 'Name is required.';
+    }
+
+    if (!email.trim()) {
+      newErrors.email = 'Email is required.';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      newErrors.email = 'Enter a valid email address.';
+    }
+
+    if (!password) {
+      newErrors.password = 'Password is required.';
+    } else if (password.length < 6) {
+      newErrors.password = 'Password must be at least 6 characters.';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const passDataToParent = (firebaseUser) => {
     if (onSignIn) {
-      const finalName = name || (email ? email.split('@')[0] : 'Thuon');
+      const finalName = firebaseUser.displayName || (firebaseUser.email ? firebaseUser.email.split('@')[0] : 'User');
       const parts = finalName.trim().split(' ');
-      let initials = 'TR';
-      if (parts.length > 1) {
+      let initials = 'U';
+      if (parts.length > 1 && parts[0].length > 0 && parts[1].length > 0) {
         initials = (parts[0][0] + parts[1][0]).toUpperCase();
       } else if (finalName.length > 0) {
         initials = finalName.substring(0, 2).toUpperCase();
       }
 
-      onSignIn({ 
-        name: finalName, 
-        email: email || 'thuon@example.com',
-        initials: initials
+      onSignIn({
+        name: finalName,
+        email: firebaseUser.email,
+        initials: initials,
       });
     }
   };
 
-  const handleGoogleSignIn = () => {
-    if (onSignIn) {
-      onSignIn({ name: 'Thuon', email: 'thuon@example.com', initials: 'TR' });
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validate()) return;
+    setAuthError('');
+
+    try {
+      if (isLogin) {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        passDataToParent(userCredential.user);
+      } else {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        await updateProfile(userCredential.user, { displayName: name });
+        passDataToParent({ ...userCredential.user, displayName: name });
+      }
+    } catch (error) {
+      if (error.code === 'auth/invalid-api-key') {
+        setAuthError('Firebase configuration missing! Please add your API keys to src/firebase.js.');
+      } else {
+        setAuthError(error.message);
+      }
     }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setAuthError('');
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      passDataToParent(result.user);
+    } catch (error) {
+      if (error.code === 'auth/invalid-api-key') {
+        setAuthError('Firebase configuration missing! Please add your API keys to src/firebase.js.');
+      } else {
+        setAuthError(error.message);
+      }
+    }
+  };
+
+  const handleToggle = () => {
+    setIsLogin(!isLogin);
+    setErrors({});
   };
 
   return (
@@ -42,7 +110,7 @@ function Account({ isOpen, onClose, onSignIn }) {
       {/* Modal Card */}
       <div className="relative w-full max-w-sm bg-[#284838] rounded-3xl shadow-2xl p-8 z-10 text-white">
         {/* Close Button */}
-        <button 
+        <button
           onClick={onClose}
           className="absolute top-4 right-5 text-white/70 hover:text-white text-2xl font-bold"
         >
@@ -51,54 +119,63 @@ function Account({ isOpen, onClose, onSignIn }) {
 
         {/* Header */}
         <div className="flex items-center justify-center gap-2 mb-4">
-          <img 
-            src="https://upload.wikimedia.org/wikipedia/commons/8/83/Flag_of_Cambodia.svg" 
-            alt="Cambodia Flag" 
+          <img
+            src="https://upload.wikimedia.org/wikipedia/commons/8/83/Flag_of_Cambodia.svg"
+            alt="Cambodia Flag"
             className="w-6 h-4 rounded-sm object-cover"
           />
           <span className="text-lg font-medium tracking-wide">Travel Cambodia</span>
         </div>
 
-        <h2 className="text-4xl font-extrabold text-center mb-8 tracking-wide">
+        <h2 className="text-4xl font-extrabold text-center mb-6 tracking-wide">
           {isLogin ? 'Login' : 'Sign Up'}
         </h2>
 
+        {authError && (
+          <div className="mb-4 p-3 bg-red-500/20 border border-red-500 rounded-md text-red-200 text-sm text-center">
+            {authError}
+          </div>
+        )}
+
         {/* Form */}
-        <form className="space-y-4" onSubmit={handleSubmit}>
+        <form className="space-y-4" onSubmit={handleSubmit} noValidate>
           {!isLogin && (
             <div>
-              <input 
-                type="text" 
-                placeholder="Name" 
+              <input
+                type="text"
+                placeholder="Name"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full px-4 py-3 rounded-md text-gray-900 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3a6b53]"
+                onChange={(e) => { setName(e.target.value); setErrors(prev => ({ ...prev, name: '' })); }}
+                className={`w-full px-4 py-3 rounded-md text-gray-900 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 ${errors.name ? 'ring-2 ring-red-400' : 'focus:ring-[#3a6b53]'}`}
               />
+              {errors.name && <p className="text-red-300 text-xs mt-1">{errors.name}</p>}
             </div>
           )}
 
           <div>
-            <input 
-              type="email" 
-              placeholder="Email" 
+            <input
+              type="email"
+              placeholder="Email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 rounded-md text-gray-900 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3a6b53]"
+              onChange={(e) => { setEmail(e.target.value); setErrors(prev => ({ ...prev, email: '' })); }}
+              className={`w-full px-4 py-3 rounded-md text-gray-900 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 ${errors.email ? 'ring-2 ring-red-400' : 'focus:ring-[#3a6b53]'}`}
             />
+            {errors.email && <p className="text-red-300 text-xs mt-1">{errors.email}</p>}
           </div>
 
           <div>
-            <input 
-              type="password" 
-              placeholder="Password" 
+            <input
+              type="password"
+              placeholder="Password (min. 6 characters)"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 rounded-md text-gray-900 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3a6b53]"
+              onChange={(e) => { setPassword(e.target.value); setErrors(prev => ({ ...prev, password: '' })); }}
+              className={`w-full px-4 py-3 rounded-md text-gray-900 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 ${errors.password ? 'ring-2 ring-red-400' : 'focus:ring-[#3a6b53]'}`}
             />
+            {errors.password && <p className="text-red-300 text-xs mt-1">{errors.password}</p>}
           </div>
 
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             className="w-full mt-4 py-3 bg-[#2f5341] border border-white/60 hover:bg-[#3a6b53] text-white rounded-md font-medium transition-colors duration-200"
           >
             {isLogin ? 'Login' : 'Create Account'}
@@ -107,9 +184,9 @@ function Account({ isOpen, onClose, onSignIn }) {
 
         {/* Toggle Login/Signup */}
         <div className="mt-6 text-center text-sm text-gray-300">
-          {isLogin ? "don't have an account ? " : "already have an account ? "}
-          <button 
-            onClick={() => setIsLogin(!isLogin)} 
+          {isLogin ? "don't have an account ? " : 'already have an account ? '}
+          <button
+            onClick={handleToggle}
             className="text-blue-400 hover:text-blue-300 font-medium"
           >
             {isLogin ? 'Sign Up' : 'Login'}
@@ -117,7 +194,7 @@ function Account({ isOpen, onClose, onSignIn }) {
         </div>
 
         {/* Google Sign In */}
-        <button 
+        <button
           onClick={handleGoogleSignIn}
           type="button"
           className="w-full mt-6 py-3 flex items-center justify-center gap-3 bg-[#2f5341] border border-white/60 hover:bg-[#3a6b53] text-white rounded-md font-medium transition-colors duration-200"
