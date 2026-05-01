@@ -84,8 +84,12 @@ export default function Header({ onOpenAccount, user, onSignOut }) {
                   className="flex items-center space-x-2 focus:ring-4 focus:ring-gray-300 rounded-full transition-all"
                 >
                   <span className="sr-only">Open user menu</span>
-                  <div className="flex items-center justify-center w-10 h-10 rounded-full bg-[#E5DFFF] text-[#3D1A6A] font-bold text-sm">
-                    {user.initials}
+                  <div className="flex items-center justify-center w-10 h-10 rounded-full bg-[#E5DFFF] text-[#3D1A6A] font-bold text-sm overflow-hidden">
+                    {user.photoURL ? (
+                        <img src={user.photoURL} alt="Profile" className="w-full h-full object-cover" />
+                    ) : (
+                        user.initials
+                    )}
                   </div>
                   <span className="text-white font-medium hidden md:block text-sm mr-2">{user.name}</span>
                 </button>

@@ -1,7 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 
-export default function AccountInfo({ user }) {
+export default function AccountInfo({ user, onUpdateUser }) {
     const [activeTab, setActiveTab] = useState('profile');
+    const fileInputRef = useRef(null);
+
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                if (onUpdateUser) {
+                    onUpdateUser({ ...user, photoURL: reader.result });
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleRemovePhoto = () => {
+        if (onUpdateUser) {
+            onUpdateUser({ ...user, photoURL: null });
+        }
+    };
 
     if (!user) {
         return (
@@ -32,8 +52,12 @@ export default function AccountInfo({ user }) {
                     {/* Sidebar */}
                     <div className="w-full md:w-80 bg-gradient-to-br from-[#0F2027] via-[#204E2E] to-[#28623a] text-white p-8">
                         <div className="flex items-center space-x-5 mb-12">
-                            <div className="flex-shrink-0 w-16 h-16 bg-white/10 backdrop-blur-md text-white rounded-full flex items-center justify-center text-2xl font-bold border-2 border-white/20 shadow-lg">
-                                {user.initials}
+                            <div className="flex-shrink-0 w-16 h-16 bg-white/10 backdrop-blur-md text-white rounded-full flex items-center justify-center text-2xl font-bold border-2 border-white/20 shadow-lg overflow-hidden">
+                                {user.photoURL ? (
+                                    <img src={user.photoURL} alt="Profile" className="w-full h-full object-cover" />
+                                ) : (
+                                    user.initials
+                                )}
                             </div>
                             <div className="overflow-hidden">
                                 <h3 className="font-bold text-xl truncate">{user.name}</h3>
@@ -76,15 +100,32 @@ export default function AccountInfo({ user }) {
 
                                 {/* Profile Photo Section */}
                                 <div className="flex items-center space-x-8">
-                                    <div className="w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 text-gray-600 rounded-full flex items-center justify-center text-4xl font-bold shadow-inner">
-                                        {user.initials}
+                                    <div className="w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 text-gray-600 rounded-full flex items-center justify-center text-4xl font-bold shadow-inner overflow-hidden">
+                                        {user.photoURL ? (
+                                            <img src={user.photoURL} alt="Profile" className="w-full h-full object-cover" />
+                                        ) : (
+                                            user.initials
+                                        )}
                                     </div>
                                     <div>
                                         <div className="flex space-x-3 mb-2">
-                                            <button className="px-5 py-2.5 bg-gray-900 hover:bg-gray-800 text-white text-sm font-medium rounded-xl transition-colors shadow-md">
+                                            <input 
+                                                type="file" 
+                                                accept="image/*" 
+                                                className="hidden" 
+                                                ref={fileInputRef} 
+                                                onChange={handleFileChange} 
+                                            />
+                                            <button 
+                                                onClick={() => fileInputRef.current?.click()}
+                                                className="px-5 py-2.5 bg-gray-900 hover:bg-gray-800 text-white text-sm font-medium rounded-xl transition-colors shadow-md"
+                                            >
                                                 Upload New
                                             </button>
-                                            <button className="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-xl transition-colors">
+                                            <button 
+                                                onClick={handleRemovePhoto}
+                                                className="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-xl transition-colors"
+                                            >
                                                 Remove
                                             </button>
                                         </div>
