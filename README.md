@@ -1,16 +1,25 @@
-# React + Vite
+# Travel Cambodia Website
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is a React project built with Vite.
 
-Currently, two official plugins are available:
+## How to Run This Code on Your Device (For Team Members)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+If you have just cloned or downloaded this repository, you cannot just open the `index.html` file. You need to follow these steps to run the development server on your own computer so you can see the progress and make changes.
 
-## React Compiler
+### Prerequisites
+You must have **Node.js** installed on your computer. You can download it from [nodejs.org](https://nodejs.org/).
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Setup Steps
+1. **Open your terminal** and navigate to this project folder.
+2. **Install dependencies**: The `node_modules` folder is not included in GitHub. You must generate it by running:
+   ```bash
+   npm install
+   ```
+3. **Start the local server**: Once installation is complete, run the following command to start the website:
+   ```bash
+   npm run dev
+   ```
+4. **View the website**: The terminal will show a local address (usually `http://localhost:5173/`). `Ctrl + Click` that link to open the website in your browser!
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### Editing the Code
+Once the server is running, any changes you save to the files in the `src/` folder will automatically update in your browser.
