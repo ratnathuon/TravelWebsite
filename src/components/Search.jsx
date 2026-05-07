@@ -3,7 +3,7 @@ import React from 'react'
 export default function () {
   return ( 
 
-<form className="w-full max-w-md mx-auto my-7 px-4 sm:px-0">   
+<form className="w-full max-w-md mx-auto px-4 sm:px-0 mb-0 mt-5 justify-center">   
     <label for="default-search" className="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">Search</label>
     <div className="relative">
         <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
