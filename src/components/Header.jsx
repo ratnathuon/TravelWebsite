@@ -129,12 +129,12 @@ export default function Header() {
               className="h-8"
               alt="Logo"
             />
-            <span className="self-center text-2xl font-semibold whitespace-nowrap text-white">
+            <span className=" font-poppins self-center text-2xl font-semibold whitespace-nowrap text-white">
               Travel Cambodia
             </span>
           </Link>
 
-          <div className="flex items-center md:order-2 space-x-3 relative">
+          <div className="font-poppins flex items-center md:order-2 space-x-3 relative">
             {!user ? (
               // ✅ opens the Account modal
               <button
@@ -167,7 +167,7 @@ export default function Header() {
                 </button>
 
                 {userDropdownOpen && (
-                  <div className="absolute right-0 mt-2 z-50 text-base list-none bg-gradient-to-r from-[#0F2027] via-[#28623a] to-[#28623a] divide-y divide-gray-600 rounded-lg shadow-lg w-50">
+                  <div className=" font-poppins absolute right-0 mt-2 z-50 text-base list-none bg-gradient-to-r from-[#0F2027] via-[#28623a] to-[#28623a] divide-y divide-gray-600 rounded-lg shadow-lg w-50">
                     <div className="px-4 py-3">
                       <span className="block text-sm text-white font-bold">
                         {user.name}
@@ -261,7 +261,7 @@ export default function Header() {
           <div
             className={`${mobileMenuOpen ? "flex" : "hidden"} items-center justify-between w-full md:flex md:w-auto md:order-1`}
           >
-            <ul className="flex flex-col font-medium p-4 md:p-0 mt-4 border border-gray-700 rounded-lg md:space-x-16 md:flex-row md:mt-0 md:border-0">
+            <ul className=" font-poppins flex flex-col font-medium p-4 md:p-0 mt-4 border border-gray-700 rounded-lg md:space-x-16 md:flex-row md:mt-0 md:border-0">
               <li>
                 <Link to="/" className={navLinkClass("/")}>
                   Home
@@ -300,7 +300,7 @@ export default function Header() {
                 </button>
 
                 {navDropdownOpen && (
-                  <div className="absolute left-0 mt-2 z-10 rounded-lg shadow-lg w-52 bg-gradient-to-r from-[#0F2027] via-[#28623a] to-[#28623a] border border-gray-600">
+                  <div className=" font-poppins absolute left-0 mt-2 z-10 rounded-lg shadow-lg w-52 bg-gradient-to-r from-[#0F2027] via-[#28623a] to-[#28623a] border border-gray-600">
                     <ul className="p-2 text-sm font-medium">
                       <li>
                         <Link
