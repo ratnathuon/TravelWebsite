@@ -40,7 +40,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/destinaton" element={<h1></h1>} />
-        <Route path="/account" element={<AccountInfo user={user} onUpdateUser={setUser} />} />
+        <Route path="/account" element={<AccountInfo user={user} onUpdateUser={setUser} onSignOut={() => setUser(null)} />} />
       </Routes>
     </BrowserRouter>
   )

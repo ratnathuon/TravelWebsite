@@ -41,7 +41,38 @@ function StarRating({ count }) {
 }
 
 function DestinationCard({ destination }) {
-  const [faved, setFaved] = useState(false);
+  const [faved, setFaved] = useState(() => {
+    try {
+      const savedFavorites = JSON.parse(localStorage.getItem('favorites')) || [];
+      return savedFavorites.some(place => place.name === destination.name && place.image === destination.img);
+    } catch {
+      return false;
+    }
+  });
+
+  const handleFavedToggle = (e) => {
+    e.stopPropagation();
+    try {
+      const savedFavorites = JSON.parse(localStorage.getItem('favorites')) || [];
+      const isAlreadyFaved = savedFavorites.some(place => place.name === destination.name && place.image === destination.img);
+      let updatedFavorites;
+      if (isAlreadyFaved) {
+        updatedFavorites = savedFavorites.filter(place => !(place.name === destination.name && place.image === destination.img));
+      } else {
+        updatedFavorites = [...savedFavorites, { 
+          image: destination.img, 
+          name: destination.name, 
+          location: destination.location, 
+          rating: destination.stars 
+        }];
+      }
+      localStorage.setItem('favorites', JSON.stringify(updatedFavorites));
+      setFaved(!isAlreadyFaved);
+      window.dispatchEvent(new Event('favoritesUpdated'));
+    } catch (err) {
+      console.error("Failed to toggle destination favorite:", err);
+    }
+  };
 
   return (
     <div className="relative rounded-3xl overflow-hidden aspect-[4/3] bg-green-950 cursor-pointer transition-transform duration-200 hover:scale-[1.02]">
@@ -58,7 +89,7 @@ function DestinationCard({ destination }) {
 
       {/* Favourite button */}
       <button
-        onClick={() => setFaved(!faved)}
+        onClick={handleFavedToggle}
         className="absolute top-4 left-4 w-11 h-11 rounded-full bg-black/30 hover:bg-black/50 flex items-center justify-center transition-colors duration-150"
         aria-label={`Favourite ${destination.name}`}
       >

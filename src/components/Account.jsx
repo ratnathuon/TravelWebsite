@@ -10,7 +10,8 @@ import {
 
 function Account({ isOpen, onClose, onSignIn }) {
   const [isLogin, setIsLogin] = useState(false);
-  const [name, setName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState({});
@@ -21,8 +22,13 @@ function Account({ isOpen, onClose, onSignIn }) {
   const validate = () => {
     const newErrors = {};
 
-    if (!isLogin && !name.trim()) {
-      newErrors.name = 'Name is required.';
+    if (!isLogin) {
+      if (!firstName.trim()) {
+        newErrors.firstName = 'First name is required.';
+      }
+      if (!lastName.trim()) {
+        newErrors.lastName = 'Last name is required.';
+      }
     }
 
     if (!email.trim()) {
@@ -70,9 +76,10 @@ function Account({ isOpen, onClose, onSignIn }) {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         passDataToParent(userCredential.user);
       } else {
+        const fullName = `${firstName.trim()} ${lastName.trim()}`.trim();
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        await updateProfile(userCredential.user, { displayName: name });
-        passDataToParent({ ...userCredential.user, displayName: name });
+        await updateProfile(userCredential.user, { displayName: fullName });
+        passDataToParent({ ...userCredential.user, displayName: fullName });
       }
     } catch (error) {
       if (error.code === 'auth/invalid-api-key') {
@@ -99,6 +106,8 @@ function Account({ isOpen, onClose, onSignIn }) {
 
   const handleToggle = () => {
     setIsLogin(!isLogin);
+    setFirstName('');
+    setLastName('');
     setErrors({});
   };
 
@@ -140,15 +149,27 @@ function Account({ isOpen, onClose, onSignIn }) {
         {/* Form */}
         <form className="space-y-4" onSubmit={handleSubmit} noValidate>
           {!isLogin && (
-            <div>
-              <input
-                type="text"
-                placeholder="Name"
-                value={name}
-                onChange={(e) => { setName(e.target.value); setErrors(prev => ({ ...prev, name: '' })); }}
-                className={`w-full px-4 py-3 rounded-md text-gray-900 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 ${errors.name ? 'ring-2 ring-red-400' : 'focus:ring-[#3a6b53]'}`}
-              />
-              {errors.name && <p className="text-red-300 text-xs mt-1">{errors.name}</p>}
+            <div className="flex gap-2">
+              <div className="flex-1 min-w-0">
+                <input
+                  type="text"
+                  placeholder="First Name"
+                  value={firstName}
+                  onChange={(e) => { setFirstName(e.target.value); setErrors(prev => ({ ...prev, firstName: '' })); }}
+                  className={`w-full px-4 py-3 rounded-md text-gray-900 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 ${errors.firstName ? 'ring-2 ring-red-400' : 'focus:ring-[#3a6b53]'}`}
+                />
+                {errors.firstName && <p className="text-red-300 text-xs mt-1">{errors.firstName}</p>}
+              </div>
+              <div className="flex-1 min-w-0">
+                <input
+                  type="text"
+                  placeholder="Last Name"
+                  value={lastName}
+                  onChange={(e) => { setLastName(e.target.value); setErrors(prev => ({ ...prev, lastName: '' })); }}
+                  className={`w-full px-4 py-3 rounded-md text-gray-900 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 ${errors.lastName ? 'ring-2 ring-red-400' : 'focus:ring-[#3a6b53]'}`}
+                />
+                {errors.lastName && <p className="text-red-300 text-xs mt-1">{errors.lastName}</p>}
+              </div>
             </div>
           )}
 

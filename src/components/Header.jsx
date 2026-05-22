@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import Account from "./Account"; // ✅ import Account component
 
 // ─── localStorage helpers ───────────────────────────────────────────────────
 const STORAGE_KEY = 'travel_cambodia_user';
@@ -53,9 +52,7 @@ export function enrichUserFromDb(userData) {
 }
 // ───────────────────────────────────────────────────────────────────────────
 
-export default function Header() {
-  const [user, setUser] = useState(() => loadUser());
-  const [accountOpen, setAccountOpen] = useState(false);
+export default function Header({ user, onOpenAccount, onSignOut }) {
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [navDropdownOpen, setNavDropdownOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -85,19 +82,12 @@ export default function Header() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // ✅ handleSignIn: called when user signs in via Account modal
-  const handleSignIn = (userData) => {
-    saveUser(userData);
-    setUser(userData);
-    setAccountOpen(false);
-  };
-
   // ✅ handleSignOut: clears user from state and localStorage
   const handleSignOut = () => {
     setIsSigningOut(true);
     setTimeout(() => {
       clearUser();
-      setUser(null);
+      if (onSignOut) onSignOut();
       setIsSigningOut(false);
       setUserDropdownOpen(false);
 
@@ -129,16 +119,16 @@ export default function Header() {
               className="h-8"
               alt="Logo"
             />
-            <span className=" font-poppins self-center text-2xl font-semibold whitespace-nowrap text-white">
+            <span className="self-center text-2xl font-semibold whitespace-nowrap text-white">
               Travel Cambodia
             </span>
           </Link>
 
-          <div className="font-poppins flex items-center md:order-2 space-x-3 relative">
+          <div className="flex items-center md:order-2 space-x-3 relative">
             {!user ? (
               // ✅ opens the Account modal
               <button
-                onClick={() => setAccountOpen(true)}
+                onClick={onOpenAccount}
                 className="text-white bg-[#3a6b53] hover:bg-[#2f5341] px-4 py-2 rounded-full font-medium transition-colors"
               >
                 Sign Up
@@ -167,7 +157,7 @@ export default function Header() {
                 </button>
 
                 {userDropdownOpen && (
-                  <div className=" font-poppins absolute right-0 mt-2 z-50 text-base list-none bg-gradient-to-r from-[#0F2027] via-[#28623a] to-[#28623a] divide-y divide-gray-600 rounded-lg shadow-lg w-50">
+                  <div className="absolute right-0 mt-2 z-50 text-base list-none bg-gradient-to-r from-[#0F2027] via-[#28623a] to-[#28623a] divide-y divide-gray-600 rounded-lg shadow-lg w-50">
                     <div className="px-4 py-3">
                       <span className="block text-sm text-white font-bold">
                         {user.name}
@@ -187,7 +177,7 @@ export default function Header() {
                       </li>
                       <li>
                         <Link
-                          to="#"
+                          to="/account?tab=favorites"
                           className="block px-4 py-2 text-sm text-gray-200 hover:underline hover:bg-blue-600 rounded"
                         >
                           Favorite places
@@ -261,7 +251,7 @@ export default function Header() {
           <div
             className={`${mobileMenuOpen ? "flex" : "hidden"} items-center justify-between w-full md:flex md:w-auto md:order-1`}
           >
-            <ul className=" font-poppins flex flex-col font-medium p-4 md:p-0 mt-4 border border-gray-700 rounded-lg md:space-x-16 md:flex-row md:mt-0 md:border-0">
+            <ul className="flex flex-col font-medium p-4 md:p-0 mt-4 border border-gray-700 rounded-lg md:space-x-16 md:flex-row md:mt-0 md:border-0">
               <li>
                 <Link to="/" className={navLinkClass("/")}>
                   Home
@@ -300,7 +290,7 @@ export default function Header() {
                 </button>
 
                 {navDropdownOpen && (
-                  <div className=" font-poppins absolute left-0 mt-2 z-10 rounded-lg shadow-lg w-52 bg-gradient-to-r from-[#0F2027] via-[#28623a] to-[#28623a] border border-gray-600">
+                  <div className="absolute left-0 mt-2 z-10 rounded-lg shadow-lg w-52 bg-gradient-to-r from-[#0F2027] via-[#28623a] to-[#28623a] border border-gray-600">
                     <ul className="p-2 text-sm font-medium">
                       <li>
                         <Link
@@ -351,12 +341,6 @@ export default function Header() {
         </div>
       </nav>
 
-      {/* ✅ Account modal */}
-      <Account
-        isOpen={accountOpen}
-        onClose={() => setAccountOpen(false)}
-        onSignIn={handleSignIn}
-      />
     </>
   );
 }
