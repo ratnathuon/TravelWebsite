@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { StarIcon } from "@heroicons/react/24/solid";
+import { MdLocationPin } from "react-icons/md";
 
 const destinations = [
   { name: "Khonh Rong", location: "Kep, Cambodia", cat: "mountain", stars: 5, img: "https://images.unsplash.com/photo-1540202404-a2f29b7b4c62?w=800&q=80" },
@@ -117,9 +118,7 @@ function DestinationCard({ destination }) {
               {destination.name}
             </p>
             <div className="flex items-center gap-1.5 mt-1">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5 text-yellow-400">
-                <path fillRule="evenodd" d="M11.54 22.351l.07.04.028.016a.76.76 0 00.723 0l.028-.015.071-.041a16.975 16.975 0 001.144-.742 19.58 19.58 0 002.683-2.282c1.944-2.003 3.5-4.697 3.5-8.028a6.75 6.75 0 00-13.5 0c0 3.33 1.556 6.025 3.5 8.028a19.583 19.583 0 002.856 2.542z" clipRule="evenodd" />
-              </svg>
+              <MdLocationPin className="text-yellow-400 text-base" />
               <span className="text-white/70 text-sm font-poppins">{destination.location}</span>
             </div>
           </div>
