@@ -4,7 +4,6 @@ import { FaFacebook, FaGithub, FaLinkedin } from "react-icons/fa";
 
 export const AboutUsCard = () => {
   return (
-
     <div className="mt-10 transform scale-75 justify-items-center md:grid-cols-2 md:place-content-center font-poppins">
       <div className="bg-[#CBCBCB] block max-w-sm p-6 border border-default rounded-3xl shadow-xs">
         <a href="#">
@@ -27,9 +26,8 @@ export const AboutUsCard = () => {
 
         </div>
       </div>
->>>>>>> ca6ffe55f1cf24cbd07bd15d264671b928b241e3
 
-      <div className="mt-10 transform scale-75 justify-items-center md:grid-cols-2 md:place-content-center">
+      <div className="mt-10 transform scale-75 justify-items-center md:grid-cols-2 md:place-content-center">      
         <div className="bg-neutral-primary-soft block max-w-sm p-6 border border-default rounded-md shadow-xs">
           <a href="#">
             <img className="rounded-md" src={profile} alt="" />
@@ -46,5 +44,6 @@ export const AboutUsCard = () => {
 
       </div>
 
-      )
+    </div>
+  )
 }
