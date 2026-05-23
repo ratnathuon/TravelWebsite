@@ -30,13 +30,13 @@ export function saveUser(user) {
       db[user.email] = user;
       localStorage.setItem(DB_KEY, JSON.stringify(db));
     }
-  } catch { }
+  } catch {}
 }
 
 export function clearUser() {
   try {
     localStorage.removeItem(STORAGE_KEY);
-  } catch { }
+  } catch {}
 }
 
 export function enrichUserFromDb(userData) {
@@ -102,9 +102,10 @@ export default function Header({ user, onOpenAccount, onSignOut }) {
   };
 
   const navLinkClass = (path) =>
-    `block py-2 px-3 rounded-sm md:p-0 transition-colors duration-200 ${location.pathname === path
-      ? "text-blue-400 underline md:text-blue-400"
-      : "text-white hover:bg-blue-600 md:hover:bg-transparent md:hover:underline"
+    `block py-2 px-3 rounded-sm md:p-0 transition-colors duration-200 ${
+      location.pathname === path
+        ? "text-blue-400 underline md:text-blue-400"
+        : "text-white hover:bg-blue-600 md:hover:bg-transparent md:hover:underline"
     }`;
 
   return (
@@ -169,8 +170,6 @@ export default function Header({ user, onOpenAccount, onSignOut }) {
                       <li>
                         <Link
                           to="/account"
-                          state={{ activeTab: 'profile' }}
-                          onClick={() => setUserDropdownOpen(false)}
                           className="block px-4 py-2 text-sm text-gray-200 hover:underline hover:bg-blue-600 rounded"
                         >
                           Account information
@@ -178,7 +177,7 @@ export default function Header({ user, onOpenAccount, onSignOut }) {
                       </li>
                       <li>
                         <Link
-                          to="#"
+                          to="/account?tab=favorites"
                           className="block px-4 py-2 text-sm text-gray-200 hover:underline hover:bg-blue-600 rounded"
                         >
                           Favorite places
@@ -267,10 +266,11 @@ export default function Header({ user, onOpenAccount, onSignOut }) {
               <li ref={navDropdownRef} className="relative">
                 <button
                   onClick={() => setNavDropdownOpen(!navDropdownOpen)}
-                  className={`flex items-center justify-between w-full py-2 px-3 rounded font-medium md:w-auto md:p-0 transition-colors duration-200 ${navDropdownOpen
+                  className={`flex items-center justify-between w-full py-2 px-3 rounded font-medium md:w-auto md:p-0 transition-colors duration-200 ${
+                    navDropdownOpen
                       ? "text-blue-400 underline"
                       : "text-white hover:bg-blue-600 md:hover:bg-transparent md:hover:underline"
-                    }`}
+                  }`}
                 >
                   Destinations
                   <svg
