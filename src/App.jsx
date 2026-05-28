@@ -8,6 +8,7 @@ import Home from "./Pages/Home"
 import CardPlace from "./components/CardPlace"
 import Account from "./components/Account"
 import AccountInfo from "./components/Account_Info"
+import ExploreDetail from "./Pages/ExploreDetail"
 
 function App() {
   const [isAccountOpen, setIsAccountOpen] = useState(false);
@@ -40,7 +41,8 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/destinaton" element={<h1></h1>} />
-        <Route path="/account" element={<AccountInfo user={user} onUpdateUser={setUser} />} />
+        <Route path="/explore/:placeName" element={<ExploreDetail />} />
+        <Route path="/account" element={<AccountInfo user={user} onUpdateUser={setUser} onSignOut={() => setUser(null)} />} />
       </Routes>
     </BrowserRouter>
   )

@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import Account from "./Account"; // ✅ import Account component
 
 // ─── localStorage helpers ───────────────────────────────────────────────────
 const STORAGE_KEY = 'travel_cambodia_user';
@@ -53,9 +52,7 @@ export function enrichUserFromDb(userData) {
 }
 // ───────────────────────────────────────────────────────────────────────────
 
-export default function Header() {
-  const [user, setUser] = useState(() => loadUser());
-  const [accountOpen, setAccountOpen] = useState(false);
+export default function Header({ user, onOpenAccount, onSignOut }) {
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [navDropdownOpen, setNavDropdownOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -85,19 +82,12 @@ export default function Header() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // ✅ handleSignIn: called when user signs in via Account modal
-  const handleSignIn = (userData) => {
-    saveUser(userData);
-    setUser(userData);
-    setAccountOpen(false);
-  };
-
   // ✅ handleSignOut: clears user from state and localStorage
   const handleSignOut = () => {
     setIsSigningOut(true);
     setTimeout(() => {
       clearUser();
-      setUser(null);
+      if (onSignOut) onSignOut();
       setIsSigningOut(false);
       setUserDropdownOpen(false);
 
@@ -138,7 +128,7 @@ export default function Header() {
             {!user ? (
               // ✅ opens the Account modal
               <button
-                onClick={() => setAccountOpen(true)}
+                onClick={onOpenAccount}
                 className="text-white bg-[#3a6b53] hover:bg-[#2f5341] px-4 py-2 rounded-full font-medium transition-colors"
               >
                 Sign Up
@@ -187,7 +177,7 @@ export default function Header() {
                       </li>
                       <li>
                         <Link
-                          to="#"
+                          to="/account?tab=favorites"
                           className="block px-4 py-2 text-sm text-gray-200 hover:underline hover:bg-blue-600 rounded"
                         >
                           Favorite places
@@ -351,12 +341,6 @@ export default function Header() {
         </div>
       </nav>
 
-      {/* ✅ Account modal */}
-      <Account
-        isOpen={accountOpen}
-        onClose={() => setAccountOpen(false)}
-        onSignIn={handleSignIn}
-      />
     </>
   );
 }

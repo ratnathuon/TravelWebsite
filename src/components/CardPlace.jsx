@@ -1,7 +1,33 @@
 import React, { useState } from 'react'
+import { Link } from 'react-router-dom'
 
 function CardPlace({ image, name, location, rating = 4 }) {
-  const [liked, setLiked] = useState(false)
+  const [liked, setLiked] = useState(() => {
+    try {
+      const savedFavorites = JSON.parse(localStorage.getItem('favorites')) || [];
+      return savedFavorites.some(place => place.name === name && place.image === image);
+    } catch {
+      return false;
+    }
+  });
+
+  const handleLikeToggle = () => {
+    try {
+      const savedFavorites = JSON.parse(localStorage.getItem('favorites')) || [];
+      const isAlreadyLiked = savedFavorites.some(place => place.name === name && place.image === image);
+      let updatedFavorites;
+      if (isAlreadyLiked) {
+        updatedFavorites = savedFavorites.filter(place => !(place.name === name && place.image === image));
+      } else {
+        updatedFavorites = [...savedFavorites, { image, name, location, rating }];
+      }
+      localStorage.setItem('favorites', JSON.stringify(updatedFavorites));
+      setLiked(!isAlreadyLiked);
+      window.dispatchEvent(new Event('favoritesUpdated'));
+    } catch (err) {
+      console.error("Failed to toggle favorite:", err);
+    }
+  };
 
   return (
     <div className="w-full max-w-sm rounded-3xl overflow-hidden bg-gradient-to-r from-[#0F2027] via-[#28623a] to-[#28623a] shadow-xl">
@@ -16,7 +42,7 @@ function CardPlace({ image, name, location, rating = 4 }) {
 
         {/* Heart button */}
         <button
-          onClick={() => setLiked(!liked)}
+          onClick={handleLikeToggle}
           className="absolute top-0 left-2 bg-opacity-100 rounded-full p-2"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className={`w-6 h-6 ${liked ? 'fill-red-500 text-red-500' : 'text-white fill-none'}`} viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -45,9 +71,9 @@ function CardPlace({ image, name, location, rating = 4 }) {
             <span className="text-gray-300 text-xs">{location}</span>
           </div>
         </div>
-        <a href="#" className="text-teal-300 text-sm font-medium hover:text-white transition-colors">
+        <Link to={`/explore/${encodeURIComponent(name)}`} className="text-teal-300 text-sm font-medium hover:text-white transition-colors">
           Explore
-        </a>
+        </Link>
       </div>
 
     </div>
