@@ -1,10 +1,12 @@
 import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import slides from "./Sliderdata";
 
 const BASE_WIDTH = 1280;
 const BASE_HEIGHT = 700;
 
 export default function TravelSlider() {
+  const navigate = useNavigate();
   const [current, setCurrent] = useState(0);
   const [scale, setScale] = useState(1);
   const containerRef = useRef(null);
@@ -148,6 +150,7 @@ export default function TravelSlider() {
         {/* Explore button */}
         <div className="absolute bottom-32 -translate-x-1/2 z-20 mt-8 left-[67rem]  ">
           <button
+            onClick={() => navigate(`/explore/${encodeURIComponent(slides[current].location)}`)}
             className="rounded-full font-semibold bg-white border border-[#333] text-black px-4 py-1 text-[15px] cursor-pointer transition-all duration-200 hover:bg-[#1e5e2e] hover:text-white hover:border-[#1e5e2e]"
           >
             Explore

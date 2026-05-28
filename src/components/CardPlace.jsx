@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { Link } from 'react-router-dom'
 
 function CardPlace({ image, name, location, rating = 4 }) {
   const [liked, setLiked] = useState(() => {
@@ -70,9 +71,9 @@ function CardPlace({ image, name, location, rating = 4 }) {
             <span className="text-gray-300 text-xs">{location}</span>
           </div>
         </div>
-        <a href="#" className="text-teal-300 text-sm font-medium hover:text-white transition-colors">
+        <Link to={`/explore/${encodeURIComponent(name)}`} className="text-teal-300 text-sm font-medium hover:text-white transition-colors">
           Explore
-        </a>
+        </Link>
       </div>
 
     </div>

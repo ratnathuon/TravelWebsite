@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { StarIcon } from "@heroicons/react/24/solid";
 import { MdLocationPin } from "react-icons/md";
 
@@ -42,6 +43,7 @@ function StarRating({ count }) {
 }
 
 function DestinationCard({ destination }) {
+  const navigate = useNavigate();
   const [faved, setFaved] = useState(() => {
     try {
       const savedFavorites = JSON.parse(localStorage.getItem('favorites')) || [];
@@ -75,8 +77,12 @@ function DestinationCard({ destination }) {
     }
   };
 
+  const handleCardClick = () => {
+    navigate(`/explore/${encodeURIComponent(destination.name)}`);
+  };
+
   return (
-    <div className="relative rounded-3xl overflow-hidden aspect-[4/3] bg-green-950 cursor-pointer transition-transform duration-200 hover:scale-[1.02]">
+    <div onClick={handleCardClick} className="relative rounded-3xl overflow-hidden aspect-[4/3] bg-green-950 cursor-pointer transition-transform duration-200 hover:scale-[1.02]">
       <img
         src={destination.img}
         alt={destination.name}
