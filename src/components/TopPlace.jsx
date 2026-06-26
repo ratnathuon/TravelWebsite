@@ -100,7 +100,7 @@ function DestinationCard({ destination, globalIndex, visible, exiting }) {
       </button>
 
       {/* Bottom overlay */}
-      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent pt-16 pb-5 px-5">
+      <div className="absolute bottom-0 left-0 right-0 pt-3 pb-3 px-5 bg-white/20 backdrop-blur-md border border-white/30 shadow-lg">
         <div className="flex justify-between items-end">
           <div>
             <p className="text-white text-base font-bold tracking-widest uppercase font-poppins">
@@ -162,8 +162,8 @@ export default function CambodiaTravelExplorer() {
   );
 
   return (
-    <div className="w-full px-60 py-8 font-poppins">
-      <div className="grid grid-cols-3 gap-6">
+    <div className="w-full max-w-screen-2xl mx-auto px-14 sm:px-28 md:px-10 lg:px-20 xl:px-32 py-8 font-poppins">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         {pageDestinations.map((destination, i) => (
           <DestinationCard
             key={`${currentPage}-${i}`}

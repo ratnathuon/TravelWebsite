@@ -170,7 +170,6 @@ export default function ExploreDetail() {
 
       {/* Main Container */}
       <div className="max-w-6xl mx-auto px-6 pt-6">
-        
         {/* Back Button */}
         <button 
           onClick={() => navigate(-1)}
@@ -200,6 +199,7 @@ export default function ExploreDetail() {
               <MdLocationPin className="w-5 h-5 text-red-500" />
               <span>View Location</span>
             </button>
+            <div/>
           </div>
 
           {/* Action buttons */}
@@ -235,7 +235,7 @@ export default function ExploreDetail() {
         </div>
 
         {/* 2-Column Main Content Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
+        <div className="grid grid-cols-1 lg:grid-cols-1 gap-8 mt-8 bg-white rounded-3xl shadow-sm border border-gray-100 p-6 md:p-10">
           
           {/* Left Column: Place Details (2/3 width) */}
           <div className="lg:col-span-2">
@@ -392,4 +392,4 @@ export default function ExploreDetail() {
 
     </div>
   );
-}
+} 

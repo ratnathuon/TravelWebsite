@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-
+import { motion } from "motion/react";
 // ─── localStorage helpers ───────────────────────────────────────────────────
-const STORAGE_KEY = 'travel_cambodia_user';
+const STORAGE_KEY = "travel_cambodia_user";
 const DB_KEY = "travel_cambodia_users_db";
 
 function getUsersDb() {
@@ -110,21 +110,44 @@ export default function Header({ user, onOpenAccount, onSignOut }) {
 
   return (
     <>
-      <nav className="bg-gradient-to-r from-[#0F2027] via-[#28623a] to-[#28623a]">
-        <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
+      <nav className=" bg-gradient-to-r from-[#0F2027] via-[#28623a] to-[#28623a] mb-4 font-poppins">
+        <div className="max-w-screen-xl mx-auto flex flex-wrap items-center justify-between px-5 py-4">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2">
-            <img
-              src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSyUwFbJZraL5nOMSB7uJrRe52nmS2NBafiGA&s"
-              className="h-8"
-              alt="Logo"
-            />
-            <span className="self-center text-2xl font-semibold whitespace-nowrap text-white">
-              Travel Cambodia
-            </span>
-          </Link>
+          <motion.div
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{
+              type: "spring",
+              stiffness: 120,
+              damping: 10,
+              delay: 0.2,
+              duration: 1.2,
+            }}
+          >
+            <Link to="/" className="flex items-center space-x-2">
+              <img
+                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSyUwFbJZraL5nOMSB7uJrRe52nmS2NBafiGA&s"
+                className="h-8"
+                alt="Logo"
+              />
+              <span className="self-center text-2xl font-semibold whitespace-nowrap text-white">
+                Travel Cambodia
+              </span>
+            </Link>
+          </motion.div>
 
-          <div className="flex items-center md:order-2 space-x-3 relative">
+          <motion.div
+            initial={{ opacity: 0, y: -50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{
+              type: "spring",
+              stiffness: 120,
+              damping: 10,
+              delay: 0.2,
+              duration: 1.2,
+            }}
+            className="flex items-center md:order-2 space-x-3 relative"
+          >
             {!user ? (
               // ✅ opens the Account modal
               <button
@@ -157,7 +180,15 @@ export default function Header({ user, onOpenAccount, onSignOut }) {
                 </button>
 
                 {userDropdownOpen && (
-                  <div className="absolute right-0 mt-2 z-50 text-base list-none bg-gradient-to-r from-[#0F2027] via-[#28623a] to-[#28623a] divide-y divide-gray-600 rounded-lg shadow-lg w-50">
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{
+                      opacity: userDropdownOpen ? 1 : 0,
+                      height: userDropdownOpen ? "auto" : 0,
+                    }}
+                    transition={{ duration: 0.3 }}
+                    className="absolute right-0 mt-2 z-50 text-base list-none bg-gradient-to-r from-[#0F2027] via-[#28623a] to-[#28623a] divide-y divide-gray-600 rounded-lg shadow-lg w-50"
+                  >
                     <div className="px-4 py-3">
                       <span className="block text-sm text-white font-bold">
                         {user.name}
@@ -170,7 +201,7 @@ export default function Header({ user, onOpenAccount, onSignOut }) {
                       <li>
                         <Link
                           to="/account"
-                          className="block px-4 py-2 text-sm text-gray-200 hover:underline hover:bg-blue-600 rounded"
+                          className="block px-4 py-2 text-sm text-gray-200  hover:bg-blue-600 rounded"
                         >
                           Account information
                         </Link>
@@ -178,7 +209,7 @@ export default function Header({ user, onOpenAccount, onSignOut }) {
                       <li>
                         <Link
                           to="/account?tab=favorites"
-                          className="block px-4 py-2 text-sm text-gray-200 hover:underline hover:bg-blue-600 rounded"
+                          className="block px-4 py-2 text-sm text-gray-200  hover:bg-blue-600 rounded"
                         >
                           Favorite places
                         </Link>
@@ -187,7 +218,7 @@ export default function Header({ user, onOpenAccount, onSignOut }) {
                         <button
                           onClick={handleSignOut}
                           disabled={isSigningOut}
-                          className="w-full text-left px-4 py-2 text-sm text-gray-200 hover:underline hover:bg-blue-600 rounded flex items-center disabled:opacity-70 disabled:cursor-not-allowed"
+                          className="w-full text-left px-4 py-2 text-sm text-gray-200  hover:bg-blue-600 rounded flex items-center disabled:opacity-70 disabled:cursor-not-allowed"
                         >
                           {isSigningOut ? (
                             <>
@@ -219,7 +250,7 @@ export default function Header({ user, onOpenAccount, onSignOut }) {
                         </button>
                       </li>
                     </ul>
-                  </div>
+                  </motion.div>
                 )}
               </div>
             )}
@@ -245,13 +276,22 @@ export default function Header({ user, onOpenAccount, onSignOut }) {
                 />
               </svg>
             </button>
-          </div>
+          </motion.div>
 
           {/* Nav Links */}
-          <div
+          <motion.div
+            initial={{ opacity: 0, y: -50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{
+              type: "spring",
+              stiffness: 120,
+              damping: 10,
+              delay: 0.2,
+              duration: 1.2,
+            }}
             className={`${mobileMenuOpen ? "flex" : "hidden"} items-center justify-between w-full md:flex md:w-auto md:order-1`}
           >
-            <ul className="flex flex-col font-medium p-4 md:p-0 mt-4 border border-gray-700 rounded-lg md:space-x-16 md:flex-row md:mt-0 md:border-0">
+            <ul className="flex flex-col font-medium p-2 md:p-0 mt-4 border border-gray-700 rounded-lg md:space-x-16 md:flex-row md:mt-0 md:border-0">
               <li>
                 <Link to="/" className={navLinkClass("/")}>
                   Home
@@ -290,11 +330,19 @@ export default function Header({ user, onOpenAccount, onSignOut }) {
                 </button>
 
                 {navDropdownOpen && (
-                  <div className="absolute left-0 mt-2 z-10 rounded-lg shadow-lg w-52 bg-gradient-to-r from-[#0F2027] via-[#28623a] to-[#28623a] border border-gray-600">
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{
+                      opacity: navDropdownOpen ? 1 : 0,
+                      height: navDropdownOpen ? "auto" : 0,
+                    }}
+                    transition={{ duration: 0.3 }}
+                    className="absolute left-0 mt-2 z-[100] rounded-lg shadow-lg w-52 bg-gradient-to-r from-[#0F2027] via-[#28623a] to-[#28623a] border border-gray-600"
+                  >
                     <ul className="p-2 text-sm font-medium">
                       <li>
                         <Link
-                          to="#"
+                          to="#category"
                           className="inline-flex items-center w-full p-2 text-gray-200 hover:bg-blue-600 hover:text-white rounded"
                         >
                           All Category
@@ -302,7 +350,7 @@ export default function Header({ user, onOpenAccount, onSignOut }) {
                       </li>
                       <li>
                         <Link
-                          to="#"
+                          to="#plains"
                           className="inline-flex items-center w-full p-2 text-gray-200 hover:bg-blue-600 hover:text-white rounded"
                         >
                           The Plains Region
@@ -310,7 +358,7 @@ export default function Header({ user, onOpenAccount, onSignOut }) {
                       </li>
                       <li>
                         <Link
-                          to="#"
+                          to="#tonle-sap"
                           className="inline-flex items-center w-full p-2 text-gray-200 hover:bg-blue-600 hover:text-white rounded"
                         >
                           Tonle Sap Lake Area
@@ -318,7 +366,7 @@ export default function Header({ user, onOpenAccount, onSignOut }) {
                       </li>
                       <li>
                         <Link
-                          to="#"
+                          to="#coastal"
                           className="inline-flex items-center w-full p-2 text-gray-200 hover:bg-blue-600 hover:text-white rounded"
                         >
                           Coastal Region
@@ -326,21 +374,20 @@ export default function Header({ user, onOpenAccount, onSignOut }) {
                       </li>
                       <li>
                         <Link
-                          to="#"
+                          to="#mountain"
                           className="inline-flex items-center w-full p-2 text-gray-200 hover:bg-blue-600 hover:text-white rounded"
                         >
                           Mountain and Plateau Region
                         </Link>
                       </li>
                     </ul>
-                  </div>
+                  </motion.div>
                 )}
               </li>
             </ul>
-          </div>
+          </motion.div>
         </div>
       </nav>
-
     </>
   );
 }

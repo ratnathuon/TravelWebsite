@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import slides from "./Sliderdata";
-
+import { motion } from "framer-motion";
 const BASE_WIDTH = 1280;
 const BASE_HEIGHT = 700;
 
@@ -30,7 +30,16 @@ export default function TravelSlider() {
   }, []);
 
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0, y:80 }}
+      animate={{ opacity: 1, y:0 }}
+      transition={{
+        type: "spring",
+        stiffness: 40,
+        damping: 25,
+        delay: 1.3,
+        duration: 1.5,
+      }}
       ref={containerRef}
       className="relative w-full overflow-hidden mt-0"
       style={{ height: BASE_HEIGHT * scale }}
@@ -71,7 +80,7 @@ export default function TravelSlider() {
               {/* Left column */}
               <div className="flex flex-col items-start justify-start  -top-50 " style={{ flex: "0 0 260px" }}>
                 <div
-                  className="rounded-3xl overflow-hidden border-[3px] border-[#2a6b3a] shadow-2xl"
+                  className="rounded-3xl overflow-hidden "
                   style={{ width: 250, height: 390 }}
                 >
                   <img
@@ -99,32 +108,33 @@ export default function TravelSlider() {
 
                 {/* Top photo */}
                 <div
-                  className="absolute rounded-2xl overflow-hidden border-[3px] border-[#2a6b3a] shadow-lg"
+                  className="absolute rounded-2xl overflow-hidden "
                   style={{ width: 330, height: 230, top: -40, left: 40, zIndex: 3 }}
                 >
                   <img src={slide.photos[0]} alt="" className="w-full h-full object-cover" />
                   <div className="absolute w-8 h-8 bg-[#f5e642] rounded-full flex items-center justify-center text-sm shadow-md"
-                    style={{ top: -12, left: -12, zIndex: 10 }}>📎</div>
+                  ></div>
                 </div>
 
                 {/* Back photo */}
                 <div
-                  className="absolute rounded-2xl overflow-hidden border-[3px] border-[#2a6b3a] shadow-lg"
+                  className="absolute rounded-2xl overflow-hidden "
                   style={{ width: 330, height: 230, top: 80, right: 0, zIndex: 2 }}
                 >
                   <img src={slide.photos[1]} alt="" className="w-full h-full object-cover" />
                   <div className="absolute w-8 h-8 bg-[#f5e642] rounded-full flex items-center justify-center text-sm shadow-md"
-                    style={{ bottom: -12, right: -12, zIndex: 10 }}>🔑</div>
+                    ></div>
+
                 </div>
 
                 {/* Bottom photo */}
                 <div
-                  className="absolute rounded-2xl overflow-hidden border-[3px] border-[#2a6b3a] shadow-lg"
+                  className="absolute rounded-2xl overflow-hidden "
                   style={{ width: 330, height: 230, bottom: 50, left: 40, zIndex: 3 }}
                 >
                   <img src={slide.photos[2]} alt="" className="w-full h-full object-cover" />
                   <div className="absolute w-8 h-8 bg-[#f5e642] rounded-full flex items-center justify-center text-sm shadow-md"
-                    style={{ bottom: 30, left: -12, zIndex: 10 }}>📌</div>
+                    ></div>
                 </div>
               </div>
             </div>
@@ -157,6 +167,6 @@ export default function TravelSlider() {
           </button>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

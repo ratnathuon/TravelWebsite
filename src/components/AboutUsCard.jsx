@@ -1,49 +1,173 @@
-import React from 'react'
-import profile from '../assets/profile.jpg'
+import React, { useRef, useEffect, useState } from "react";
+import { motion, useAnimationControls } from "framer-motion";
 import { FaFacebook, FaGithub, FaLinkedin } from "react-icons/fa";
+import Roth from "../assets/profile.jpg";
+
+const members = [
+  {
+    name: "Thuon Ratna",
+    position: "Leader",
+    image: Roth,
+    facebook: "https://facebook.com/",
+    github: "https://github.com/",
+    linkedin: "https://linkedin.com/",
+  },
+  {
+    name: "Phort Randethika",
+    position: "Frontend Developer",
+    image: Roth,
+    facebook: "https://facebook.com/",
+    github: "https://github.com/",
+    linkedin: "https://linkedin.com/",
+  },
+  {
+    name: "Moy Sivelang",
+    position: "Backend Developer",
+    image: Roth,
+    facebook: "https://facebook.com/",
+    github: "https://github.com/",
+    linkedin: "https://linkedin.com/",
+  },
+  {
+    name: "Vannak Thanuk",
+    position: "UI/UX Designer",
+    image: Roth,
+    facebook: "https://facebook.com/",
+    github: "https://github.com/",
+    linkedin: "https://linkedin.com/",
+  },
+];
+
+// Duplicate for seamless loop
+const allMembers = [...members, ...members];
+
+const MemberCard = ({ name, position, image, facebook, github, linkedin, onHoverStart, onHoverEnd }) => (
+  <motion.div
+    onHoverStart={onHoverStart}
+    onHoverEnd={onHoverEnd}
+    whileHover={{ y: -8, scale: 1.03 }}
+    transition={{ type: "spring", stiffness: 300, damping: 20 }}
+    className="flex-shrink-0 w-72 bg-[#CBCBCB] p-6 border border-default rounded-3xl shadow-xs cursor-pointer"
+    style={{ flexShrink: 0 }}
+  >
+    <motion.div
+      whileHover={{ scale: 1.05 }}
+      transition={{ duration: 0.3 }}
+    >
+      <img className="rounded-md w-full h-48 object-cover" src={image} alt={name} />
+    </motion.div>
+
+    <h5 className="mt-6 mb-2 text-2xl font-semibold tracking-tight text-heading">{name}</h5>
+    <p className="mb-6 text-body">Position: {position}</p>
+
+    <div className="flex justify-between pr-6 pl-6 items-center">
+      {[
+        { href: facebook, Icon: FaFacebook, label: "Facebook" },
+        { href: github, Icon: FaGithub, label: "GitHub" },
+        { href: linkedin, Icon: FaLinkedin, label: "LinkedIn" },
+      ].map(({ href, Icon, label }) => (
+        <motion.a
+          key={label}
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          whileHover={{ scale: 1.2 }}
+          whileTap={{ scale: 0.9 }}
+        >
+          <button className="bg-white p-2 rounded-full">
+            <Icon className="w-7 h-7 text-black hover:text-blue-400 transition-colors" />
+          </button>
+        </motion.a>
+      ))}
+    </div>
+  </motion.div>
+);
 
 export const AboutUsCard = () => {
+  const controls = useAnimationControls();
+  const trackRef = useRef(null);
+  const [isPaused, setIsPaused] = useState(false);
+  const positionRef = useRef(0);
+  const animationRef = useRef(null);
+  const startTimeRef = useRef(null);
+  const pausedAtRef = useRef(null);
+
+  // Card width + gap
+  const CARD_WIDTH = 256 + 24; // w-64 (256px) + gap-6 (24px)
+  const TOTAL_WIDTH = CARD_WIDTH * members.length;
+  const SCROLL_SPEED = 50; // px per second
+
+  useEffect(() => {
+    const animate = (timestamp) => {
+      if (!startTimeRef.current) startTimeRef.current = timestamp - positionRef.current * (1000 / SCROLL_SPEED);
+
+      if (!isPaused) {
+        const elapsed = timestamp - startTimeRef.current;
+        positionRef.current = (elapsed * SCROLL_SPEED) / 600;
+
+        // Loop: reset when we've scrolled one full set
+        if (positionRef.current >= TOTAL_WIDTH) {
+          positionRef.current = positionRef.current - TOTAL_WIDTH;
+          startTimeRef.current = timestamp - positionRef.current * (1000 / SCROLL_SPEED);
+        }
+
+        if (trackRef.current) {
+          trackRef.current.style.transform = `translateX(-${positionRef.current}px)`;
+        }
+      }
+
+      animationRef.current = requestAnimationFrame(animate);
+    };
+
+    animationRef.current = requestAnimationFrame(animate);
+
+    return () => {
+      if (animationRef.current) cancelAnimationFrame(animationRef.current);
+    };
+  }, [isPaused, TOTAL_WIDTH]);
+
+  const handleHoverStart = () => {
+    setIsPaused(true);
+  };
+
+  const handleHoverEnd = () => {
+    setIsPaused(false);
+  };
+
   return (
-    <div className="mt-10 transform scale-75 justify-items-center md:grid-cols-2 md:place-content-center font-poppins">
-      <div className="bg-[#CBCBCB] block max-w-sm p-6 border border-default rounded-3xl shadow-xs">
-        <a href="#">
-          <img className="rounded-md" src={profile} alt="" />
-        </a>
-        <a href="#">
-          <h5 className="mt-6 mb-2 text-2xl font-semibold tracking-tight text-heading">Thuon Ratna</h5>
-        </a>
-        <p className="mb-6 text-body">Positon: Leader</p>
-        <div className="flex justify-between pr-10 pl-10 items-center">
-          <button className=' bg-white p-2 rounded-full '>
-            <FaFacebook className="w-7 h-7 text-black hover:text-blue-400" />
-          </button>
-          <button className=' bg-white p-2 rounded-full'>
-            <FaGithub className='w-7 h-7 text-black hover:text-blue-400' />
-          </button>
-          <button className=' bg-white p-2 rounded-full'>
-            <FaLinkedin className='w-7 h-7 text-black hover:text-blue-400' />
-          </button>
+    <div className="mt-10 mb-10 font-poppins overflow-hidden w-full">
+      {/* Fade edges */}
+      <div className="relative">
+        <div
+          className="absolute left-0 top-0 bottom-0 w-16 z-10 pointer-events-none"
+          style={{ background: "linear-gradient(to right, rgba(255,255,255,0.8), transparent)" }}
+        />
+        <div
+          className="absolute right-0 top-0 bottom-0 w-16 z-10 pointer-events-none"
+          style={{ background: "linear-gradient(to left, rgba(255,255,255,0.8), transparent)" }}
+        />
 
+        {/* Scrolling track */}
+        <div className="overflow-hidden">
+          <div
+            ref={trackRef}
+            className="flex gap-6 py-4"
+            style={{ width: "max-content", willChange: "transform" }}
+          >
+            {allMembers.map((member, index) => (
+              <MemberCard
+                key={index}
+                {...member}
+                onHoverStart={handleHoverStart}
+                onHoverEnd={handleHoverEnd}
+              />
+            ))}
+          </div>
         </div>
       </div>
-
-      <div className="mt-10 transform scale-75 justify-items-center md:grid-cols-2 md:place-content-center">      
-        <div className="bg-neutral-primary-soft block max-w-sm p-6 border border-default rounded-md shadow-xs">
-          <a href="#">
-            <img className="rounded-md" src={profile} alt="" />
-          </a>
-          <a href="#">
-            <h5 className="mt-6 mb-2 text-2xl font-semibold tracking-tight text-heading">Thuon Ratna</h5>
-          </a>
-          <p className="mb-6 text-body">Positon: Leader</p>
-          <a href="#" className="inline-flex items-center text-body bg-neutral-secondary-medium box-border border border-default-medium hover:bg-neutral-tertiary-medium hover:text-heading focus:ring-4 focus:ring-neutral-tertiary shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none">
-            Read more
-            <svg className="w-4 h-4 ms-1.5 rtl:rotate-180 -me-0.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 12H5m14 0-4 4m4-4-4-4" /></svg>
-          </a>
-        </div>
-
-      </div>
-
+    
     </div>
-  )
-}
+  );
+};
+
+export default AboutUsCard;

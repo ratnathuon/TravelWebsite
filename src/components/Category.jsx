@@ -2,23 +2,114 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { StarIcon } from "@heroicons/react/24/solid";
 import { MdLocationPin } from "react-icons/md";
+import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
 
 const destinations = [
-  { name: "Khonh Rong", location: "Kep, Cambodia", cat: "mountain", stars: 5, img: "https://images.unsplash.com/photo-1540202404-a2f29b7b4c62?w=800&q=80" },
-  { name: "Kompot", location: "Kampot, Cambodia", cat: "coastal", stars: 4, img: "https://images.unsplash.com/photo-1582192730841-2a682d7375f9?w=800&q=80" },
-  { name: "Koh Han", location: "Kep, Cambodia", cat: "coastal", stars: 5, img: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=80" },
-  { name: "Kep", location: "Kep, Cambodia", cat: "coastal", stars: 5, img: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80" },
-  { name: "Angkor Wat", location: "Siem Reap, Cambodia", cat: "plains", stars: 5, img: "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800&q=80" },
-  { name: "Green Field", location: "Mondulkiri, Cambodia", cat: "mountain", stars: 5, img: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=800&q=80" },
-  { name: "Khonh Rong", location: "Kep, Cambodia", cat: "mountain", stars: 5, img: "https://images.unsplash.com/photo-1448375240586-882707db888b?w=800&q=80" },
-  { name: "Koh Kong", location: "Koh Kong, Cambodia", cat: "coastal", stars: 5, img: "https://images.unsplash.com/photo-1426604966848-d7adac402bff?w=800&q=80" },
-  { name: "Veal Touch Waterfall", location: "Kep, Cambodia", cat: "mountain", stars: 5, img: "https://images.unsplash.com/photo-1455218873509-8097305ee378?w=800&q=80" },
-  { name: "Veal Touch Waterfall", location: "Kep, Cambodia", cat: "mountain", stars: 5, img: "https://images.unsplash.com/photo-1455218873509-8097305ee378?w=800&q=80" },
-  { name: "Veal Touch Waterfall", location: "Kep, Cambodia", cat: "mountain", stars: 5, img: "https://images.unsplash.com/photo-1455218873509-8097305ee378?w=800&q=80" },
-  { name: "Veal Touch Waterfall", location: "Kep, Cambodia", cat: "mountain", stars: 5, img: "https://images.unsplash.com/photo-1455218873509-8097305ee378?w=800&q=80" },
-  { name: "Veal Touch Waterfall", location: "Kep, Cambodia", cat: "mountain", stars: 5, img: "https://images.unsplash.com/photo-1455218873509-8097305ee378?w=800&q=80" },
-  { name: "Veal Touch Waterfall", location: "Kep, Cambodia", cat: "mountain", stars: 5, img: "https://images.unsplash.com/photo-1455218873509-8097305ee378?w=800&q=80" },
-  { name: "Veal Touch Waterfall", location: "Kep, Cambodia", cat: "mountain", stars: 5, img: "https://images.unsplash.com/photo-1455218873509-8097305ee378?w=800&q=80" },
+  {
+    name: "Khonh Rong",
+    location: "Kep, Cambodia",
+    cat: "mountain",
+    stars: 5,
+    img: "https://images.unsplash.com/photo-1540202404-a2f29b7b4c62?w=800&q=80",
+  },
+  {
+    name: "Kompot",
+    location: "Kampot, Cambodia",
+    cat: "coastal",
+    stars: 4,
+    img: "https://images.unsplash.com/photo-1582192730841-2a682d7375f9?w=800&q=80",
+  },
+  {
+    name: "Koh Han",
+    location: "Kep, Cambodia",
+    cat: "coastal",
+    stars: 5,
+    img: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=80",
+  },
+  {
+    name: "Kep",
+    location: "Kep, Cambodia",
+    cat: "coastal",
+    stars: 5,
+    img: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80",
+  },
+  {
+    name: "Angkor Wat",
+    location: "Siem Reap, Cambodia",
+    cat: "plains",
+    stars: 5,
+    img: "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800&q=80",
+  },
+  {
+    name: "Green Field",
+    location: "Mondulkiri, Cambodia",
+    cat: "mountain",
+    stars: 5,
+    img: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=800&q=80",
+  },
+  {
+    name: "Khonh Rong",
+    location: "Kep, Cambodia",
+    cat: "mountain",
+    stars: 5,
+    img: "https://images.unsplash.com/photo-1448375240586-882707db888b?w=800&q=80",
+  },
+  {
+    name: "Koh Kong",
+    location: "Koh Kong, Cambodia",
+    cat: "coastal",
+    stars: 5,
+    img: "https://images.unsplash.com/photo-1426604966848-d7adac402bff?w=800&q=80",
+  },
+  {
+    name: "Veal Touch Waterfall",
+    location: "Kep, Cambodia",
+    cat: "mountain",
+    stars: 5,
+    img: "https://images.unsplash.com/photo-1455218873509-8097305ee378?w=800&q=80",
+  },
+  {
+    name: "Veal Touch Waterfall",
+    location: "Kep, Cambodia",
+    cat: "mountain",
+    stars: 5,
+    img: "https://images.unsplash.com/photo-1455218873509-8097305ee378?w=800&q=80",
+  },
+  {
+    name: "Veal Touch Waterfall",
+    location: "Kep, Cambodia",
+    cat: "mountain",
+    stars: 5,
+    img: "https://images.unsplash.com/photo-1455218873509-8097305ee378?w=800&q=80",
+  },
+  {
+    name: "Veal Touch Waterfall",
+    location: "Kep, Cambodia",
+    cat: "mountain",
+    stars: 5,
+    img: "https://images.unsplash.com/photo-1455218873509-8097305ee378?w=800&q=80",
+  },
+  {
+    name: "Veal Touch Waterfall",
+    location: "Kep, Cambodia",
+    cat: "mountain",
+    stars: 5,
+    img: "https://images.unsplash.com/photo-1455218873509-8097305ee378?w=800&q=80",
+  },
+  {
+    name: "Veal Touch Waterfall",
+    location: "Kep, Cambodia",
+    cat: "mountain",
+    stars: 5,
+    img: "https://images.unsplash.com/photo-1455218873509-8097305ee378?w=800&q=80",
+  },
+  {
+    name: "Veal Touch Waterfall",
+    location: "Kep, Cambodia",
+    cat: "mountain",
+    stars: 5,
+    img: "https://images.unsplash.com/photo-1455218873509-8097305ee378?w=800&q=80",
+  },
 ];
 
 const categories = [
@@ -28,6 +119,8 @@ const categories = [
   { label: "Coastal Region", value: "coastal" },
   { label: "Mountain And Plateau Region", value: "mountain" },
 ];
+
+const PAGE_SIZE = 9; // 3 cols x 3 rows
 
 function StarRating({ count }) {
   return (
@@ -46,8 +139,12 @@ function DestinationCard({ destination }) {
   const navigate = useNavigate();
   const [faved, setFaved] = useState(() => {
     try {
-      const savedFavorites = JSON.parse(localStorage.getItem('favorites')) || [];
-      return savedFavorites.some(place => place.name === destination.name && place.image === destination.img);
+      const savedFavorites =
+        JSON.parse(localStorage.getItem("favorites")) || [];
+      return savedFavorites.some(
+        (place) =>
+          place.name === destination.name && place.image === destination.img,
+      );
     } catch {
       return false;
     }
@@ -56,22 +153,32 @@ function DestinationCard({ destination }) {
   const handleFavedToggle = (e) => {
     e.stopPropagation();
     try {
-      const savedFavorites = JSON.parse(localStorage.getItem('favorites')) || [];
-      const isAlreadyFaved = savedFavorites.some(place => place.name === destination.name && place.image === destination.img);
-      let updatedFavorites;
-      if (isAlreadyFaved) {
-        updatedFavorites = savedFavorites.filter(place => !(place.name === destination.name && place.image === destination.img));
-      } else {
-        updatedFavorites = [...savedFavorites, { 
-          image: destination.img, 
-          name: destination.name, 
-          location: destination.location, 
-          rating: destination.stars 
-        }];
-      }
-      localStorage.setItem('favorites', JSON.stringify(updatedFavorites));
+      const savedFavorites =
+        JSON.parse(localStorage.getItem("favorites")) || [];
+      const isAlreadyFaved = savedFavorites.some(
+        (place) =>
+          place.name === destination.name && place.image === destination.img,
+      );
+      const updatedFavorites = isAlreadyFaved
+        ? savedFavorites.filter(
+            (place) =>
+              !(
+                place.name === destination.name &&
+                place.image === destination.img
+              ),
+          )
+        : [
+            ...savedFavorites,
+            {
+              image: destination.img,
+              name: destination.name,
+              location: destination.location,
+              rating: destination.stars,
+            },
+          ];
+      localStorage.setItem("favorites", JSON.stringify(updatedFavorites));
       setFaved(!isAlreadyFaved);
-      window.dispatchEvent(new Event('favoritesUpdated'));
+      window.dispatchEvent(new Event("favoritesUpdated"));
     } catch (err) {
       console.error("Failed to toggle destination favorite:", err);
     }
@@ -82,7 +189,10 @@ function DestinationCard({ destination }) {
   };
 
   return (
-    <div onClick={handleCardClick} className="relative rounded-3xl overflow-hidden aspect-[4/3] bg-green-950 cursor-pointer transition-transform duration-200 hover:scale-[1.02]">
+    <div
+      onClick={handleCardClick}
+      className="relative rounded-3xl overflow-hidden aspect-[4/3] bg-green-950 cursor-pointer transition-transform duration-200 hover:scale-[1.02]"
+    >
       <img
         src={destination.img}
         alt={destination.name}
@@ -117,7 +227,7 @@ function DestinationCard({ destination }) {
       </button>
 
       {/* Bottom overlay */}
-      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent pt-16 pb-5 px-5">
+      <div className="absolute bottom-0 left-0 right-0 pt-3 pb-3 px-5 bg-white/20 backdrop-blur-md border border-white/30 shadow-lg">
         <div className="flex justify-between items-end">
           <div>
             <p className="text-white text-base font-bold tracking-widest uppercase font-poppins">
@@ -125,10 +235,14 @@ function DestinationCard({ destination }) {
             </p>
             <div className="flex items-center gap-1.5 mt-1">
               <MdLocationPin className="text-yellow-400 text-base" />
-              <span className="text-white/70 text-sm font-poppins">{destination.location}</span>
+              <span className="text-white/70 text-sm font-poppins">
+                {destination.location}
+              </span>
             </div>
           </div>
-          <span className="text-white/60 text-sm font-medium font-poppins">Explore</span>
+          <span className="text-white/60 text-sm font-medium font-poppins">
+            Explore
+          </span>
         </div>
       </div>
     </div>
@@ -137,24 +251,41 @@ function DestinationCard({ destination }) {
 
 export default function CambodiaTravelExplorer() {
   const [activeCategory, setActiveCategory] = useState("all");
+  const [currentPage, setCurrentPage] = useState(0);
 
   const filtered =
     activeCategory === "all"
       ? destinations
       : destinations.filter((d) => d.cat === activeCategory);
 
+  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
+  const paginated = filtered.slice(
+    currentPage * PAGE_SIZE,
+    currentPage * PAGE_SIZE + PAGE_SIZE,
+  );
+
+  // Reset to page 0 when category changes
+  const handleCategoryChange = (value) => {
+    setActiveCategory(value);
+    setCurrentPage(0);
+  };
+
+  const handlePrev = () => setCurrentPage((p) => Math.max(p - 1, 0));
+  const handleNext = () =>
+    setCurrentPage((p) => Math.min(p + 1, totalPages - 1));
+
   return (
-    <div className="w-full px-60 py-8 font-poppins">
+    <div className="w-full max-w-screen-2xl mx-auto px-14 sm:px-28 md:px-10 lg:px-20 xl:px-32 py-8 font-poppins">
       {/* Filter buttons */}
-      <div className="flex flex-wrap gap-3 mb-8">
+      <div className="flex flex-wrap justify-be mb-10 gap-4 justify-center lg:justify-between">
         {categories.map((cat) => (
           <button
             key={cat.value}
-            onClick={() => setActiveCategory(cat.value)}
-            className={`px-6 py-2.5 rounded-full text-base border transition-all duration-150 font-poppins ${
+            onClick={() => handleCategoryChange(cat.value)}
+            className={`px-4 sm:px-5 py-2.5 rounded-full text-sm sm:text-base border transition-all duration-150 font-poppins ${
               activeCategory === cat.value
                 ? "bg-green-800 text-white border-green-800"
-                : "bg-white text-gray-500 border-gray-300 hover:border-gray-400"
+                : "bg-white/20 backdrop-blur-md border border-white/30 rounded-2xl shadow-lg hover:border-gray-400"
             }`}
           >
             {cat.label}
@@ -163,11 +294,58 @@ export default function CambodiaTravelExplorer() {
       </div>
 
       {/* Grid */}
-      <div className="grid grid-cols-3 gap-6">
-        {filtered.map((destination, i) => (
-          <DestinationCard key={`${destination.name}-${i}`} destination={destination} />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3  gap-6">
+        {paginated.map((destination, i) => (
+          <DestinationCard
+            key={`${destination.name}-${currentPage}-${i}`}
+            destination={destination}
+          />
         ))}
       </div>
+
+      {/* Arrow navigation */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-4 mt-10">
+          <button
+            onClick={handlePrev}
+            disabled={currentPage === 0}
+            className={`w-12 h-12 rounded-full flex items-center justify-center border transition-all duration-150
+              ${
+                currentPage === 0
+                  ? "border-gray-200 text-gray-300 cursor-not-allowed"
+                  : "border-green-800 text-green-800 hover:bg-green-800 hover:text-white"
+              }`}
+          >
+            <ChevronLeftIcon className="w-6 h-6" />
+          </button>
+
+          {/* Page dots */}
+          <div className="flex gap-2">
+            {Array.from({ length: totalPages }).map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setCurrentPage(i)}
+                className={`h-2 rounded-full transition-all duration-300 ${
+                  i === currentPage ? "w-6 bg-green-800" : "w-2 bg-gray-300"
+                }`}
+              />
+            ))}
+          </div>
+
+          <button
+            onClick={handleNext}
+            disabled={currentPage === totalPages - 1}
+            className={`w-12 h-12 rounded-full flex items-center justify-center border transition-all duration-150
+              ${
+                currentPage === totalPages - 1
+                  ? "border-gray-200 text-gray-300 cursor-not-allowed"
+                  : "border-green-800 text-green-800 hover:bg-green-800 hover:text-white"
+              }`}
+          >
+            <ChevronRightIcon className="w-6 h-6" />
+          </button>
+        </div>
+      )}
     </div>
   );
 }
