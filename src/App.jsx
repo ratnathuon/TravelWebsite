@@ -3,7 +3,7 @@ import Header, { loadUser, saveUser, clearUser, enrichUserFromDb } from "./compo
 import Search from "./components/Search"
 import Footer from "./components/Footer"
 import About from "./Pages/About"
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Home from "./Pages/Home"
 import CardPlace from "./components/CardPlace"
 import Account from "./components/Account"
@@ -40,7 +40,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
-        <Route path="/destinaton" element={<h1></h1>} />
+        <Route path="/destinaton" element={<Navigate to="/" replace />} />
         <Route path="/explore/:placeName" element={<ExploreDetail />} />
         <Route path="/account" element={<AccountInfo user={user} onUpdateUser={setUser} onSignOut={() => setUser(null)} />} />
       </Routes>

@@ -2,18 +2,14 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { StarIcon } from "@heroicons/react/24/solid";
 import { MdLocationPin } from "react-icons/md";
+import { destinationsData } from "../data/destinationsData";
 
-const destinations = [
-  { name: "Khonh Rong", location: "Kep, Cambodia", stars: 5, img: "https://images.unsplash.com/photo-1540202404-a2f29b7b4c62?w=800&q=80" },
-  { name: "Kompot", location: "Kampot, Cambodia", stars: 4, img: "https://images.unsplash.com/photo-1582192730841-2a682d7375f9?w=800&q=80" },
-  { name: "Koh Han", location: "Kep, Cambodia", stars: 5, img: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=80" },
-  { name: "Kep", location: "Kep, Cambodia", stars: 5, img: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80" },
-  { name: "Angkor Wat", location: "Siem Reap, Cambodia", stars: 5, img: "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800&q=80" },
-  { name: "Green Field", location: "Mondulkiri, Cambodia", stars: 5, img: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=800&q=80" },
-  { name: "Khonh Rong 2", location: "Kep, Cambodia", stars: 5, img: "https://images.unsplash.com/photo-1448375240586-882707db888b?w=800&q=80" },
-  { name: "Koh Kong", location: "Koh Kong, Cambodia", stars: 5, img: "https://images.unsplash.com/photo-1426604966848-d7adac402bff?w=800&q=80" },
-  { name: "Veal Touch Waterfall", location: "Kep, Cambodia", stars: 5, img: "https://images.unsplash.com/photo-1455218873509-8097305ee378?w=800&q=80" },
-];
+const destinations = destinationsData.map(d => ({
+  name: d.name,
+  location: d.location,
+  stars: d.rating,
+  img: d.img
+}));
 
 const PAGE_SIZE = 3;
 const totalPages = Math.ceil(destinations.length / PAGE_SIZE);

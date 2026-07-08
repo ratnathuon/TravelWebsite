@@ -13,6 +13,7 @@ export const destinationsData = [
     location: "Siem Reap, Cambodia",
     rating: 5,
     img: angkorImg,
+    cat: "plains",
     about: "Angkor Wat is a magnificent temple complex located in Siem Reap, Cambodia. Originally built in the early 12th century as a Hindu temple dedicated to the god Vishnu, it gradually transformed into a Buddhist temple. As the largest religious monument in the world, it represents the high point of classical Khmer architecture. The temple is admired for the grandeur and harmony of its design, its extensive bas-reliefs, and the numerous devatas (guardian spirits) adorning its walls. It is a symbol of Cambodia, appearing on its national flag, and is a UNESCO World Heritage site.",
     mapSearch: "Angkor Wat, Siem Reap, Cambodia",
     reviews: [
@@ -40,12 +41,13 @@ export const destinationsData = [
     ]
   },
   {
-    id: "khonh-rong",
+    id: "koh-rong",
     name: "Koh Rong Island",
     searchNames: ["khonh rong", "khonh rong 2", "koh rong", "koh rong island"],
-    location: "Kep, Cambodia",
+    location: "Sihanoukville, Cambodia",
     rating: 5,
     img: "https://images.unsplash.com/photo-1540202404-a2f29b7b4c62?w=800&q=80",
+    cat: "coastal",
     about: "Koh Rong is the second-largest island of Cambodia. Located in the Gulf of Thailand, it is famous for its white sandy beaches, crystal-clear turquoise waters, and vibrant marine life. Ideal for snorkeling, diving, and kayaking, Koh Rong is a tropical paradise that remains largely undeveloped, retaining its natural charm. Its pristine beaches are lined with coconut palms, offering a peaceful getaway from the mainland.",
     mapSearch: "Koh Rong, Cambodia",
     reviews: [
@@ -72,6 +74,7 @@ export const destinationsData = [
     location: "Kampot, Cambodia",
     rating: 4,
     img: "https://images.unsplash.com/photo-1582192730841-2a682d7375f9?w=800&q=80",
+    cat: "coastal",
     about: "Kampot is a beautiful, laid-back riverside town in southern Cambodia. It is world-renowned for its high-quality Kampot Pepper and unique salt fields. The town features charming French colonial architecture, a relaxed pace of life, and close proximity to Bokor National Park. The riverfront is perfect for sunset cruises, paddleboarding, and enjoying local seafood dishes under the stars.",
     mapSearch: "Kampot, Cambodia",
     reviews: [
@@ -95,9 +98,10 @@ export const destinationsData = [
     id: "koh-han",
     name: "Koh Han Flooded Forest",
     searchNames: ["koh han", "koh han flooded forest"],
-    location: "Kep, Cambodia",
+    location: "Stung Treng, Cambodia",
     rating: 5,
     img: kohHanImg,
+    cat: "mountain",
     about: "Koh Han is a stunning ecotourism destination located along the Mekong River. Known for its incredible flooded forests, seasonal sandy beaches, and unique riverine biodiversity, it offers travelers an immersive experience in nature. Visitors can kayak through the dense canopy of trees growing directly out of the riverbed, spot rare birds, and camp on pristine sand bars under the night sky.",
     mapSearch: "Koh Han, Stung Treng, Cambodia",
     reviews: [
@@ -124,6 +128,7 @@ export const destinationsData = [
     location: "Kep, Cambodia",
     rating: 5,
     img: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80",
+    cat: "coastal",
     about: "Kep is a coastal province in southern Cambodia known for its seafood, peaceful atmosphere, and French colonial-era ruins. The famous Crab Market is a must-visit, where fresh blue crabs are caught daily and cooked on the spot with green Kampot pepper. Kep Beach is a peaceful stretch of white sand, and Kep National Park offers hiking trails through lush jungles with panoramic views of neighboring islands.",
     mapSearch: "Kep, Cambodia",
     reviews: [
@@ -150,6 +155,7 @@ export const destinationsData = [
     location: "Mondulkiri, Cambodia",
     rating: 5,
     img: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=800&q=80",
+    cat: "mountain",
     about: "Mondulkiri is a mountainous province in eastern Cambodia known for its rolling hills, pine forests, cool climate, and majestic waterfalls. The 'Green Fields' area offers endless vistas of grassy hills that turn vibrant green during the wet season. Mondulkiri is also home to indigenous communities and elephant sanctuaries dedicated to wildlife conservation, offering a unique highland adventure.",
     mapSearch: "Mondulkiri, Cambodia",
     reviews: [
@@ -176,6 +182,7 @@ export const destinationsData = [
     location: "Koh Kong, Cambodia",
     rating: 5,
     img: "https://images.unsplash.com/photo-1426604966848-d7adac402bff?w=800&q=80",
+    cat: "coastal",
     about: "Koh Kong province contains some of the largest and most pristine mangrove forests in Southeast Asia, along with parts of the Cardamom Mountains. It is a premier destination for ecotourism, offering jungle trekking, waterfall exploration, and wildlife watching. The Peam Krasop Mangrove Sanctuary features long wooden elevated walkways weaving through dense coastal forests.",
     mapSearch: "Koh Kong, Cambodia",
     reviews: [
@@ -199,9 +206,10 @@ export const destinationsData = [
     id: "veal-touch-waterfall",
     name: "Veal Touch Waterfall",
     searchNames: ["veal touch waterfall", "veal pouch waterfall", "waterfall"],
-    location: "Kep, Cambodia",
+    location: "Kampot, Cambodia",
     rating: 5,
     img: waterfallImg,
+    cat: "mountain",
     about: "Veal Touch Waterfall (often referred to as Veal Pouch Waterfall) is a hidden gem located in the lush jungles near Kampot/Kep. Surrounded by dense vegetation, tropical flowers, and ancient rock formations, the waterfall cascades into a cool, freshwater pool that is perfect for swimming. It offers a peaceful and secluded spot to relax and enjoy the sights and sounds of nature away from the main tourist crowds.",
     mapSearch: "Veal Pouch Waterfall, Kampot, Cambodia",
     reviews: [
@@ -228,6 +236,7 @@ export const destinationsData = [
     location: "Battambang, Cambodia",
     rating: 4,
     img: "https://images.unsplash.com/photo-1563492065599-3520f775eeed?w=300&h=400&fit=crop",
+    cat: "plains",
     about: "Battambang is Cambodia's second-largest city and a hub for arts, culture, and colonial architecture. Situated along the Sangkae River, it features some of the best-preserved French colonial architecture in the country. It is famous for the Bamboo Train (Norry), ancient temples like Phnom Banan, and the Bat Caves of Phnom Sampeau, where millions of bats fly out at sunset in a spectacular stream.",
     mapSearch: "Battambang, Cambodia",
     reviews: [
@@ -244,6 +253,33 @@ export const destinationsData = [
         avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop",
         comment: "The art scene here is thriving! Visited some wonderful local galleries.",
         likes: 12
+      }
+    ]
+  },
+  {
+    id: "kampong-phluk",
+    name: "Kampong Phluk Floating Village",
+    searchNames: ["kampong phluk", "floating village", "tonle sap"],
+    location: "Siem Reap (Tonle Sap), Cambodia",
+    rating: 5,
+    img: "https://images.unsplash.com/photo-1543731068-7e0f5beff43a?w=800&q=80",
+    cat: "tonle",
+    about: "Kampong Phluk is a cluster of three villages of stilted houses built within the floodplain of the Tonle Sap Lake, about 16 km southeast of Siem Reap. The houses are built on stilts that range between 6 and 10 meters high to handle the massive water height variation of the lake between wet and dry seasons. During the wet season, the area transforms into a magical flooded forest where villagers navigate by boat, offering visitors a unique look at lake-dwelling life.",
+    mapSearch: "Kampong Phluk, Cambodia",
+    reviews: [
+      {
+        id: "kf1",
+        username: "Ratna",
+        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop",
+        comment: "That looking grate! Navigating the stilted houses by boat is an eye-opening experience.",
+        likes: 8
+      },
+      {
+        id: "kf2",
+        username: "Srey",
+        avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop",
+        comment: "Visiting the flooded mangrove forests here was the highlight of our trip.",
+        likes: 5
       }
     ]
   }

@@ -37,9 +37,6 @@ export default function About() {
             initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.4 }}
-          onAnimationComplete={() => {
-            setTimeout(() => setPhase("split"), 600);
-          }}
           className='pl-44 pr-44 justify-between flex mt-0'>
           <AboutUsCard/>
         </motion.div>

@@ -1,116 +1,17 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { StarIcon } from "@heroicons/react/24/solid";
 import { MdLocationPin } from "react-icons/md";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
+import { destinationsData } from "../data/destinationsData";
 
-const destinations = [
-  {
-    name: "Khonh Rong",
-    location: "Kep, Cambodia",
-    cat: "mountain",
-    stars: 5,
-    img: "https://images.unsplash.com/photo-1540202404-a2f29b7b4c62?w=800&q=80",
-  },
-  {
-    name: "Kompot",
-    location: "Kampot, Cambodia",
-    cat: "coastal",
-    stars: 4,
-    img: "https://images.unsplash.com/photo-1582192730841-2a682d7375f9?w=800&q=80",
-  },
-  {
-    name: "Koh Han",
-    location: "Kep, Cambodia",
-    cat: "coastal",
-    stars: 5,
-    img: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=80",
-  },
-  {
-    name: "Kep",
-    location: "Kep, Cambodia",
-    cat: "coastal",
-    stars: 5,
-    img: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80",
-  },
-  {
-    name: "Angkor Wat",
-    location: "Siem Reap, Cambodia",
-    cat: "plains",
-    stars: 5,
-    img: "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800&q=80",
-  },
-  {
-    name: "Green Field",
-    location: "Mondulkiri, Cambodia",
-    cat: "mountain",
-    stars: 5,
-    img: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=800&q=80",
-  },
-  {
-    name: "Khonh Rong",
-    location: "Kep, Cambodia",
-    cat: "mountain",
-    stars: 5,
-    img: "https://images.unsplash.com/photo-1448375240586-882707db888b?w=800&q=80",
-  },
-  {
-    name: "Koh Kong",
-    location: "Koh Kong, Cambodia",
-    cat: "coastal",
-    stars: 5,
-    img: "https://images.unsplash.com/photo-1426604966848-d7adac402bff?w=800&q=80",
-  },
-  {
-    name: "Veal Touch Waterfall",
-    location: "Kep, Cambodia",
-    cat: "mountain",
-    stars: 5,
-    img: "https://images.unsplash.com/photo-1455218873509-8097305ee378?w=800&q=80",
-  },
-  {
-    name: "Veal Touch Waterfall",
-    location: "Kep, Cambodia",
-    cat: "mountain",
-    stars: 5,
-    img: "https://images.unsplash.com/photo-1455218873509-8097305ee378?w=800&q=80",
-  },
-  {
-    name: "Veal Touch Waterfall",
-    location: "Kep, Cambodia",
-    cat: "mountain",
-    stars: 5,
-    img: "https://images.unsplash.com/photo-1455218873509-8097305ee378?w=800&q=80",
-  },
-  {
-    name: "Veal Touch Waterfall",
-    location: "Kep, Cambodia",
-    cat: "mountain",
-    stars: 5,
-    img: "https://images.unsplash.com/photo-1455218873509-8097305ee378?w=800&q=80",
-  },
-  {
-    name: "Veal Touch Waterfall",
-    location: "Kep, Cambodia",
-    cat: "mountain",
-    stars: 5,
-    img: "https://images.unsplash.com/photo-1455218873509-8097305ee378?w=800&q=80",
-  },
-  {
-    name: "Veal Touch Waterfall",
-    location: "Kep, Cambodia",
-    cat: "mountain",
-    stars: 5,
-    img: "https://images.unsplash.com/photo-1455218873509-8097305ee378?w=800&q=80",
-  },
-  {
-    name: "Veal Touch Waterfall",
-    location: "Kep, Cambodia",
-    cat: "mountain",
-    stars: 5,
-    img: "https://images.unsplash.com/photo-1455218873509-8097305ee378?w=800&q=80",
-  },
-];
+const destinations = destinationsData.map(d => ({
+  name: d.name,
+  location: d.location,
+  cat: d.cat,
+  stars: d.rating,
+  img: d.img,
+}));
 
 const categories = [
   { label: "All Category", value: "all" },
@@ -252,6 +153,36 @@ function DestinationCard({ destination }) {
 export default function CambodiaTravelExplorer() {
   const [activeCategory, setActiveCategory] = useState("all");
   const [currentPage, setCurrentPage] = useState(0);
+  const location = useLocation();
+
+  useEffect(() => {
+    const hash = location.hash;
+    if (hash) {
+      const cleanHash = hash.replace("#", "");
+      const match = categories.find(
+        (cat) =>
+          cat.value === cleanHash ||
+          (cleanHash === "category" && cat.value === "all")
+      );
+      const categoryValue = match
+        ? match.value
+        : cleanHash === "all" || cleanHash === "category"
+        ? "all"
+        : null;
+      if (categoryValue) {
+        setActiveCategory(categoryValue);
+        setCurrentPage(0);
+
+        // Wait a small bit for render to complete, then scroll smoothly
+        setTimeout(() => {
+          const element = document.getElementById("explore-section");
+          if (element) {
+            element.scrollIntoView({ behavior: "smooth" });
+          }
+        }, 100);
+      }
+    }
+  }, [location.hash]);
 
   const filtered =
     activeCategory === "all"
@@ -275,7 +206,7 @@ export default function CambodiaTravelExplorer() {
     setCurrentPage((p) => Math.min(p + 1, totalPages - 1));
 
   return (
-    <div className="w-full max-w-screen-2xl mx-auto px-14 sm:px-28 md:px-10 lg:px-20 xl:px-32 py-8 font-poppins">
+    <div id="explore-section" className="w-full max-w-screen-2xl mx-auto px-14 sm:px-28 md:px-10 lg:px-20 xl:px-32 py-8 font-poppins">
       {/* Filter buttons */}
       <div className="flex flex-wrap justify-be mb-10 gap-4 justify-center lg:justify-between">
         {categories.map((cat) => (

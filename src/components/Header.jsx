@@ -342,7 +342,8 @@ export default function Header({ user, onOpenAccount, onSignOut }) {
                     <ul className="p-2 text-sm font-medium">
                       <li>
                         <Link
-                          to="#category"
+                          to="/#all"
+                          onClick={() => setNavDropdownOpen(false)}
                           className="inline-flex items-center w-full p-2 text-gray-200 hover:bg-blue-600 hover:text-white rounded"
                         >
                           All Category
@@ -350,7 +351,8 @@ export default function Header({ user, onOpenAccount, onSignOut }) {
                       </li>
                       <li>
                         <Link
-                          to="#plains"
+                          to="/#plains"
+                          onClick={() => setNavDropdownOpen(false)}
                           className="inline-flex items-center w-full p-2 text-gray-200 hover:bg-blue-600 hover:text-white rounded"
                         >
                           The Plains Region
@@ -358,7 +360,8 @@ export default function Header({ user, onOpenAccount, onSignOut }) {
                       </li>
                       <li>
                         <Link
-                          to="#tonle-sap"
+                          to="/#tonle"
+                          onClick={() => setNavDropdownOpen(false)}
                           className="inline-flex items-center w-full p-2 text-gray-200 hover:bg-blue-600 hover:text-white rounded"
                         >
                           Tonle Sap Lake Area
@@ -366,7 +369,8 @@ export default function Header({ user, onOpenAccount, onSignOut }) {
                       </li>
                       <li>
                         <Link
-                          to="#coastal"
+                          to="/#coastal"
+                          onClick={() => setNavDropdownOpen(false)}
                           className="inline-flex items-center w-full p-2 text-gray-200 hover:bg-blue-600 hover:text-white rounded"
                         >
                           Coastal Region
@@ -374,7 +378,8 @@ export default function Header({ user, onOpenAccount, onSignOut }) {
                       </li>
                       <li>
                         <Link
-                          to="#mountain"
+                          to="/#mountain"
+                          onClick={() => setNavDropdownOpen(false)}
                           className="inline-flex items-center w-full p-2 text-gray-200 hover:bg-blue-600 hover:text-white rounded"
                         >
                           Mountain and Plateau Region
