@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useState } from "react";
 import { motion, useAnimationControls } from "framer-motion";
 import { FaFacebook, FaGithub, FaLinkedin } from "react-icons/fa";
 import Roth from "../assets/profile.jpg";
+import Thika from "../assets/puker.jpg"
 
 const members = [
   {
@@ -15,7 +16,7 @@ const members = [
   {
     name: "Phort Randethika",
     position: "Frontend Developer",
-    image: Roth,
+    image: Thika,
     facebook: "https://facebook.com/",
     github: "https://github.com/",
     linkedin: "https://linkedin.com/",

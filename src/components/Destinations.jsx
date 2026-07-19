@@ -2,7 +2,7 @@ import React from 'react'
 import CardPlace from './CardPlace'
 import waterfall from '../assets/PicPlace/Veal Pouch Waterfall, Kompot.jpeg'
 import kho_han from '../assets/PicPlace/Koh Han.jpeg'
-import angkor from '../assets/PicPlace/Angkor Wat .jpg'
+import angkor from '../assets/PicPlace/siemreap/Angkor Wat .jpg'
 const places = [
   { image: waterfall, name: 'Veal Pouch Waterfall', location: 'Kompot, Cambodia', rating: 5 },
   { image: kho_han, name: 'Veal Pouch Waterfall', location: 'Kompot, Cambodia', rating: 4 },
