@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { StarIcon } from "@heroicons/react/24/solid";
 import { MdLocationPin } from "react-icons/md";
@@ -154,6 +154,18 @@ export default function CambodiaTravelExplorer() {
   const [activeCategory, setActiveCategory] = useState("all");
   const [currentPage, setCurrentPage] = useState(0);
   const location = useLocation();
+  const isFirstRender = useRef(true);
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    const element = document.getElementById("explore-section");
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [currentPage, activeCategory]);
 
   useEffect(() => {
     const hash = location.hash;

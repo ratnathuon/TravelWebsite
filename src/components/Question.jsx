@@ -51,15 +51,8 @@ function Question() {
     <section className="bg-white py-16 font-poppins">
       <div className="mx-auto max-w-4xl px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center mb-12">
-          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-green-800/80">
+          <p className="text-2xl font-bold uppercase tracking-[0.3em] text-green-800/80">
             Frequently Asked Questions
-          </p>
-          <h2 className="mt-4 text-4xl font-bold tracking-tight text-slate-900 font-poppins">
-            Leverage AI-powered travel guidance for every journey.
-          </h2>
-          <p className="mt-4 text-gray-600 text-base leading-8">
-            Discover how our agency makes travel planning simple, flexible and
-            secure with expert support at every step.
           </p>
         </div>
 

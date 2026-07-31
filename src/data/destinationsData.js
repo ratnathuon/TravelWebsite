@@ -289,6 +289,303 @@ export const destinationsData = [
         likes: 5
       }
     ]
+  },
+  {
+    id: "kampong-phluk",
+    name: "Kampong Phluk Floating Village",
+    searchNames: ["kampong phluk", "floating village", "tonle sap"],
+    location: "Siem Reap (Tonle Sap), Cambodia",
+    rating: 5,
+    img: kompongPhlukImg,
+    cat: "tonle",
+    about: "Kampong Phluk is a cluster of three villages of stilted houses built within the floodplain of the Tonle Sap Lake, about 16 km southeast of Siem Reap. The houses are built on stilts that range between 6 and 10 meters high to handle the massive water height variation of the lake between wet and dry seasons. During the wet season, the area transforms into a magical flooded forest where villagers navigate by boat, offering visitors a unique look at lake-dwelling life.",
+    mapSearch: "Kampong Phluk, Cambodia",
+    reviews: [
+      {
+        id: "kf1",
+        username: "Ratna",
+        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop",
+        comment: "That looking grate! Navigating the stilted houses by boat is an eye-opening experience.",
+        likes: 8
+      },
+      {
+        id: "kf2",
+        username: "Srey",
+        avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop",
+        comment: "Visiting the flooded mangrove forests here was the highlight of our trip.",
+        likes: 5
+      }
+    ]
+  },
+  {
+    id: "kampong-phluk",
+    name: "Kampong Phluk Floating Village",
+    searchNames: ["kampong phluk", "floating village", "tonle sap"],
+    location: "Siem Reap (Tonle Sap), Cambodia",
+    rating: 5,
+    img: kompongPhlukImg,
+    cat: "tonle",
+    about: "Kampong Phluk is a cluster of three villages of stilted houses built within the floodplain of the Tonle Sap Lake, about 16 km southeast of Siem Reap. The houses are built on stilts that range between 6 and 10 meters high to handle the massive water height variation of the lake between wet and dry seasons. During the wet season, the area transforms into a magical flooded forest where villagers navigate by boat, offering visitors a unique look at lake-dwelling life.",
+    mapSearch: "Kampong Phluk, Cambodia",
+    reviews: [
+      {
+        id: "kf1",
+        username: "Ratna",
+        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop",
+        comment: "That looking grate! Navigating the stilted houses by boat is an eye-opening experience.",
+        likes: 8
+      },
+      {
+        id: "kf2",
+        username: "Srey",
+        avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop",
+        comment: "Visiting the flooded mangrove forests here was the highlight of our trip.",
+        likes: 5
+      }
+    ]
+  },
+  {
+    id: "kampong-phluk",
+    name: "Kampong Phluk Floating Village",
+    searchNames: ["kampong phluk", "floating village", "tonle sap"],
+    location: "Siem Reap (Tonle Sap), Cambodia",
+    rating: 5,
+    img: kompongPhlukImg,
+    cat: "tonle",
+    about: "Kampong Phluk is a cluster of three villages of stilted houses built within the floodplain of the Tonle Sap Lake, about 16 km southeast of Siem Reap. The houses are built on stilts that range between 6 and 10 meters high to handle the massive water height variation of the lake between wet and dry seasons. During the wet season, the area transforms into a magical flooded forest where villagers navigate by boat, offering visitors a unique look at lake-dwelling life.",
+    mapSearch: "Kampong Phluk, Cambodia",
+    reviews: [
+      {
+        id: "kf1",
+        username: "Ratna",
+        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop",
+        comment: "That looking grate! Navigating the stilted houses by boat is an eye-opening experience.",
+        likes: 8
+      },
+      {
+        id: "kf2",
+        username: "Srey",
+        avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop",
+        comment: "Visiting the flooded mangrove forests here was the highlight of our trip.",
+        likes: 5
+      }
+    ]
+  },
+  {
+    id: "kampong-phluk",
+    name: "Kampong Phluk Floating Village",
+    searchNames: ["kampong phluk", "floating village", "tonle sap"],
+    location: "Siem Reap (Tonle Sap), Cambodia",
+    rating: 5,
+    img: kompongPhlukImg,
+    cat: "tonle",
+    about: "Kampong Phluk is a cluster of three villages of stilted houses built within the floodplain of the Tonle Sap Lake, about 16 km southeast of Siem Reap. The houses are built on stilts that range between 6 and 10 meters high to handle the massive water height variation of the lake between wet and dry seasons. During the wet season, the area transforms into a magical flooded forest where villagers navigate by boat, offering visitors a unique look at lake-dwelling life.",
+    mapSearch: "Kampong Phluk, Cambodia",
+    reviews: [
+      {
+        id: "kf1",
+        username: "Ratna",
+        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop",
+        comment: "That looking grate! Navigating the stilted houses by boat is an eye-opening experience.",
+        likes: 8
+      },
+      {
+        id: "kf2",
+        username: "Srey",
+        avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop",
+        comment: "Visiting the flooded mangrove forests here was the highlight of our trip.",
+        likes: 5
+      }
+    ]
+  },
+  {
+    id: "kampong-phluk",
+    name: "Kampong Phluk Floating Village",
+    searchNames: ["kampong phluk", "floating village", "tonle sap"],
+    location: "Siem Reap (Tonle Sap), Cambodia",
+    rating: 5,
+    img: kompongPhlukImg,
+    cat: "tonle",
+    about: "Kampong Phluk is a cluster of three villages of stilted houses built within the floodplain of the Tonle Sap Lake, about 16 km southeast of Siem Reap. The houses are built on stilts that range between 6 and 10 meters high to handle the massive water height variation of the lake between wet and dry seasons. During the wet season, the area transforms into a magical flooded forest where villagers navigate by boat, offering visitors a unique look at lake-dwelling life.",
+    mapSearch: "Kampong Phluk, Cambodia",
+    reviews: [
+      {
+        id: "kf1",
+        username: "Ratna",
+        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop",
+        comment: "That looking grate! Navigating the stilted houses by boat is an eye-opening experience.",
+        likes: 8
+      },
+      {
+        id: "kf2",
+        username: "Srey",
+        avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop",
+        comment: "Visiting the flooded mangrove forests here was the highlight of our trip.",
+        likes: 5
+      }
+    ]
+  },
+  {
+    id: "kampong-phluk",
+    name: "Kampong Phluk Floating Village",
+    searchNames: ["kampong phluk", "floating village", "tonle sap"],
+    location: "Siem Reap (Tonle Sap), Cambodia",
+    rating: 5,
+    img: kompongPhlukImg,
+    cat: "tonle",
+    about: "Kampong Phluk is a cluster of three villages of stilted houses built within the floodplain of the Tonle Sap Lake, about 16 km southeast of Siem Reap. The houses are built on stilts that range between 6 and 10 meters high to handle the massive water height variation of the lake between wet and dry seasons. During the wet season, the area transforms into a magical flooded forest where villagers navigate by boat, offering visitors a unique look at lake-dwelling life.",
+    mapSearch: "Kampong Phluk, Cambodia",
+    reviews: [
+      {
+        id: "kf1",
+        username: "Ratna",
+        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop",
+        comment: "That looking grate! Navigating the stilted houses by boat is an eye-opening experience.",
+        likes: 8
+      },
+      {
+        id: "kf2",
+        username: "Srey",
+        avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop",
+        comment: "Visiting the flooded mangrove forests here was the highlight of our trip.",
+        likes: 5
+      }
+    ]
+  },
+  {
+    id: "kampong-phluk",
+    name: "Kampong Phluk Floating Village",
+    searchNames: ["kampong phluk", "floating village", "tonle sap"],
+    location: "Siem Reap (Tonle Sap), Cambodia",
+    rating: 5,
+    img: kompongPhlukImg,
+    cat: "tonle",
+    about: "Kampong Phluk is a cluster of three villages of stilted houses built within the floodplain of the Tonle Sap Lake, about 16 km southeast of Siem Reap. The houses are built on stilts that range between 6 and 10 meters high to handle the massive water height variation of the lake between wet and dry seasons. During the wet season, the area transforms into a magical flooded forest where villagers navigate by boat, offering visitors a unique look at lake-dwelling life.",
+    mapSearch: "Kampong Phluk, Cambodia",
+    reviews: [
+      {
+        id: "kf1",
+        username: "Ratna",
+        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop",
+        comment: "That looking grate! Navigating the stilted houses by boat is an eye-opening experience.",
+        likes: 8
+      },
+      {
+        id: "kf2",
+        username: "Srey",
+        avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop",
+        comment: "Visiting the flooded mangrove forests here was the highlight of our trip.",
+        likes: 5
+      }
+    ]
+  },
+  {
+    id: "kampong-phluk",
+    name: "Kampong Phluk Floating Village",
+    searchNames: ["kampong phluk", "floating village", "tonle sap"],
+    location: "Siem Reap (Tonle Sap), Cambodia",
+    rating: 5,
+    img: kompongPhlukImg,
+    cat: "tonle",
+    about: "Kampong Phluk is a cluster of three villages of stilted houses built within the floodplain of the Tonle Sap Lake, about 16 km southeast of Siem Reap. The houses are built on stilts that range between 6 and 10 meters high to handle the massive water height variation of the lake between wet and dry seasons. During the wet season, the area transforms into a magical flooded forest where villagers navigate by boat, offering visitors a unique look at lake-dwelling life.",
+    mapSearch: "Kampong Phluk, Cambodia",
+    reviews: [
+      {
+        id: "kf1",
+        username: "Ratna",
+        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop",
+        comment: "That looking grate! Navigating the stilted houses by boat is an eye-opening experience.",
+        likes: 8
+      },
+      {
+        id: "kf2",
+        username: "Srey",
+        avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop",
+        comment: "Visiting the flooded mangrove forests here was the highlight of our trip.",
+        likes: 5
+      }
+    ]
+  },
+  {
+    id: "kampong-phluk",
+    name: "Kampong Phluk Floating Village",
+    searchNames: ["kampong phluk", "floating village", "tonle sap"],
+    location: "Siem Reap (Tonle Sap), Cambodia",
+    rating: 5,
+    img: kompongPhlukImg,
+    cat: "tonle",
+    about: "Kampong Phluk is a cluster of three villages of stilted houses built within the floodplain of the Tonle Sap Lake, about 16 km southeast of Siem Reap. The houses are built on stilts that range between 6 and 10 meters high to handle the massive water height variation of the lake between wet and dry seasons. During the wet season, the area transforms into a magical flooded forest where villagers navigate by boat, offering visitors a unique look at lake-dwelling life.",
+    mapSearch: "Kampong Phluk, Cambodia",
+    reviews: [
+      {
+        id: "kf1",
+        username: "Ratna",
+        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop",
+        comment: "That looking grate! Navigating the stilted houses by boat is an eye-opening experience.",
+        likes: 8
+      },
+      {
+        id: "kf2",
+        username: "Srey",
+        avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop",
+        comment: "Visiting the flooded mangrove forests here was the highlight of our trip.",
+        likes: 5
+      }
+    ]
+  },
+  {
+    id: "kampong-phluk",
+    name: "Kampong Phluk Floating Village",
+    searchNames: ["kampong phluk", "floating village", "tonle sap"],
+    location: "Siem Reap (Tonle Sap), Cambodia",
+    rating: 5,
+    img: kompongPhlukImg,
+    cat: "tonle",
+    about: "Kampong Phluk is a cluster of three villages of stilted houses built within the floodplain of the Tonle Sap Lake, about 16 km southeast of Siem Reap. The houses are built on stilts that range between 6 and 10 meters high to handle the massive water height variation of the lake between wet and dry seasons. During the wet season, the area transforms into a magical flooded forest where villagers navigate by boat, offering visitors a unique look at lake-dwelling life.",
+    mapSearch: "Kampong Phluk, Cambodia",
+    reviews: [
+      {
+        id: "kf1",
+        username: "Ratna",
+        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop",
+        comment: "That looking grate! Navigating the stilted houses by boat is an eye-opening experience.",
+        likes: 8
+      },
+      {
+        id: "kf2",
+        username: "Srey",
+        avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop",
+        comment: "Visiting the flooded mangrove forests here was the highlight of our trip.",
+        likes: 5
+      }
+    ]
+  },
+  {
+    id: "kampong-phluk",
+    name: "Kampong Phluk Floating Village",
+    searchNames: ["kampong phluk", "floating village", "tonle sap"],
+    location: "Siem Reap (Tonle Sap), Cambodia",
+    rating: 5,
+    img: kompongPhlukImg,
+    cat: "tonle",
+    about: "Kampong Phluk is a cluster of three villages of stilted houses built within the floodplain of the Tonle Sap Lake, about 16 km southeast of Siem Reap. The houses are built on stilts that range between 6 and 10 meters high to handle the massive water height variation of the lake between wet and dry seasons. During the wet season, the area transforms into a magical flooded forest where villagers navigate by boat, offering visitors a unique look at lake-dwelling life.",
+    mapSearch: "Kampong Phluk, Cambodia",
+    reviews: [
+      {
+        id: "kf1",
+        username: "Ratna",
+        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop",
+        comment: "That looking grate! Navigating the stilted houses by boat is an eye-opening experience.",
+        likes: 8
+      },
+      {
+        id: "kf2",
+        username: "Srey",
+        avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop",
+        comment: "Visiting the flooded mangrove forests here was the highlight of our trip.",
+        likes: 5
+      }
+    ]
   }
 ];
 
