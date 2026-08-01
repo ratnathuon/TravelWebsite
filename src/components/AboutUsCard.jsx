@@ -1,46 +1,9 @@
 import React, { useRef, useEffect, useState } from "react";
 import { motion, useAnimationControls } from "framer-motion";
 import { FaFacebook, FaGithub, FaLinkedin } from "react-icons/fa";
-import Roth from "../assets/profile.jpg";
-import Thika from "../assets/puker.jpg"
-
-const members = [
-  {
-    name: "Thuon Ratna",
-    position: "Leader",
-    image: Roth,
-    facebook: "https://facebook.com/",
-    github: "https://github.com/",
-    linkedin: "https://linkedin.com/",
-  },
-  {
-    name: "Phort Randethika",
-    position: "Frontend Developer",
-    image: Thika,
-    facebook: "https://facebook.com/",
-    github: "https://github.com/",
-    linkedin: "https://linkedin.com/",
-  },
-  {
-    name: "Moy Sivelang",
-    position: "Backend Developer",
-    image: Roth,
-    facebook: "https://facebook.com/",
-    github: "https://github.com/",
-    linkedin: "https://linkedin.com/",
-  },
-  {
-    name: "Vannak Thanuk",
-    position: "UI/UX Designer",
-    image: Roth,
-    facebook: "https://facebook.com/",
-    github: "https://github.com/",
-    linkedin: "https://linkedin.com/",
-  },
-];
-
-// Duplicate for seamless loop
-const allMembers = [...members, ...members];
+import defaultMembers from "../data/memberdata";
+import { db } from "../firebase";
+import { collection, getDocs } from "firebase/firestore";
 
 const MemberCard = ({ name, position, image, facebook, github, linkedin, onHoverStart, onHoverEnd }) => (
   <motion.div
@@ -85,17 +48,35 @@ const MemberCard = ({ name, position, image, facebook, github, linkedin, onHover
 );
 
 export const AboutUsCard = () => {
+  const [memberList, setMemberList] = useState(defaultMembers);
   const controls = useAnimationControls();
   const trackRef = useRef(null);
   const [isPaused, setIsPaused] = useState(false);
   const positionRef = useRef(0);
   const animationRef = useRef(null);
   const startTimeRef = useRef(null);
-  const pausedAtRef = useRef(null);
+
+  useEffect(() => {
+    const fetchMembers = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, "team_members"));
+        if (!querySnapshot.empty) {
+          const data = querySnapshot.docs.map((doc) => doc.data());
+          setMemberList(data);
+        }
+      } catch (err) {
+        console.error("Error fetching team members from Firestore:", err);
+      }
+    };
+    fetchMembers();
+  }, []);
+
+  // Duplicate for seamless loop
+  const allMembers = [...memberList, ...memberList];
 
   // Card width + gap
   const CARD_WIDTH = 256 + 24; // w-64 (256px) + gap-6 (24px)
-  const TOTAL_WIDTH = CARD_WIDTH * members.length;
+  const TOTAL_WIDTH = CARD_WIDTH * memberList.length;
   const SCROLL_SPEED = 50; // px per second
 
   useEffect(() => {
@@ -107,7 +88,7 @@ export const AboutUsCard = () => {
         positionRef.current = (elapsed * SCROLL_SPEED) / 600;
 
         // Loop: reset when we've scrolled one full set
-        if (positionRef.current >= TOTAL_WIDTH) {
+        if (TOTAL_WIDTH > 0 && positionRef.current >= TOTAL_WIDTH) {
           positionRef.current = positionRef.current - TOTAL_WIDTH;
           startTimeRef.current = timestamp - positionRef.current * (1000 / SCROLL_SPEED);
         }
@@ -157,7 +138,7 @@ export const AboutUsCard = () => {
           >
             {allMembers.map((member, index) => (
               <MemberCard
-                key={index}
+                key={`${member.id || member.name}-${index}`}
                 {...member}
                 onHoverStart={handleHoverStart}
                 onHoverEnd={handleHoverEnd}
@@ -166,7 +147,7 @@ export const AboutUsCard = () => {
           </div>
         </div>
       </div>
-    
+
     </div>
   );
 };

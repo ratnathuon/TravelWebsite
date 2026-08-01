@@ -78,7 +78,7 @@ export default function Search() {
     <section className="flex justify-center">
       <form
         onSubmit={handleSearchSubmit}
-        className="relative w-full max-w-2xl rounded-2xl p-2  ring-1 ring-white/10 z-50"
+        className="relative w-full max-w-2xl rounded-2xl p-2  ring-1 ring-white/10 z-10"
       >
         <label htmlFor="destination-search" className="sr-only">
           Search destinations
@@ -96,7 +96,7 @@ export default function Search() {
 
             {/* Dropdown Menu */}
             {isDropdownOpen && (
-              <div className="absolute left-0 top-full mt-1 bg-white border border-slate-200 rounded-xl shadow-2xl overflow-hidden min-w-max z-[9999]">
+              <div className="absolute left-0 top-full mt-1 bg-white border border-slate-200 rounded-xl shadow-2xl overflow-hidden min-w-max z-30">
                 {categories.map((category) => (
                   <button
                     key={category}
@@ -135,7 +135,7 @@ export default function Search() {
         </div>
 
         {normalizedQuery && (
-          <div className="absolute left-4 right-4 top-[calc(100%-1rem)] z-[9999] rounded-3xl border border-slate-200 bg-white p-4 text-slate-900 shadow-2xl">
+          <div className="absolute left-4 right-4 top-[calc(100%-1rem)] z-30 rounded-3xl border border-slate-200 bg-white p-4 text-slate-900 shadow-2xl">
             {filteredPlaces.length > 0 ? (
               <div className="space-y-3">
                 <p className="text-sm font-semibold text-slate-700">

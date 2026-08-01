@@ -110,7 +110,7 @@ export default function Header({ user, onOpenAccount, onSignOut }) {
 
   return (
     <>
-      <nav className=" bg-gradient-to-r from-[#0F2027] via-[#28623a] to-[#28623a] mb-4 font-poppins">
+      <nav className="sticky top-0 z-50 bg-gradient-to-r from-[#0F2027] via-[#28623a] to-[#28623a] shadow-md font-poppins">
         <div className="max-w-screen-xl mx-auto flex flex-wrap items-center justify-between px-5 py-4">
           {/* Logo */}
           <motion.div

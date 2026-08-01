@@ -1,22 +1,42 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import slides from "./Sliderdata";
+import defaultSlides from "../data/Sliderdata";
 import { motion } from "framer-motion";
+import { db } from "../firebase";
+import { collection, getDocs } from "firebase/firestore";
+
 const BASE_WIDTH = 1280;
 const BASE_HEIGHT = 700;
 
 export default function TravelSlider() {
   const navigate = useNavigate();
+  const [slides, setSlides] = useState(defaultSlides);
   const [current, setCurrent] = useState(0);
   const [scale, setScale] = useState(1);
   const containerRef = useRef(null);
 
   useEffect(() => {
+    const fetchSlides = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, "slides"));
+        if (!querySnapshot.empty) {
+          const data = querySnapshot.docs.map((doc) => doc.data());
+          setSlides(data);
+        }
+      } catch (err) {
+        console.error("Error fetching slides from Firestore:", err);
+      }
+    };
+    fetchSlides();
+  }, []);
+
+  useEffect(() => {
+    if (!slides || slides.length === 0) return;
     const timer = setInterval(() => {
       setCurrent((prev) => (prev + 1) % slides.length);
     }, 3500);
     return () => clearInterval(timer);
-  }, []);
+  }, [slides]);
 
   useEffect(() => {
     const updateScale = () => {

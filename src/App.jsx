@@ -3,13 +3,23 @@ import Header, { loadUser, saveUser, clearUser, enrichUserFromDb } from "./compo
 import Search from "./components/Search"
 import Footer from "./components/Footer"
 import About from "./Pages/About"
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import Home from "./Pages/Home"
 import CardPlace from "./components/CardPlace"
 import Account from "./components/Account"
 import AccountInfo from "./components/Account_Info"
 import ExploreDetail from "./Pages/ExploreDetail"
 import { migrateDataToFirestore } from "./data/migrate";
+
+function ScrollToTop() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }, [pathname]);
+
+  return null;
+}
 
 function App() {
   const [isAccountOpen, setIsAccountOpen] = useState(false);
@@ -29,6 +39,7 @@ function App() {
 
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Header 
         onOpenAccount={() => setIsAccountOpen(true)} 
         user={user}

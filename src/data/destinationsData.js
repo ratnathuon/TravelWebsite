@@ -2,12 +2,20 @@
 // Includes realistic descriptions, locations, maps, and reviews to match the user's photo mockup.
 
 import angkorImg from '../assets/PicPlace/siemreap/Angkor Wat .jpg';
+import angkor2Img from '../assets/PicPlace/Copy of Angkor Wat 2.webp';
+import siemreapImg from '../assets/PicPlace/siemreap/siemreap.jpg';
+import tonleOmImg from '../assets/PicPlace/siemreap/tonle-om.jpg';
 import kohHanImg from '../assets/PicPlace/Koh Han.jpeg';
 import waterfallImg from '../assets/PicPlace/Veal Pouch Waterfall, Kompot.jpeg';
 import kohRongImg from '../assets/koh rong island.jpg';
 import kampotImg from '../assets/Kampot-Riverfront-Boutique.webp';
+import kompot1 from '../assets/PicPlace/kompot/kompot1.webp';
+import kompot2 from '../assets/PicPlace/kompot/kompot2.webp';
+import kompot3 from '../assets/PicPlace/kompot/kompot3.jpg';
 import ratnakKiriImg from '../assets/PicPlace/Ratnak Kiri.jpeg';
 import kohKongImg from '../assets/PicPlace/koh kong.jpg';
+import kohkong1 from '../assets/PicPlace/kohkong/kohkong1.jpg';
+import kohkong2 from '../assets/PicPlace/kohkong/kohkong2.jpg';
 import battambangImg from '../assets/Battambang Colonial Town.jpg';
 import kompongPhlukImg from '../assets/kompong-phluk.jpg';
 import psakdamImg from '../assets/Kep Crab Market.jpg';
@@ -20,6 +28,7 @@ export const destinationsData = [
     location: "Siem Reap, Cambodia",
     rating: 5,
     img: angkorImg,
+    gallery: [angkorImg, angkor2Img, siemreapImg, tonleOmImg],
     cat: "plains",
     about: "Angkor Wat is a magnificent temple complex located in Siem Reap, Cambodia. Originally built in the early 12th century as a Hindu temple dedicated to the god Vishnu, it gradually transformed into a Buddhist temple. As the largest religious monument in the world, it represents the high point of classical Khmer architecture. The temple is admired for the grandeur and harmony of its design, its extensive bas-reliefs, and the numerous devatas (guardian spirits) adorning its walls. It is a symbol of Cambodia, appearing on its national flag, and is a UNESCO World Heritage site.",
     mapSearch: "Angkor Wat, Siem Reap, Cambodia",
@@ -81,6 +90,7 @@ export const destinationsData = [
     location: "Kampot, Cambodia",
     rating: 4,
     img: kampotImg,
+    gallery: [kampotImg, kompot1, kompot2, kompot3],
     cat: "coastal",
     about: "Kampot is a beautiful, laid-back riverside town in southern Cambodia. It is world-renowned for its high-quality Kampot Pepper and unique salt fields. The town features charming French colonial architecture, a relaxed pace of life, and close proximity to Bokor National Park. The riverfront is perfect for sunset cruises, paddleboarding, and enjoying local seafood dishes under the stars.",
     mapSearch: "Kampot, Cambodia",

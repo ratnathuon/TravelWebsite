@@ -6,7 +6,7 @@ import { destinationsData } from '../data/destinationsData';
 import { IoArrowBackOutline, IoShareOutline, IoHeartOutline, IoHeart, IoCreateOutline, IoThumbsUpOutline, IoThumbsUp } from 'react-icons/io5';
 import { FaRegStar, FaStar } from 'react-icons/fa';
 import { MdLocationPin } from 'react-icons/md';
-
+import Footer from '../components/Footer';
 export default function ExploreDetail() {
   const { placeName } = useParams();
   const navigate = useNavigate();
@@ -15,6 +15,7 @@ export default function ExploreDetail() {
 
   // State
   const [destination, setDestination] = useState(null);
+  const [selectedImage, setSelectedImage] = useState(null);
   const [loading, setLoading] = useState(true);
   const [reviews, setReviews] = useState([]);
   const [favorites, setFavorites] = useState(() => {
@@ -46,6 +47,10 @@ export default function ExploreDetail() {
   });
 
   useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }, [placeName]);
+
+  useEffect(() => {
     const fetchDestinationData = async () => {
       setLoading(true);
       try {
@@ -65,13 +70,17 @@ export default function ExploreDetail() {
         const nameClean = decodedName.trim().toLowerCase();
 
         // Find match where searchName is included in searchNames list
-        let match = destinations.find(d => 
-          d.searchNames.some(sn => nameClean.includes(sn) || sn.includes(nameClean))
+        let match = destinations.find(d =>
+          d.searchNames?.some(sn => nameClean.includes(sn) || sn.includes(nameClean))
+        );
+
+        const staticMatch = destinationsData.find(d =>
+          d.id === match?.id || d.searchNames?.some(sn => nameClean.includes(sn) || sn.includes(nameClean))
         );
 
         if (!match) {
           // Fallback default details if not found
-          match = {
+          match = staticMatch || {
             id: "default-place",
             name: decodedName,
             location: "Cambodia",
@@ -91,14 +100,22 @@ export default function ExploreDetail() {
           };
         }
 
+        // Attach gallery from static data if missing in Firestore doc
+        const combinedGallery = (match.gallery && match.gallery.length > 0)
+          ? match.gallery
+          : (staticMatch?.gallery || (match.img ? [match.img] : []));
+
+        match = { ...match, gallery: combinedGallery };
+
         setDestination(match);
+        setSelectedImage(match.gallery?.[0] || match.img);
         setReviews(match.reviews || []);
       } catch (err) {
         console.error("Error loading destination details, using static fallback:", err);
         const decodedName = decodeURIComponent(placeName || '');
         const nameClean = decodedName.trim().toLowerCase();
-        let match = destinationsData.find(d => 
-          d.searchNames.some(sn => nameClean.includes(sn) || sn.includes(nameClean))
+        let match = destinationsData.find(d =>
+          d.searchNames?.some(sn => nameClean.includes(sn) || sn.includes(nameClean))
         );
         if (!match) {
           match = {
@@ -121,6 +138,7 @@ export default function ExploreDetail() {
           };
         }
         setDestination(match);
+        setSelectedImage(match.gallery?.[0] || match.img);
         setReviews(match.reviews || []);
       } finally {
         setLoading(false);
@@ -130,6 +148,10 @@ export default function ExploreDetail() {
     fetchDestinationData();
   }, [placeName]);
 
+  const gallery = destination?.gallery?.length 
+    ? destination.gallery 
+    : (destination?.img ? [destination.img] : []);
+
   // Sync favorites state
   const handleSaveToggle = () => {
     if (!destination) return;
@@ -138,7 +160,7 @@ export default function ExploreDetail() {
       const isAlreadySaved = savedFavorites.some(
         (place) => place.name.toLowerCase() === destination.name.toLowerCase()
       );
-      
+
       let updatedFavorites;
       if (isAlreadySaved) {
         updatedFavorites = savedFavorites.filter(
@@ -187,7 +209,7 @@ export default function ExploreDetail() {
 
   const handleLikeReview = async (reviewId) => {
     if (!destination) return;
-    
+
     const wasLiked = likedReviews[reviewId];
     const updatedReviews = reviews.map((r) => {
       if (r.id === reviewId) {
@@ -267,8 +289,8 @@ export default function ExploreDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-[#fafafa] font-poppins text-gray-800 pb-16">
-      
+    <div className="min-h-screen bg-[#fafafa] font-poppins text-gray-800 flex flex-col justify-between">
+
       {/* Toast Notification */}
       {showToast && (
         <div className="fixed bottom-8 right-8 z-50 bg-[#1e5e2e] text-white py-3 px-6 rounded-2xl shadow-2xl flex items-center gap-2 border border-green-700 animate-slide-up">
@@ -277,9 +299,9 @@ export default function ExploreDetail() {
       )}
 
       {/* Main Container */}
-      <div className="max-w-6xl mx-auto px-6 pt-6">
+      <div className="max-w-6xl mx-auto px-6 pt-6 pb-16 w-full flex-1">
         {/* Back Button */}
-        <button 
+        <button
           onClick={() => navigate(-1)}
           className="p-3 bg-white rounded-full shadow-md hover:shadow-lg text-gray-600 hover:text-green-800 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-800/30"
           aria-label="Go Back"
@@ -300,19 +322,19 @@ export default function ExploreDetail() {
               </div>
             </div>
 
-            <button 
+            <button
               onClick={handleViewLocationClick}
               className="flex items-center gap-1.5 text-gray-600 hover:text-green-800 font-semibold text-sm transition-colors duration-150"
             >
               <MdLocationPin className="w-5 h-5 text-red-500" />
               <span>View Location</span>
             </button>
-            <div/>
+            <div />
           </div>
 
           {/* Action buttons */}
           <div className="flex items-center gap-3">
-            <button 
+            <button
               onClick={handleShare}
               className="flex items-center gap-1.5 px-4 py-2.5 bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50 text-sm font-bold text-gray-600 hover:text-green-800 transition-all duration-150"
             >
@@ -320,7 +342,7 @@ export default function ExploreDetail() {
               <span>Share</span>
             </button>
 
-            <button 
+            <button
               onClick={handleSaveToggle}
               className="flex items-center gap-1.5 px-4 py-2.5 bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50 text-sm font-bold text-gray-600 hover:text-red-500 transition-all duration-150"
             >
@@ -332,7 +354,7 @@ export default function ExploreDetail() {
               <span>{isSaved ? "Saved" : "Save"}</span>
             </button>
 
-            <button 
+            <button
               onClick={handleReviewButtonClick}
               className="flex items-center gap-1.5 px-4 py-2.5 bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50 text-sm font-bold text-gray-600 hover:text-green-800 transition-all duration-150"
             >
@@ -342,124 +364,145 @@ export default function ExploreDetail() {
           </div>
         </div>
 
-        {/* 2-Column Main Content Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-1 gap-8 mt-8 bg-white rounded-3xl shadow-sm border border-gray-100 p-6 md:p-10">
+        {/* Vertical Stack Content Layout */}
+        <div className="flex flex-col gap-8 mt-8">
           
-          {/* Left Column: Place Details (2/3 width) */}
-          <div className="lg:col-span-2">
-            <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100">
-              <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight mb-6">
-                {destination.name}
-              </h1>
+          {/* Place Details Section */}
+          <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100">
+            <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight mb-6">
+              {destination.name}
+            </h1>
 
-              {/* Large Image */}
-              <div className="relative rounded-3xl overflow-hidden shadow-lg mb-8 max-h-[480px]">
-                <img 
-                  src={destination.img} 
-                  alt={destination.name} 
-                  className="w-full h-full object-cover hover:scale-[1.01] transition-transform duration-500" 
-                  style={{ maxHeight: '440px' }}
-                />
-              </div>
+            {/* Featured Main Image */}
+            <div className="relative rounded-3xl overflow-hidden shadow-lg mb-4 max-h-[520px]">
+              <img 
+                src={selectedImage || destination.img} 
+                alt={destination.name} 
+                className="w-full h-full object-cover transition-all duration-300" 
+                style={{ maxHeight: '480px' }}
+              />
+            </div>
 
-              {/* About Section */}
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-4 relative pl-3 border-l-4 border-green-800">
-                  About
-                </h2>
-                <p className="text-gray-600 leading-relaxed text-base font-normal whitespace-pre-line">
-                  {destination.about}
-                </p>
+            {/* Photo Gallery Thumbnails */}
+            {gallery.length > 1 && (
+              <div className="mb-8">
+                <span className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
+                  Photo Gallery ({gallery.length} Photos)
+                </span>
+                <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin">
+                  {gallery.map((imgUrl, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setSelectedImage(imgUrl)}
+                      className={`relative flex-shrink-0 w-28 h-20 rounded-2xl overflow-hidden border-2 transition-all cursor-pointer ${
+                        (selectedImage || destination.img) === imgUrl
+                          ? 'border-green-800 ring-2 ring-green-800/40 scale-105 shadow-md'
+                          : 'border-gray-200 opacity-60 hover:opacity-100 hover:border-gray-400'
+                      }`}
+                    >
+                      <img 
+                        src={imgUrl} 
+                        alt={`${destination.name} photo ${idx + 1}`} 
+                        className="w-full h-full object-cover"
+                      />
+                    </button>
+                  ))}
+                </div>
               </div>
+            )}
+
+            {/* About Section */}
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4 relative pl-3 border-l-4 border-green-800">
+                About
+              </h2>
+              <p className="text-gray-600 leading-relaxed text-base font-normal whitespace-pre-line">
+                {destination.about}
+              </p>
             </div>
           </div>
 
-          {/* Right Column: Review & Map (1/3 width) */}
-          <div className="flex flex-col gap-8">
+          {/* Reviews Section */}
+          <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100 flex flex-col gap-6">
+            <h2 className="text-2xl font-bold text-gray-900">Review</h2>
             
-            {/* Reviews Section */}
-            <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100 flex flex-col gap-6">
-              <h2 className="text-2xl font-bold text-gray-900">Review</h2>
-              
-              {/* Review Input */}
-              <form onSubmit={handleAddReview} className="flex gap-2 items-center">
-                <input 
-                  ref={reviewInputRef}
-                  type="text" 
-                  placeholder="Add a review..." 
-                  value={newComment}
-                  onChange={(e) => setNewComment(e.target.value)}
-                  className="flex-1 text-sm bg-gray-50 border border-gray-200 rounded-2xl py-2 px-4 focus:outline-none focus:ring-2 focus:ring-green-800/30 focus:border-green-800 font-poppins"
-                />
-                <button 
-                  type="submit"
-                  className="px-4 py-2 bg-green-800 hover:bg-green-950 text-white text-sm font-semibold rounded-2xl shadow-md transition-colors"
+            {/* Review Input */}
+            <form onSubmit={handleAddReview} className="flex gap-2 items-center">
+              <input 
+                ref={reviewInputRef}
+                type="text" 
+                placeholder="Add a review..." 
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                className="flex-1 text-sm bg-gray-50 border border-gray-200 rounded-2xl py-2 px-4 focus:outline-none focus:ring-2 focus:ring-green-800/30 focus:border-green-800 font-poppins"
+              />
+              <button 
+                type="submit"
+                className="px-4 py-2 bg-green-800 hover:bg-green-950 text-white text-sm font-semibold rounded-2xl shadow-md transition-colors"
+              >
+                Post
+              </button>
+            </form>
+
+            {/* Reviews List */}
+            <div className="flex flex-col gap-4 overflow-y-auto max-h-[360px] pr-1">
+              {reviews.map((rev) => (
+                <div 
+                  key={rev.id}
+                  className="bg-gray-50 hover:bg-gray-100/70 border border-gray-100 rounded-2xl p-4 flex items-center justify-between gap-4 transition-colors"
                 >
-                  Post
-                </button>
-              </form>
-
-              {/* Reviews List */}
-              <div className="flex flex-col gap-4 overflow-y-auto max-h-[360px] pr-1">
-                {reviews.map((rev) => (
-                  <div 
-                    key={rev.id}
-                    className="bg-gray-50 hover:bg-gray-100/70 border border-gray-100 rounded-2xl p-4 flex items-center justify-between gap-4 transition-colors"
-                  >
-                    <div className="flex items-center gap-3 flex-1 min-w-0">
-                      <img 
-                        src={rev.avatar} 
-                        alt={rev.username} 
-                        className="w-11 h-11 rounded-full object-cover border border-white shadow-sm flex-shrink-0"
-                      />
-                      <div className="min-w-0">
-                        <span className="block font-bold text-sm text-gray-900">{rev.username}</span>
-                        <p className="text-gray-500 text-xs truncate mt-0.5 max-w-[180px]">
-                          {rev.comment}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-3 flex-shrink-0">
-                      <button 
-                        onClick={() => handleLikeReview(rev.id)}
-                        className={`flex items-center gap-1 text-xs hover:text-green-800 transition-colors ${likedReviews[rev.id] ? 'text-green-800 font-semibold' : 'text-gray-400'}`}
-                      >
-                        {likedReviews[rev.id] ? <IoThumbsUp className="w-4 h-4" /> : <IoThumbsUpOutline className="w-4 h-4" />}
-                        <span>{rev.likes}</span>
-                      </button>
-
-                      <button 
-                        onClick={() => setActiveReviewDetail(rev)}
-                        className="text-xs text-blue-500 hover:underline font-semibold"
-                      >
-                        See Detail
-                      </button>
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <img 
+                      src={rev.avatar} 
+                      alt={rev.username} 
+                      className="w-11 h-11 rounded-full object-cover border border-white shadow-sm flex-shrink-0"
+                    />
+                    <div className="min-w-0">
+                      <span className="block font-bold text-sm text-gray-900">{rev.username}</span>
+                      <p className="text-gray-500 text-xs truncate mt-0.5 max-w-[280px]">
+                        {rev.comment}
+                      </p>
                     </div>
                   </div>
-                ))}
 
-                {reviews.length === 0 && (
-                  <p className="text-center text-gray-400 text-sm py-4">No reviews yet. Be the first to add one!</p>
-                )}
-              </div>
+                  <div className="flex items-center gap-3 flex-shrink-0">
+                    <button 
+                      onClick={() => handleLikeReview(rev.id)}
+                      className={`flex items-center gap-1 text-xs hover:text-green-800 transition-colors ${likedReviews[rev.id] ? 'text-green-800 font-semibold' : 'text-gray-400'}`}
+                    >
+                      {likedReviews[rev.id] ? <IoThumbsUp className="w-4 h-4" /> : <IoThumbsUpOutline className="w-4 h-4" />}
+                      <span>{rev.likes}</span>
+                    </button>
+
+                    <button 
+                      onClick={() => setActiveReviewDetail(rev)}
+                      className="text-xs text-blue-500 hover:underline font-semibold"
+                    >
+                      See Detail
+                    </button>
+                  </div>
+                </div>
+              ))}
+
+              {reviews.length === 0 && (
+                <p className="text-center text-gray-400 text-sm py-4">No reviews yet. Be the first to add one!</p>
+              )}
             </div>
+          </div>
 
-            {/* Map Section */}
-            <div ref={mapRef} className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100 flex flex-col gap-4">
-              <h2 className="text-2xl font-bold text-gray-900">Map</h2>
-              
-              <div className="w-full h-64 rounded-2xl overflow-hidden border border-gray-150 shadow-inner relative">
-                <iframe
-                  title="location-map"
-                  className="w-full h-full border-0"
-                  src={`https://maps.google.com/maps?q=${encodeURIComponent(destination.mapSearch)}&t=&z=13&ie=UTF8&iwloc=&output=embed`}
-                  allowFullScreen
-                  loading="lazy"
-                ></iframe>
-              </div>
+          {/* Map Section */}
+          <div ref={mapRef} className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100 flex flex-col gap-4">
+            <h2 className="text-2xl font-bold text-gray-900">Map</h2>
+            
+            <div className="w-full h-80 rounded-2xl overflow-hidden border border-gray-150 shadow-inner relative">
+              <iframe
+                title="location-map"
+                className="w-full h-full border-0"
+                src={`https://maps.google.com/maps?q=${encodeURIComponent(destination.mapSearch)}&t=&z=13&ie=UTF8&iwloc=&output=embed`}
+                allowFullScreen
+                loading="lazy"
+              ></iframe>
             </div>
-
           </div>
 
         </div>
@@ -471,9 +514,9 @@ export default function ExploreDetail() {
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl animate-fade-in border border-gray-100">
             <div className="flex items-center gap-3 pb-4 border-b border-gray-100">
-              <img 
-                src={activeReviewDetail.avatar} 
-                alt={activeReviewDetail.username} 
+              <img
+                src={activeReviewDetail.avatar}
+                alt={activeReviewDetail.username}
                 className="w-12 h-12 rounded-full object-cover"
               />
               <div>
@@ -487,7 +530,7 @@ export default function ExploreDetail() {
             </p>
 
             <div className="flex justify-end">
-              <button 
+              <button
                 onClick={() => setActiveReviewDetail(null)}
                 className="px-6 py-2 bg-green-800 hover:bg-green-900 text-white font-semibold text-sm rounded-full transition-colors"
               >
@@ -497,7 +540,7 @@ export default function ExploreDetail() {
           </div>
         </div>
       )}
-
+      <Footer />
     </div>
   );
 } 

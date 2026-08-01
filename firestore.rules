@@ -6,6 +6,11 @@ service cloud.firestore {
     match /destinations/{document} {
       allow read, write: if true;
     }
+
+    // Rules for team_members collection
+    match /team_members/{document} {
+      allow read, write: if true;
+    }
     
     // Default fallback rules
     match /{document=**} {
