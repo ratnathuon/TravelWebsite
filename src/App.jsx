@@ -9,10 +9,15 @@ import CardPlace from "./components/CardPlace"
 import Account from "./components/Account"
 import AccountInfo from "./components/Account_Info"
 import ExploreDetail from "./Pages/ExploreDetail"
+import { migrateDataToFirestore } from "./data/migrate";
 
 function App() {
   const [isAccountOpen, setIsAccountOpen] = useState(false);
   const [user, setUser] = useState(() => loadUser());
+
+  useEffect(() => {
+    migrateDataToFirestore();
+  }, []);
 
   useEffect(() => {
     if (user) {

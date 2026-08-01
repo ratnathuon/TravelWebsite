@@ -1,6 +1,8 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { MdLocationOn, MdSearch, MdClose } from "react-icons/md";
+import { db } from "../firebase";
+import { collection, getDocs } from "firebase/firestore";
 import { destinationsData } from "../data/destinationsData";
 
 export default function Search() {
@@ -8,6 +10,26 @@ export default function Search() {
   const [query, setQuery] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("All Category");
+  const [destinations, setDestinations] = useState([]);
+
+  useEffect(() => {
+    const fetchDestinations = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, "destinations"));
+        if (!querySnapshot.empty) {
+          const data = querySnapshot.docs.map(doc => doc.data());
+          setDestinations(data);
+        } else {
+          console.warn("Firestore collection 'destinations' is empty, using fallback static data.");
+          setDestinations(destinationsData);
+        }
+      } catch (err) {
+        console.error("Error fetching destinations for Search, using static fallback:", err);
+        setDestinations(destinationsData);
+      }
+    };
+    fetchDestinations();
+  }, []);
 
   const categories = [
     "All Category",
@@ -20,7 +42,7 @@ export default function Search() {
   const normalizedQuery = query.trim().toLowerCase();
   const filteredPlaces = useMemo(() => {
     if (!normalizedQuery) return [];
-    return destinationsData.filter((place) => {
+    return destinations.filter((place) => {
       const haystack = [
         place.name,
         place.location,
@@ -30,7 +52,7 @@ export default function Search() {
         .toLowerCase();
       return haystack.includes(normalizedQuery);
     });
-  }, [normalizedQuery]);
+  }, [normalizedQuery, destinations]);
 
   const handleSearchSubmit = (event) => {
     event.preventDefault();

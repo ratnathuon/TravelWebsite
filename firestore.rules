@@ -1,0 +1,15 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Rules for destinations collection
+    match /destinations/{document} {
+      allow read, write: if true;
+    }
+    
+    // Default fallback rules
+    match /{document=**} {
+      allow read, write: if true;
+    }
+  }
+}

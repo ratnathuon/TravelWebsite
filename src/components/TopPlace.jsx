@@ -2,17 +2,11 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { StarIcon } from "@heroicons/react/24/solid";
 import { MdLocationPin } from "react-icons/md";
+import { db } from "../firebase";
+import { collection, getDocs } from "firebase/firestore";
 import { destinationsData } from "../data/destinationsData";
 
-const destinations = destinationsData.map(d => ({
-  name: d.name,
-  location: d.location,
-  stars: d.rating,
-  img: d.img
-}));
-
 const PAGE_SIZE = 3;
-const totalPages = Math.ceil(destinations.length / PAGE_SIZE);
 
 function StarRating({ count }) {
   return (
@@ -115,6 +109,8 @@ function DestinationCard({ destination, globalIndex, visible, exiting }) {
 }
 
 export default function CambodiaTravelExplorer() {
+  const [destinations, setDestinations] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
   const [visibleCount, setVisibleCount] = useState(0);
   const [exiting, setExiting] = useState(false);
@@ -125,18 +121,58 @@ export default function CambodiaTravelExplorer() {
     timers.current = [];
   };
 
+  useEffect(() => {
+    const fetchDestinations = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, "destinations"));
+        if (!querySnapshot.empty) {
+          const data = querySnapshot.docs.map(doc => {
+            const d = doc.data();
+            return {
+              name: d.name,
+              location: d.location,
+              stars: d.rating,
+              img: d.img
+            };
+          });
+          setDestinations(data);
+        } else {
+          console.warn("Firestore collection 'destinations' is empty, using fallback static data.");
+          setDestinations(destinationsData.map(d => ({
+            name: d.name,
+            location: d.location,
+            stars: d.rating,
+            img: d.img
+          })));
+        }
+      } catch (err) {
+        console.error("Error fetching destinations for TopPlace, using static fallback:", err);
+        setDestinations(destinationsData.map(d => ({
+          name: d.name,
+          location: d.location,
+          stars: d.rating,
+          img: d.img
+        })));
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDestinations();
+  }, []);
+
+  const totalPages = Math.ceil(destinations.length / PAGE_SIZE);
+
   const showPage = (page) => {
+    if (totalPages === 0) return;
     setCurrentPage(page);
     setExiting(false);
     setVisibleCount(0);
 
-    // Slide cards in one by one
     for (let i = 0; i < PAGE_SIZE; i++) {
       const t = setTimeout(() => setVisibleCount(i + 1), i * 350 + 100);
       timers.current.push(t);
     }
 
-    // After all shown, start exit then go to next page
     const exitT = setTimeout(() => {
       setExiting(true);
       const nextT = setTimeout(() => {
@@ -148,9 +184,20 @@ export default function CambodiaTravelExplorer() {
   };
 
   useEffect(() => {
-    showPage(0);
+    if (!loading && destinations.length > 0) {
+      clearTimers();
+      showPage(0);
+    }
     return () => clearTimers();
-  }, []);
+  }, [loading, destinations.length]);
+
+  if (loading) {
+    return (
+      <div className="w-full flex items-center justify-center py-20">
+        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-emerald-500"></div>
+      </div>
+    );
+  }
 
   const pageDestinations = destinations.slice(
     currentPage * PAGE_SIZE,

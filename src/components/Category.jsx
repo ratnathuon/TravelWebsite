@@ -3,15 +3,9 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { StarIcon } from "@heroicons/react/24/solid";
 import { MdLocationPin } from "react-icons/md";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
+import { db } from "../firebase";
+import { collection, getDocs } from "firebase/firestore";
 import { destinationsData } from "../data/destinationsData";
-
-const destinations = destinationsData.map(d => ({
-  name: d.name,
-  location: d.location,
-  cat: d.cat,
-  stars: d.rating,
-  img: d.img,
-}));
 
 const categories = [
   { label: "All Category", value: "all" },
@@ -151,10 +145,54 @@ function DestinationCard({ destination }) {
 }
 
 export default function CambodiaTravelExplorer() {
+  const [destinations, setDestinations] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState("all");
   const [currentPage, setCurrentPage] = useState(0);
   const location = useLocation();
   const isFirstRender = useRef(true);
+
+  useEffect(() => {
+    const fetchDestinations = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, "destinations"));
+        if (!querySnapshot.empty) {
+          const data = querySnapshot.docs.map(doc => {
+            const d = doc.data();
+            return {
+              name: d.name,
+              location: d.location,
+              cat: d.cat,
+              stars: d.rating,
+              img: d.img,
+            };
+          });
+          setDestinations(data);
+        } else {
+          console.warn("Firestore collection 'destinations' is empty, using fallback static data.");
+          setDestinations(destinationsData.map(d => ({
+            name: d.name,
+            location: d.location,
+            cat: d.cat,
+            stars: d.rating,
+            img: d.img,
+          })));
+        }
+      } catch (err) {
+        console.error("Error fetching destinations for Category, using static fallback:", err);
+        setDestinations(destinationsData.map(d => ({
+          name: d.name,
+          location: d.location,
+          cat: d.cat,
+          stars: d.rating,
+          img: d.img,
+        })));
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDestinations();
+  }, []);
 
   useEffect(() => {
     if (isFirstRender.current) {
@@ -195,6 +233,14 @@ export default function CambodiaTravelExplorer() {
       }
     }
   }, [location.hash]);
+
+  if (loading) {
+    return (
+      <div className="w-full flex items-center justify-center py-20">
+        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-emerald-500"></div>
+      </div>
+    );
+  }
 
   const filtered =
     activeCategory === "all"

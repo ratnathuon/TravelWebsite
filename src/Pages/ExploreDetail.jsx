@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getDestinationDetails } from '../data/destinationsData';
+import { db } from '../firebase';
+import { collection, getDocs, doc, updateDoc } from 'firebase/firestore';
+import { destinationsData } from '../data/destinationsData';
 import { IoArrowBackOutline, IoShareOutline, IoHeartOutline, IoHeart, IoCreateOutline, IoThumbsUpOutline, IoThumbsUp } from 'react-icons/io5';
 import { FaRegStar, FaStar } from 'react-icons/fa';
 import { MdLocationPin } from 'react-icons/md';
@@ -11,11 +13,10 @@ export default function ExploreDetail() {
   const mapRef = useRef(null);
   const reviewInputRef = useRef(null);
 
-  // Fetch destination details
-  const decodedName = decodeURIComponent(placeName || '');
-  const destination = getDestinationDetails(decodedName);
-
   // State
+  const [destination, setDestination] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [reviews, setReviews] = useState([]);
   const [favorites, setFavorites] = useState(() => {
     try {
       return JSON.parse(localStorage.getItem('favorites')) || [];
@@ -27,10 +28,6 @@ export default function ExploreDetail() {
   const isSaved = favorites.some(
     (place) => place.name.toLowerCase() === destination?.name.toLowerCase()
   );
-
-  const [reviews, setReviews] = useState(() => {
-    return destination ? [...destination.reviews] : [];
-  });
 
   const [likedReviews, setLikedReviews] = useState({});
   const [newComment, setNewComment] = useState('');
@@ -49,9 +46,88 @@ export default function ExploreDetail() {
   });
 
   useEffect(() => {
-    if (destination) {
-      setReviews([...destination.reviews]);
-    }
+    const fetchDestinationData = async () => {
+      setLoading(true);
+      try {
+        const querySnapshot = await getDocs(collection(db, "destinations"));
+        let destinations = [];
+        if (!querySnapshot.empty) {
+          destinations = querySnapshot.docs.map(doc => ({
+            docId: doc.id,
+            ...doc.data()
+          }));
+        } else {
+          console.warn("Firestore collection 'destinations' is empty, using fallback static data.");
+          destinations = destinationsData;
+        }
+
+        const decodedName = decodeURIComponent(placeName || '');
+        const nameClean = decodedName.trim().toLowerCase();
+
+        // Find match where searchName is included in searchNames list
+        let match = destinations.find(d => 
+          d.searchNames.some(sn => nameClean.includes(sn) || sn.includes(nameClean))
+        );
+
+        if (!match) {
+          // Fallback default details if not found
+          match = {
+            id: "default-place",
+            name: decodedName,
+            location: "Cambodia",
+            rating: 4,
+            img: "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800&q=80",
+            about: `Explore the breathtaking beauty of ${decodedName} in Cambodia. Immerse yourself in the rich local culture, historical landmarks, and scenic natural views that make this destination a unique travel experience.`,
+            mapSearch: `${decodedName}, Cambodia`,
+            reviews: [
+              {
+                id: "def1",
+                username: "Ratna",
+                avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop",
+                comment: "That looking grate! Highly recommend visiting this wonderful spot.",
+                likes: 3
+              }
+            ]
+          };
+        }
+
+        setDestination(match);
+        setReviews(match.reviews || []);
+      } catch (err) {
+        console.error("Error loading destination details, using static fallback:", err);
+        const decodedName = decodeURIComponent(placeName || '');
+        const nameClean = decodedName.trim().toLowerCase();
+        let match = destinationsData.find(d => 
+          d.searchNames.some(sn => nameClean.includes(sn) || sn.includes(nameClean))
+        );
+        if (!match) {
+          match = {
+            id: "default-place",
+            name: decodedName,
+            location: "Cambodia",
+            rating: 4,
+            img: "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800&q=80",
+            about: `Explore the breathtaking beauty of ${decodedName} in Cambodia. Immerse yourself in the rich local culture, historical landmarks, and scenic natural views that make this destination a unique travel experience.`,
+            mapSearch: `${decodedName}, Cambodia`,
+            reviews: [
+              {
+                id: "def1",
+                username: "Ratna",
+                avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop",
+                comment: "That looking grate! Highly recommend visiting this wonderful spot.",
+                likes: 3
+              }
+            ]
+          };
+        }
+        setDestination(match);
+        setReviews(match.reviews || []);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDestinationData();
   }, [placeName]);
 
   // Sync favorites state
@@ -109,30 +185,41 @@ export default function ExploreDetail() {
     mapRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const handleLikeReview = (reviewId) => {
-    setLikedReviews((prev) => {
-      const wasLiked = prev[reviewId];
-      setReviews((prevReviews) =>
-        prevReviews.map((r) => {
-          if (r.id === reviewId) {
-            return {
-              ...r,
-              likes: wasLiked ? r.likes - 1 : r.likes + 1,
-            };
-          }
-          return r;
-        })
-      );
-      return {
-        ...prev,
-        [reviewId]: !wasLiked,
-      };
+  const handleLikeReview = async (reviewId) => {
+    if (!destination) return;
+    
+    const wasLiked = likedReviews[reviewId];
+    const updatedReviews = reviews.map((r) => {
+      if (r.id === reviewId) {
+        return {
+          ...r,
+          likes: wasLiked ? r.likes - 1 : r.likes + 1,
+        };
+      }
+      return r;
     });
+
+    if (destination.docId) {
+      try {
+        const docRef = doc(db, "destinations", destination.docId);
+        await updateDoc(docRef, {
+          reviews: updatedReviews
+        });
+      } catch (err) {
+        console.error("Failed to update likes in Firestore:", err);
+      }
+    }
+
+    setReviews(updatedReviews);
+    setLikedReviews((prev) => ({
+      ...prev,
+      [reviewId]: !wasLiked,
+    }));
   };
 
-  const handleAddReview = (e) => {
+  const handleAddReview = async (e) => {
     e.preventDefault();
-    if (!newComment.trim()) return;
+    if (!newComment.trim() || !destination) return;
 
     const newReview = {
       id: `custom-${Date.now()}`,
@@ -142,10 +229,31 @@ export default function ExploreDetail() {
       likes: 0
     };
 
-    setReviews([newReview, ...reviews]);
+    const updatedReviews = [newReview, ...reviews];
+
+    if (destination.docId) {
+      try {
+        const docRef = doc(db, "destinations", destination.docId);
+        await updateDoc(docRef, {
+          reviews: updatedReviews
+        });
+      } catch (err) {
+        console.error("Failed to persist review in Firestore:", err);
+      }
+    }
+
+    setReviews(updatedReviews);
     setNewComment('');
     showFeedbackToast("Review posted successfully!");
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-emerald-500"></div>
+      </div>
+    );
+  }
 
   if (!destination) {
     return (
