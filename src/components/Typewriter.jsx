@@ -28,7 +28,7 @@ export default function Typewriter() {
   }, [displayed, isDeleting]);
 
   return (
-    <div className="font-poppins font-bold mt-10 text-center text-green-900 text-5xl">
+    <div className="font-poppins font-bold mt-10 text-center text-green-900 text-5xl max-sm:text-3xl max-xs:text-2xl">
       {displayed}
       <motion.span
         animate={{ opacity: [1, 0, 1] }}

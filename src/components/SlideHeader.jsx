@@ -49,24 +49,26 @@ export default function TravelSlider() {
     return () => window.removeEventListener("resize", updateScale);
   }, []);
 
+  const currentSlide = slides[current] || slides[0];
+
   return (
     <motion.div
-      initial={{ opacity: 0, y:80 }}
-      animate={{ opacity: 1, y:0 }}
+      initial={{ opacity: 0, y: 80 }}
+      animate={{ opacity: 1, y: 0 }}
       transition={{
         type: "spring",
         stiffness: 40,
         damping: 25,
-        delay: 1.3,
-        duration: 1.5,
+        delay: 0.3,
+        duration: 1.2,
       }}
       ref={containerRef}
-      className="relative w-full overflow-hidden mt-0"
+      className="relative w-full overflow-hidden mt-0 font-poppins"
       style={{ height: BASE_HEIGHT * scale }}
     >
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap');`}</style>
 
-      {/* Scaled inner wrapper — only scale/size are dynamic (must be inline) */}
+      {/* Scaled inner wrapper — exact ratio scaling from top left */}
       <div
         className="absolute top-0 left-0 mt-0"
         style={{
@@ -98,9 +100,12 @@ export default function TravelSlider() {
               }}
             >
               {/* Left column */}
-              <div className="flex flex-col items-start justify-start  -top-50 " style={{ flex: "0 0 260px" }}>
+              <div
+                className="flex flex-col items-start justify-start -top-50"
+                style={{ flex: "0 0 260px" }}
+              >
                 <div
-                  className="rounded-3xl overflow-hidden "
+                  className="rounded-3xl overflow-hidden shadow-xl"
                   style={{ width: 250, height: 390 }}
                 >
                   <img
@@ -124,37 +129,62 @@ export default function TravelSlider() {
               </div>
 
               {/* Right column — overlapping photos */}
-              <div className="relative flex-1" style={{ maxWidth: 650, height: 520 }}>
-
+              <div
+                className="relative flex-1"
+                style={{ maxWidth: 650, height: 520 }}
+              >
                 {/* Top photo */}
                 <div
-                  className="absolute rounded-2xl overflow-hidden "
-                  style={{ width: 330, height: 230, top: -40, left: 40, zIndex: 3 }}
+                  className="absolute rounded-2xl overflow-hidden shadow-lg"
+                  style={{
+                    width: 330,
+                    height: 230,
+                    top: -40,
+                    left: 40,
+                    zIndex: 3,
+                  }}
                 >
-                  <img src={slide.photos[0]} alt="" className="w-full h-full object-cover" />
-                  <div className="absolute w-8 h-8 bg-[#f5e642] rounded-full flex items-center justify-center text-sm shadow-md"
-                  ></div>
+                  <img
+                    src={slide.photos?.[0]}
+                    alt=""
+                    className="w-full h-full object-cover"
+                  />
                 </div>
 
                 {/* Back photo */}
                 <div
-                  className="absolute rounded-2xl overflow-hidden "
-                  style={{ width: 330, height: 230, top: 80, right: 0, zIndex: 2 }}
+                  className="absolute rounded-2xl overflow-hidden shadow-lg"
+                  style={{
+                    width: 330,
+                    height: 230,
+                    top: 80,
+                    right: 0,
+                    zIndex: 2,
+                  }}
                 >
-                  <img src={slide.photos[1]} alt="" className="w-full h-full object-cover" />
-                  <div className="absolute w-8 h-8 bg-[#f5e642] rounded-full flex items-center justify-center text-sm shadow-md"
-                    ></div>
-
+                  <img
+                    src={slide.photos?.[1]}
+                    alt=""
+                    className="w-full h-full object-cover"
+                  />
                 </div>
 
                 {/* Bottom photo */}
                 <div
-                  className="absolute rounded-2xl overflow-hidden "
-                  style={{ width: 330, height: 230, bottom: 50, left: 40, zIndex: 3 }}
+                  className="absolute rounded-2xl overflow-hidden shadow-lg"
+                  style={{
+                    width: 330,
+                    height: 230,
+                    bottom: 50,
+                    left: 40,
+                    zIndex: 3,
+                  }}
                 >
-                  <img src={slide.photos[2]} alt="" className="w-full h-full object-cover" />
-                  <div className="absolute w-8 h-8 bg-[#f5e642] rounded-full flex items-center justify-center text-sm shadow-md"
-                    ></div>
+                  <img
+                    src={slide.photos?.[2]}
+                    alt=""
+                    className="w-full h-full object-cover"
+                  />
                 </div>
               </div>
             </div>
@@ -178,10 +208,14 @@ export default function TravelSlider() {
         </div>
 
         {/* Explore button */}
-        <div className="absolute bottom-32 -translate-x-1/2 z-20 mt-8 left-[67rem]  ">
+        <div className="absolute bottom-32 -translate-x-1/2 z-20 mt-8 left-[67rem]">
           <button
-            onClick={() => navigate(`/explore/${encodeURIComponent(slides[current].location)}`)}
-            className="rounded-full font-semibold bg-white border border-[#333] text-black px-4 py-1 text-[15px] cursor-pointer transition-all duration-200 hover:bg-[#1e5e2e] hover:text-white hover:border-[#1e5e2e]"
+            onClick={() =>
+              navigate(
+                `/explore/${encodeURIComponent(slides[current].location)}`
+              )
+            }
+            className="rounded-full font-semibold bg-white border border-[#333] text-black px-4 py-1 text-[15px] cursor-pointer transition-all duration-200 hover:bg-[#1e5e2e] hover:text-white hover:border-[#1e5e2e] shadow-lg"
           >
             Explore
           </button>

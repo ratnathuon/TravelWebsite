@@ -100,12 +100,23 @@ export default function ExploreDetail() {
           };
         }
 
-        // Attach gallery from static data if missing in Firestore doc
-        const combinedGallery = (match.gallery && match.gallery.length > 0)
-          ? match.gallery
-          : (staticMatch?.gallery || (match.img ? [match.img] : []));
+        // Attach valid image & gallery assets from static data when available
+        if (staticMatch) {
+          const validGallery = (staticMatch.gallery && staticMatch.gallery.length > 0)
+            ? staticMatch.gallery
+            : [staticMatch.img];
 
-        match = { ...match, gallery: combinedGallery };
+          match = {
+            ...match,
+            img: staticMatch.img || match.img,
+            gallery: validGallery,
+          };
+        } else {
+          const validGallery = (match.gallery && match.gallery.length > 0)
+            ? match.gallery
+            : (match.img ? [match.img] : []);
+          match = { ...match, gallery: validGallery };
+        }
 
         setDestination(match);
         setSelectedImage(match.gallery?.[0] || match.img);
@@ -155,6 +166,11 @@ export default function ExploreDetail() {
   // Sync favorites state
   const handleSaveToggle = () => {
     if (!destination) return;
+    if (!user) {
+      window.dispatchEvent(new Event("openAccountModal"));
+      showFeedbackToast("Please sign up or log in to save places to your favorites!");
+      return;
+    }
     try {
       const savedFavorites = JSON.parse(localStorage.getItem('favorites')) || [];
       const isAlreadySaved = savedFavorites.some(
@@ -209,6 +225,11 @@ export default function ExploreDetail() {
 
   const handleLikeReview = async (reviewId) => {
     if (!destination) return;
+    if (!user) {
+      window.dispatchEvent(new Event("openAccountModal"));
+      showFeedbackToast("Please sign up or log in to like reviews!");
+      return;
+    }
 
     const wasLiked = likedReviews[reviewId];
     const updatedReviews = reviews.map((r) => {
@@ -241,6 +262,11 @@ export default function ExploreDetail() {
 
   const handleAddReview = async (e) => {
     e.preventDefault();
+    if (!user) {
+      window.dispatchEvent(new Event("openAccountModal"));
+      showFeedbackToast("Please sign up or log in to post a review!");
+      return;
+    }
     if (!newComment.trim() || !destination) return;
 
     const newReview = {
@@ -299,82 +325,81 @@ export default function ExploreDetail() {
       )}
 
       {/* Main Container */}
-      <div className="max-w-6xl mx-auto px-6 pt-6 pb-16 w-full flex-1">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-4 sm:pt-6 pb-12 sm:pb-16 w-full flex-1">
         {/* Back Button */}
         <button
           onClick={() => navigate(-1)}
-          className="p-3 bg-white rounded-full shadow-md hover:shadow-lg text-gray-600 hover:text-green-800 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-800/30"
+          className="p-2.5 sm:p-3 bg-white rounded-full shadow-md hover:shadow-lg text-gray-600 hover:text-green-800 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-800/30"
           aria-label="Go Back"
         >
-          <IoArrowBackOutline className="w-6 h-6 stroke-[3px]" />
+          <IoArrowBackOutline className="w-5 h-5 sm:w-6 sm:h-6 stroke-[3px]" />
         </button>
 
         {/* Stats and Action Bar */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mt-6 pb-6 border-b border-gray-100 gap-4">
+        <div className="flex flex-col items-center sm:flex-row sm:items-center sm:justify-between mt-4 sm:mt-6 pb-4 sm:pb-6 border-b border-gray-100 gap-3 sm:gap-4">
           {/* Stats */}
-          <div className="flex items-center gap-6">
-            <div className="flex items-center gap-2 bg-yellow-50 text-yellow-700 px-4 py-2 rounded-2xl border border-yellow-200">
-              <span className="font-bold text-sm">Rate</span>
+          <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 sm:gap-6 w-full sm:w-auto">
+            <div className="flex items-center gap-2 bg-yellow-50 text-yellow-700 px-3 sm:px-4 py-1.5 sm:py-2 rounded-2xl border border-yellow-200">
+              <span className="font-bold text-xs sm:text-sm">Rate</span>
               <div className="flex gap-0.5">
                 {[...Array(5)].map((_, i) => (
-                  <FaStar key={i} className={`w-4 h-4 ${i < destination.rating ? 'text-yellow-500' : 'text-gray-300'}`} />
+                  <FaStar key={i} className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${i < destination.rating ? 'text-yellow-500' : 'text-gray-300'}`} />
                 ))}
               </div>
             </div>
 
             <button
               onClick={handleViewLocationClick}
-              className="flex items-center gap-1.5 text-gray-600 hover:text-green-800 font-semibold text-sm transition-colors duration-150"
+              className="flex items-center gap-1.5 text-gray-600 hover:text-green-800 font-semibold text-xs sm:text-sm transition-colors duration-150"
             >
-              <MdLocationPin className="w-5 h-5 text-red-500" />
+              <MdLocationPin className="w-4 h-4 sm:w-5 sm:h-5 text-red-500" />
               <span>View Location</span>
             </button>
-            <div />
           </div>
 
           {/* Action buttons */}
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 sm:gap-3 w-full sm:w-auto">
             <button
               onClick={handleShare}
-              className="flex items-center gap-1.5 px-4 py-2.5 bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50 text-sm font-bold text-gray-600 hover:text-green-800 transition-all duration-150"
+              className="flex items-center gap-1.5 px-3.5 sm:px-4 py-2 sm:py-2.5 bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50 text-xs sm:text-sm font-bold text-gray-600 hover:text-green-800 transition-all duration-150"
             >
-              <IoShareOutline className="w-5 h-5 stroke-[2.5px]" />
+              <IoShareOutline className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.5px]" />
               <span>Share</span>
             </button>
 
             <button
               onClick={handleSaveToggle}
-              className="flex items-center gap-1.5 px-4 py-2.5 bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50 text-sm font-bold text-gray-600 hover:text-red-500 transition-all duration-150"
+              className="flex items-center gap-1.5 px-3.5 sm:px-4 py-2 sm:py-2.5 bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50 text-xs sm:text-sm font-bold text-gray-600 hover:text-red-500 transition-all duration-150"
             >
               {isSaved ? (
-                <IoHeart className="w-5 h-5 text-red-500 fill-red-500" />
+                <IoHeart className="w-4 h-4 sm:w-5 sm:h-5 text-red-500 fill-red-500" />
               ) : (
-                <IoHeartOutline className="w-5 h-5 stroke-[2.5px]" />
+                <IoHeartOutline className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.5px]" />
               )}
               <span>{isSaved ? "Saved" : "Save"}</span>
             </button>
 
             <button
               onClick={handleReviewButtonClick}
-              className="flex items-center gap-1.5 px-4 py-2.5 bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50 text-sm font-bold text-gray-600 hover:text-green-800 transition-all duration-150"
+              className="flex items-center gap-1.5 px-3.5 sm:px-4 py-2 sm:py-2.5 bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50 text-xs sm:text-sm font-bold text-gray-600 hover:text-green-800 transition-all duration-150"
             >
-              <IoCreateOutline className="w-5 h-5 stroke-[2.5px]" />
+              <IoCreateOutline className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.5px]" />
               <span>Review</span>
             </button>
           </div>
         </div>
 
         {/* Vertical Stack Content Layout */}
-        <div className="flex flex-col gap-8 mt-8">
+        <div className="flex flex-col gap-6 sm:gap-8 mt-6 sm:mt-8">
           
           {/* Place Details Section */}
-          <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100">
-            <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight mb-6">
+          <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 shadow-sm border border-gray-100">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight mb-4 sm:mb-6">
               {destination.name}
             </h1>
 
             {/* Featured Main Image */}
-            <div className="relative rounded-3xl overflow-hidden shadow-lg mb-4 max-h-[520px]">
+            <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-lg mb-4 max-h-[320px] sm:max-h-[420px] md:max-h-[520px]">
               <img 
                 src={selectedImage || destination.img} 
                 alt={destination.name} 

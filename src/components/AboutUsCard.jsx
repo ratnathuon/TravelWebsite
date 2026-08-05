@@ -117,15 +117,15 @@ export const AboutUsCard = () => {
   };
 
   return (
-    <div className="mt-10 mb-10 font-poppins overflow-hidden w-full">
+    <div className="mt-10 mb-10 font-poppins overflow-hidden w-full ">
       {/* Fade edges */}
       <div className="relative">
         <div
-          className="absolute left-0 top-0 bottom-0 w-16 z-10 pointer-events-none"
+          className="absolute left-0 top-0 bottom-0 w-6 sm:w-16 z-10 pointer-events-none"
           style={{ background: "linear-gradient(to right, rgba(255,255,255,0.8), transparent)" }}
         />
         <div
-          className="absolute right-0 top-0 bottom-0 w-16 z-10 pointer-events-none"
+          className="absolute right-0 top-0 bottom-0 w-6 sm:w-16 z-10 pointer-events-none"
           style={{ background: "linear-gradient(to left, rgba(255,255,255,0.8), transparent)" }}
         />
 

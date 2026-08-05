@@ -147,21 +147,21 @@ export default function AccountInfo({ user, onUpdateUser, onSignOut }) {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50/50 pt-10 pb-16">
-            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="min-h-screen bg-gray-50/50 pt-6 sm:pt-10 pb-16">
+            <div className="max-w-6xl mx-auto px-3 sm:px-6 lg:px-8">
 
                 {/* Page Title */}
-                <div className="mb-8">
-                    <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight">Account Settings</h1>
-                    <p className="text-gray-500 mt-2 text-lg">Manage your profile, security, and preferences.</p>
+                <div className="mb-6 sm:mb-8">
+                    <h1 className="text-2xl sm:text-4xl font-extrabold text-gray-900 tracking-tight">Account Settings</h1>
+                    <p className="text-gray-500 mt-1 sm:mt-2 text-sm sm:text-lg">Manage your profile, security, and preferences.</p>
                 </div>
 
-                <div className="bg-white rounded-[2rem] shadow-xl shadow-gray-200/50 overflow-hidden flex flex-col md:flex-row min-h-[650px] border border-gray-100">
+                <div className="bg-white rounded-2xl sm:rounded-[2rem] shadow-xl shadow-gray-200/50 overflow-hidden flex flex-col md:flex-row min-h-[550px] border border-gray-100">
 
                     {/* Sidebar */}
-                    <div className="w-full md:w-80 bg-gradient-to-br from-[#0F2027] via-[#204E2E] to-[#28623a] text-white p-8">
-                        <div className="flex items-center space-x-5 mb-12">
-                            <div className="flex-shrink-0 w-16 h-16 bg-white/10 backdrop-blur-md text-white rounded-full flex items-center justify-center text-2xl font-bold border-2 border-white/20 shadow-lg overflow-hidden">
+                    <div className="w-full md:w-80 bg-gradient-to-br from-[#0F2027] via-[#204E2E] to-[#28623a] text-white p-5 sm:p-8">
+                        <div className="flex items-center space-x-4 sm:space-x-5 mb-6 sm:mb-12">
+                            <div className="flex-shrink-0 w-12 h-12 sm:w-16 sm:h-16 bg-white/10 backdrop-blur-md text-white rounded-full flex items-center justify-center text-xl sm:text-2xl font-bold border-2 border-white/20 shadow-lg overflow-hidden">
                                 {currentDisplayPhoto ? (
                                     <img src={currentDisplayPhoto} alt="Profile" className="w-full h-full object-cover" />
                                 ) : (
@@ -169,8 +169,8 @@ export default function AccountInfo({ user, onUpdateUser, onSignOut }) {
                                 )}
                             </div>
                             <div className="overflow-hidden">
-                                <h3 className="font-bold text-xl truncate">{displayUser.name}</h3>
-                                <p className="text-sm text-gray-300 truncate opacity-80">{displayUser.email}</p>
+                                <h3 className="font-bold text-lg sm:text-xl truncate">{displayUser.name}</h3>
+                                <p className="text-xs sm:text-sm text-gray-300 truncate opacity-80">{displayUser.email}</p>
                             </div>
                         </div>
 
@@ -191,31 +191,31 @@ export default function AccountInfo({ user, onUpdateUser, onSignOut }) {
                                             setActiveTab(tab.id);
                                         }
                                     }}
-                                    className={`w-full flex items-center space-x-4 px-5 py-4 rounded-2xl transition-all duration-300 ${activeTab === tab.id
+                                    className={`w-full flex items-center space-x-4 px-4 sm:px-5 py-3 sm:py-4 rounded-2xl transition-all duration-300 ${activeTab === tab.id
                                         ? 'bg-white/15 font-semibold shadow-inner text-white'
                                         : 'hover:bg-white/5 text-gray-300 hover:text-white'
                                         }`}
                                 >
-                                    <svg className="w-5 h-5 opacity-80" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <svg className="w-5 h-5 opacity-80 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={tab.icon} />
                                     </svg>
-                                    <span className="text-[15px]">{tab.label}</span>
+                                    <span className="text-[14px] sm:text-[15px]">{tab.label}</span>
                                 </button>
                             ))}
                         </nav>
                     </div>
 
                     {/* Main Content Area */}
-                    <div className="flex-1 p-8 md:p-14 bg-white">
-                        <h2 className="text-2xl font-bold text-gray-800 mb-8 border-b border-gray-100 pb-6 capitalize flex items-center">
+                    <div className="flex-1 p-5 sm:p-8 md:p-14 bg-white">
+                        <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-6 sm:mb-8 border-b border-gray-100 pb-4 sm:pb-6 capitalize flex items-center">
                             {activeTab === 'favorites' ? 'Favorite Places' : `${activeTab} Details`}
                         </h2>
 
                         {activeTab === 'profile' && (
-                            <div className="space-y-10 animate-fade-in">
+                            <div className="space-y-8 sm:space-y-10 animate-fade-in">
 
                                 {/* Profile Photo Section */}
-                                <div className="flex items-center space-x-8">
+                                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:space-x-8">
                                     <div className="w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 text-gray-600 rounded-full flex items-center justify-center text-4xl font-bold shadow-inner overflow-hidden">
                                         {currentDisplayPhoto ? (
                                             <img src={currentDisplayPhoto} alt="Profile" className="w-full h-full object-cover" />

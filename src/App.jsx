@@ -12,11 +12,13 @@ import ExploreDetail from "./Pages/ExploreDetail"
 import { migrateDataToFirestore } from "./data/migrate";
 
 function ScrollToTop() {
-  const { pathname } = useLocation();
+  const { pathname, hash } = useLocation();
 
   useEffect(() => {
-    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-  }, [pathname]);
+    if (!hash) {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    }
+  }, [pathname, hash]);
 
   return null;
 }
@@ -24,9 +26,30 @@ function ScrollToTop() {
 function App() {
   const [isAccountOpen, setIsAccountOpen] = useState(false);
   const [user, setUser] = useState(() => loadUser());
+  const [toastMessage, setToastMessage] = useState("");
+  const [showToast, setShowToast] = useState(false);
 
   useEffect(() => {
     migrateDataToFirestore();
+  }, []);
+
+  useEffect(() => {
+    const handleOpenAccountModal = () => setIsAccountOpen(true);
+    window.addEventListener("openAccountModal", handleOpenAccountModal);
+    return () => window.removeEventListener("openAccountModal", handleOpenAccountModal);
+  }, []);
+
+  useEffect(() => {
+    const handleToast = (e) => {
+      const msg = typeof e.detail === "string" ? e.detail : e.detail?.message;
+      if (msg) {
+        setToastMessage(msg);
+        setShowToast(true);
+        setTimeout(() => setShowToast(false), 3000);
+      }
+    };
+    window.addEventListener("showToast", handleToast);
+    return () => window.removeEventListener("showToast", handleToast);
   }, []);
 
   useEffect(() => {
@@ -53,6 +76,12 @@ function App() {
           setIsAccountOpen(false);
         }}
       />
+      {/* Global Toast notification at bottom right */}
+      {showToast && (
+        <div className="fixed bottom-6 right-6 z-[9999] bg-[#28623a] text-white px-5 py-3 rounded-full shadow-2xl flex items-center gap-2 border border-white/20 animate-fade-in font-poppins text-sm font-medium">
+          <span>{toastMessage}</span>
+        </div>
+      )}
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />

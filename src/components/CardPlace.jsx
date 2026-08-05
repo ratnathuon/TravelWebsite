@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { HeartIcon, StarIcon } from "@heroicons/react/24/solid";
 import { MdLocationPin } from "react-icons/md";
+import { loadUser } from "./Header";
+
 function CardPlace({ image, name, location, rating = 4 }) {
   const [liked, setLiked] = useState(() => {
     try {
@@ -16,6 +18,12 @@ function CardPlace({ image, name, location, rating = 4 }) {
   });
 
   const handleLikeToggle = () => {
+    const currentUser = loadUser();
+    if (!currentUser) {
+      window.dispatchEvent(new Event("openAccountModal"));
+      window.dispatchEvent(new CustomEvent("showToast", { detail: "Please sign up or log in to add places to your favorites!" }));
+      return;
+    }
     try {
       const savedFavorites =
         JSON.parse(localStorage.getItem("favorites")) || [];
@@ -36,6 +44,11 @@ function CardPlace({ image, name, location, rating = 4 }) {
       localStorage.setItem("favorites", JSON.stringify(updatedFavorites));
       setLiked(!isAlreadyLiked);
       window.dispatchEvent(new Event("favoritesUpdated"));
+      window.dispatchEvent(
+        new CustomEvent("showToast", {
+          detail: isAlreadyLiked ? "Removed from favorites!" : "Saved to favorites!"
+        })
+      );
     } catch (err) {
       console.error("Failed to toggle favorite:", err);
     }

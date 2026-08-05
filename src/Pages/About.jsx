@@ -40,7 +40,7 @@ export default function About() {
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.4 }}
-        className='px-4 md:px-20 lg:px-44 justify-between flex mt-0'>
+        className='px-2 sm:px-8 md:px-20 lg:px-44 justify-between flex mt-0'>
         <AboutUsCard />
       </motion.div>
 
