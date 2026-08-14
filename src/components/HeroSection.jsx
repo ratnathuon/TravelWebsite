@@ -14,6 +14,7 @@ export default function HeroSection() {
 
   return (
     <motion.div
+      id="discover-kingdom"
       ref={ref}
       initial={{ opacity: 0, y: -120 }}
       animate={{

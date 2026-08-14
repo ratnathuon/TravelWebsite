@@ -142,17 +142,24 @@ export default function CambodiaTravelExplorer() {
       try {
         const querySnapshot = await getDocs(collection(db, "destinations"));
         if (!querySnapshot.empty) {
-          const data = querySnapshot.docs.map(doc => {
-            const d = doc.data();
-            const staticItem = destinationsData.find(st => st.id === d.id || st.name.toLowerCase() === d.name?.toLowerCase());
-            return {
-              name: d.name,
-              location: d.location,
-              stars: d.rating,
-              img: staticItem?.img || d.img
-            };
-          });
-          setDestinations(data);
+          const data = querySnapshot.docs
+            .map(doc => doc.data())
+            .filter(d => d.showInTopDestinations !== false)
+            .map(d => {
+              const staticItem = destinationsData.find(st => st.id === d.id || st.name.toLowerCase() === d.name?.toLowerCase());
+              return {
+                name: d.name,
+                location: d.location,
+                stars: d.rating,
+                img: d.img || staticItem?.img
+              };
+            });
+          setDestinations(data.length > 0 ? data : destinationsData.map(d => ({
+            name: d.name,
+            location: d.location,
+            stars: d.rating,
+            img: d.img
+          })));
         } else {
           console.warn("Firestore collection 'destinations' is empty, using fallback static data.");
           setDestinations(destinationsData.map(d => ({

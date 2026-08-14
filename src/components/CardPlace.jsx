@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { HeartIcon, StarIcon } from "@heroicons/react/24/solid";
 import { MdLocationPin } from "react-icons/md";
 import { loadUser } from "./Header";
+import { toggleFavoriteInDb } from "../data/favoritesData";
 
 function CardPlace({ image, name, location, rating = 4 }) {
   const [liked, setLiked] = useState(() => {
@@ -10,14 +11,14 @@ function CardPlace({ image, name, location, rating = 4 }) {
       const savedFavorites =
         JSON.parse(localStorage.getItem("favorites")) || [];
       return savedFavorites.some(
-        (place) => place.name === name && place.image === image,
+        (place) => (place.name || "").toLowerCase() === (name || "").toLowerCase(),
       );
     } catch {
       return false;
     }
   });
 
-  const handleLikeToggle = () => {
+  const handleLikeToggle = async () => {
     const currentUser = loadUser();
     if (!currentUser) {
       window.dispatchEvent(new Event("openAccountModal"));
@@ -25,28 +26,12 @@ function CardPlace({ image, name, location, rating = 4 }) {
       return;
     }
     try {
-      const savedFavorites =
-        JSON.parse(localStorage.getItem("favorites")) || [];
-      const isAlreadyLiked = savedFavorites.some(
-        (place) => place.name === name && place.image === image,
-      );
-      let updatedFavorites;
-      if (isAlreadyLiked) {
-        updatedFavorites = savedFavorites.filter(
-          (place) => !(place.name === name && place.image === image),
-        );
-      } else {
-        updatedFavorites = [
-          ...savedFavorites,
-          { image, name, location, rating },
-        ];
-      }
-      localStorage.setItem("favorites", JSON.stringify(updatedFavorites));
-      setLiked(!isAlreadyLiked);
-      window.dispatchEvent(new Event("favoritesUpdated"));
+      const wasLiked = liked;
+      const updated = await toggleFavoriteInDb(currentUser, { img: image, name, location, rating });
+      setLiked(!wasLiked);
       window.dispatchEvent(
         new CustomEvent("showToast", {
-          detail: isAlreadyLiked ? "Removed from favorites!" : "Saved to favorites!"
+          detail: wasLiked ? "Removed from favorites!" : "Saved to favorites!"
         })
       );
     } catch (err) {

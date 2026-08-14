@@ -110,15 +110,7 @@ export default function Header({ user, onOpenAccount, onSignOut }) {
     );
 
     setTimeout(() => {
-      const element = document.getElementById("explore-section");
-      if (element) {
-        const yOffset = -90;
-        const y =
-          element.getBoundingClientRect().top +
-          window.pageYOffset +
-          yOffset;
-        window.scrollTo({ top: y, behavior: "smooth" });
-      }
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }, 100);
   };
 
@@ -237,6 +229,15 @@ export default function Header({ user, onOpenAccount, onSignOut }) {
                         </Link>
                       </li>
                       <li>
+                        <Link
+                          to="/admin"
+                          onClick={() => setUserDropdownOpen(false)}
+                          className="block px-4 py-2 text-sm font-semibold text-emerald-300 hover:bg-emerald-700 hover:text-white rounded"
+                        >
+                          Admin Dashboard
+                        </Link>
+                      </li>
+                      <li>
                         <button
                           onClick={handleSignOut}
                           disabled={isSigningOut}
@@ -332,6 +333,15 @@ export default function Header({ user, onOpenAccount, onSignOut }) {
                   className={navLinkClass("/about")}
                 >
                   About
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/admin"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={navLinkClass("/admin")}
+                >
+                  Admin
                 </Link>
               </li>
 

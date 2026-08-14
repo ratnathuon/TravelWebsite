@@ -169,18 +169,26 @@ export default function CambodiaTravelExplorer() {
       try {
         const querySnapshot = await getDocs(collection(db, "destinations"));
         if (!querySnapshot.empty) {
-          const data = querySnapshot.docs.map(doc => {
-            const d = doc.data();
-            const staticItem = destinationsData.find(st => st.id === d.id || st.name.toLowerCase() === d.name?.toLowerCase());
-            return {
-              name: d.name,
-              location: d.location,
-              cat: d.cat,
-              stars: d.rating,
-              img: staticItem?.img || d.img,
-            };
-          });
-          setDestinations(data);
+          const data = querySnapshot.docs
+            .map(doc => doc.data())
+            .filter(d => d.showInExplore !== false)
+            .map(d => {
+              const staticItem = destinationsData.find(st => st.id === d.id || st.name.toLowerCase() === d.name?.toLowerCase());
+              return {
+                name: d.name,
+                location: d.location,
+                cat: d.cat,
+                stars: d.rating,
+                img: d.img || staticItem?.img,
+              };
+            });
+          setDestinations(data.length > 0 ? data : destinationsData.map(d => ({
+            name: d.name,
+            location: d.location,
+            cat: d.cat,
+            stars: d.rating,
+            img: d.img,
+          })));
         } else {
           console.warn("Firestore collection 'destinations' is empty, using fallback static data.");
           setDestinations(destinationsData.map(d => ({
@@ -207,12 +215,11 @@ export default function CambodiaTravelExplorer() {
     fetchDestinations();
   }, []);
 
-  const scrollToExploreSection = () => {
-    const element = document.getElementById("explore-section");
-    if (element) {
-      const yOffset = -90;
-      const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
-      window.scrollTo({ top: y, behavior: "smooth" });
+  const scrollToSection = () => {
+    const el = document.getElementById("explore-section");
+    if (el) {
+      const topOffset = el.getBoundingClientRect().top + window.pageYOffset - 90;
+      window.scrollTo({ top: Math.max(0, topOffset), behavior: "smooth" });
     }
   };
 
@@ -221,7 +228,7 @@ export default function CambodiaTravelExplorer() {
       isFirstRender.current = false;
       return;
     }
-    scrollToExploreSection();
+    scrollToSection();
   }, [currentPage, activeCategory]);
 
   useEffect(() => {
@@ -231,7 +238,7 @@ export default function CambodiaTravelExplorer() {
         setActiveCategory(categoryValue);
         setCurrentPage(0);
         setTimeout(() => {
-          scrollToExploreSection();
+          scrollToSection();
         }, 100);
       }
     };
@@ -259,7 +266,7 @@ export default function CambodiaTravelExplorer() {
         setCurrentPage(0);
 
         setTimeout(() => {
-          scrollToExploreSection();
+          scrollToSection();
         }, 100);
       }
     }
@@ -268,7 +275,7 @@ export default function CambodiaTravelExplorer() {
   useEffect(() => {
     if (!loading && location.hash) {
       setTimeout(() => {
-        scrollToExploreSection();
+        scrollToSection();
       }, 100);
     }
   }, [loading, location.hash]);

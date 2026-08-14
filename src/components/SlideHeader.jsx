@@ -18,10 +18,39 @@ export default function TravelSlider() {
   useEffect(() => {
     const fetchSlides = async () => {
       try {
+        let slideList = [];
         const querySnapshot = await getDocs(collection(db, "slides"));
         if (!querySnapshot.empty) {
-          const data = querySnapshot.docs.map((doc) => doc.data());
-          setSlides(data);
+          slideList = querySnapshot.docs.map((doc) => doc.data());
+        }
+
+        // Fetch destinations enabled for SlideHeader
+        const destSnapshot = await getDocs(collection(db, "destinations"));
+        if (!destSnapshot.empty) {
+          const featuredDestSlides = destSnapshot.docs
+            .map((doc) => doc.data())
+            .filter((d) => d.showInSlideHeader)
+            .map((d) => ({
+              id: d.id,
+              location: d.name.toUpperCase(),
+              title: d.name,
+              subTitle: d.location || "CAMBODIA",
+              description: d.about || "Explore the kingdom of wonder.",
+              bgImg: d.img,
+              bgImgMobile: d.img,
+              landscapeImg: d.img,
+              portraitImg: d.img,
+              portrait: d.img,
+              photos: Array.isArray(d.gallery) && d.gallery.length >= 3 ? d.gallery : [d.img, d.img, d.img],
+            }));
+
+          if (featuredDestSlides.length > 0) {
+            slideList = [...slideList, ...featuredDestSlides];
+          }
+        }
+
+        if (slideList.length > 0) {
+          setSlides(slideList);
         }
       } catch (err) {
         console.error("Error fetching slides from Firestore:", err);
@@ -34,7 +63,7 @@ export default function TravelSlider() {
     if (!slides || slides.length === 0) return;
     const timer = setInterval(() => {
       setCurrent((prev) => (prev + 1) % slides.length);
-    }, 3500);
+    }, 6000);
     return () => clearInterval(timer);
   }, [slides]);
 
@@ -85,7 +114,7 @@ export default function TravelSlider() {
           style={{
             width: `${slides.length * 100}%`,
             transform: `translateX(-${(current * 100) / slides.length}%)`,
-            transition: "transform 0.7s cubic-bezier(0.77, 0, 0.175, 1)",
+            transition: "transform 1.2s cubic-bezier(0.25, 1, 0.5, 1)",
           }}
         >
           {slides.map((slide, idx) => (

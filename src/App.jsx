@@ -9,15 +9,17 @@ import CardPlace from "./components/CardPlace"
 import Account from "./components/Account"
 import AccountInfo from "./components/Account_Info"
 import ExploreDetail from "./Pages/ExploreDetail"
+import AdminDashboard from "./Pages/AdminDashboard"
 import { migrateDataToFirestore } from "./data/migrate";
+
+import { saveUserProfileToDb, fetchUserProfileFromDb } from "./data/userData";
+import { fetchUserFavoritesFromDb, saveUserFavoritesToDb } from "./data/favoritesData";
 
 function ScrollToTop() {
   const { pathname, hash } = useLocation();
 
   useEffect(() => {
-    if (!hash) {
-      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-    }
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
   }, [pathname, hash]);
 
   return null;
@@ -55,10 +57,16 @@ function App() {
   useEffect(() => {
     if (user) {
       saveUser(user);
+      fetchUserProfileFromDb(user).then((dbProfile) => {
+        if (dbProfile) {
+          setUser((prev) => ({ ...prev, ...dbProfile }));
+        }
+      });
+      fetchUserFavoritesFromDb(user);
     } else {
       clearUser();
     }
-  }, [user]);
+  }, []);
 
   return (
     <BrowserRouter>
@@ -71,9 +79,12 @@ function App() {
       <Account 
         isOpen={isAccountOpen} 
         onClose={() => setIsAccountOpen(false)} 
-        onSignIn={(userData) => {
-          setUser(enrichUserFromDb(userData));
+        onSignIn={async (userData) => {
+          const enriched = enrichUserFromDb(userData);
+          setUser(enriched);
           setIsAccountOpen(false);
+          await saveUserProfileToDb(enriched);
+          await fetchUserFavoritesFromDb(enriched);
         }}
       />
       {/* Global Toast notification at bottom right */}
@@ -88,6 +99,7 @@ function App() {
         <Route path="/destinaton" element={<Navigate to="/" replace />} />
         <Route path="/explore/:placeName" element={<ExploreDetail />} />
         <Route path="/account" element={<AccountInfo user={user} onUpdateUser={setUser} onSignOut={() => setUser(null)} />} />
+        <Route path="/admin" element={<AdminDashboard />} />
       </Routes>
     </BrowserRouter>
   )
