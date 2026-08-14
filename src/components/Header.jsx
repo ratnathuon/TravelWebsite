@@ -50,7 +50,30 @@ export function enrichUserFromDb(userData) {
     photoURL: userData.photoURL || savedData.photoURL,
   };
 }
-// ───────────────────────────────────────────────────────────────────────────
+
+export function checkIsAdmin(user) {
+  if (!user || !user.email) return false;
+  const email = user.email.toLowerCase().trim();
+  if (user.role === "admin" || user.isAdmin === true) return true;
+  
+  const defaultAdmins = [
+    "admin@travelcambodia.com",
+    "sophea.admin@travelcambodia.com",
+    "ratna.admin@travelcambodia.com",
+    "ratnathuon@gmail.com",
+  ];
+  if (defaultAdmins.some((a) => a.toLowerCase() === email)) return true;
+  
+  try {
+    const savedAdmins = JSON.parse(localStorage.getItem("travel_admin_emails") || "[]");
+    if (Array.isArray(savedAdmins) && savedAdmins.some((a) => (a || "").toLowerCase() === email)) {
+      return true;
+    }
+  } catch {}
+  
+  if (email.includes("admin@") || email.startsWith("admin")) return true;
+  return false;
+}
 
 export default function Header({ user, onOpenAccount, onSignOut }) {
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
@@ -62,6 +85,8 @@ export default function Header({ user, onOpenAccount, onSignOut }) {
   const navigate = useNavigate();
   const userDropdownRef = useRef(null);
   const navDropdownRef = useRef(null);
+
+  const isAdmin = checkIsAdmin(user);
 
   useEffect(() => {
     function handleClickOutside(e) {
@@ -228,15 +253,17 @@ export default function Header({ user, onOpenAccount, onSignOut }) {
                           Favorite places
                         </Link>
                       </li>
-                      <li>
-                        <Link
-                          to="/admin"
-                          onClick={() => setUserDropdownOpen(false)}
-                          className="block px-4 py-2 text-sm font-semibold text-emerald-300 hover:bg-emerald-700 hover:text-white rounded"
-                        >
-                          Admin Dashboard
-                        </Link>
-                      </li>
+                      {isAdmin && (
+                        <li>
+                          <Link
+                            to="/admin"
+                            onClick={() => setUserDropdownOpen(false)}
+                            className="block px-4 py-2 text-sm font-semibold text-emerald-300 hover:bg-emerald-700 hover:text-white rounded"
+                          >
+                            Admin Dashboard
+                          </Link>
+                        </li>
+                      )}
                       <li>
                         <button
                           onClick={handleSignOut}
@@ -333,15 +360,6 @@ export default function Header({ user, onOpenAccount, onSignOut }) {
                   className={navLinkClass("/about")}
                 >
                   About
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/admin"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={navLinkClass("/admin")}
-                >
-                  Admin
                 </Link>
               </li>
 

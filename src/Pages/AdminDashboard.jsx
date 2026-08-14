@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { loadUser } from "../components/Header";
+import { loadUser, checkIsAdmin } from "../components/Header";
 import {
   CATEGORIES,
   PRESET_IMAGES,
@@ -48,6 +48,18 @@ export default function AdminDashboard() {
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState("all");
 
   const currentUser = loadUser();
+  const isAdmin = checkIsAdmin(currentUser);
+
+  useEffect(() => {
+    if (!isAdmin) {
+      window.dispatchEvent(
+        new CustomEvent("showToast", {
+          detail: "Access Denied: Admin privileges required."
+        })
+      );
+      navigate("/");
+    }
+  }, [isAdmin, navigate]);
   const defaultAdminEmail = currentUser?.email || "admin@travelcambodia.com";
 
   // System Admin Emails State
@@ -57,9 +69,7 @@ export default function AdminDashboard() {
       if (Array.isArray(saved) && saved.length > 0) return saved;
     } catch {}
     return [
-      defaultAdminEmail,
-      "sophea.admin@travelcambodia.com",
-      "ratna.admin@travelcambodia.com",
+      defaultAdminEmail
     ];
   });
   const [newAdminEmailInput, setNewAdminEmailInput] = useState("");
@@ -616,76 +626,80 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#0F2027] via-[#1a3a29] to-[#0F2027] text-white font-poppins pb-20">
       {/* Top Header Navigation */}
-      <header className="sticky top-0 z-40 bg-[#0F2027]/90 backdrop-blur-md border-b border-emerald-800/40 shadow-xl">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center space-x-3">
-            <Link
-              to="/"
-              className="p-2 rounded-full bg-emerald-900/50 hover:bg-emerald-800/70 text-white transition-colors"
-              title="Return to Home"
-            >
-              <ArrowLeftIcon className="w-5 h-5" />
-            </Link>
+      <header className="sticky top-0 z-40 bg-[#0F2027]/95 backdrop-blur-md border-b border-emerald-800/40 shadow-xl">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+          
+          {/* Dashboard Title Row */}
+          <div className="flex items-center justify-between sm:justify-start space-x-2 sm:space-x-3">
             <div className="flex items-center space-x-2">
-              <BuildingLibraryIcon className="w-7 h-7 text-emerald-400" />
-              <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white">
+              <Link
+                to="/"
+                className="p-2 rounded-full bg-emerald-900/50 hover:bg-emerald-800/70 text-white transition-colors shrink-0"
+                title="Return to Home"
+              >
+                <ArrowLeftIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+              </Link>
+              <BuildingLibraryIcon className="w-6 h-6 sm:w-7 sm:h-7 text-emerald-400 shrink-0" />
+              <h1 className="text-base sm:text-2xl font-bold tracking-tight text-white truncate">
                 Admin Dashboard
               </h1>
-              <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-mono border border-emerald-500/30">
-                Firestore Sync
-              </span>
             </div>
+            <span className="text-[10px] sm:text-xs px-2 sm:px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-mono border border-emerald-500/30 shrink-0">
+              Firestore Sync
+            </span>
           </div>
 
-          <div className="flex items-center space-x-3">
+          {/* Action Buttons Grid / Responsive Row */}
+          <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 sm:gap-2.5 w-full sm:w-auto">
             {/* System Admins Toggle Badge */}
             <button
               onClick={() => setShowManageAdmins(!showManageAdmins)}
-              className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-950/80 border border-emerald-500/40 text-xs font-mono text-emerald-300 hover:bg-emerald-900/80 transition-all"
+              className="flex items-center justify-center gap-1.5 px-2.5 sm:px-3 py-2 rounded-xl bg-emerald-950/80 border border-emerald-500/40 text-[11px] sm:text-xs font-mono text-emerald-300 hover:bg-emerald-900/80 transition-all truncate"
               title="Manage System Admins"
             >
-              <UserGroupIcon className="w-4 h-4 text-emerald-400" />
-              <span>Admins ({systemAdmins.length})</span>
+              <UserGroupIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400 shrink-0" />
+              <span className="truncate">Admins ({systemAdmins.length})</span>
             </button>
 
             {/* Manage About Us Team Button */}
             <button
               onClick={() => setShowTeamModal(true)}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-950/80 border border-emerald-500/40 text-xs font-mono text-emerald-300 hover:bg-emerald-900/80 transition-all shadow-sm"
-              title="Manage About Us Team Members, Roles & Social Links"
+              className="flex items-center justify-center gap-1.5 px-2.5 sm:px-3 py-2 rounded-xl bg-emerald-950/80 border border-emerald-500/40 text-[11px] sm:text-xs font-mono text-emerald-300 hover:bg-emerald-900/80 transition-all shadow-sm truncate"
+              title="Manage About Us Team Members"
             >
-              <UserIcon className="w-4 h-4 text-emerald-400" />
-              <span>About Us Team ({teamMembers.length})</span>
+              <UserIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400 shrink-0" />
+              <span className="truncate">Team ({teamMembers.length})</span>
             </button>
 
             {/* Pending User Photos Moderation Badge */}
             <button
               onClick={() => setShowPendingPhotosModal(true)}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-mono transition-all ${
+              className={`flex items-center justify-center gap-1.5 px-2.5 sm:px-3 py-2 rounded-xl border text-[11px] sm:text-xs font-mono transition-all truncate ${
                 allPendingPhotos.length > 0
                   ? "bg-amber-500/20 border-amber-500/50 text-amber-300 font-bold animate-pulse shadow-lg"
                   : "bg-emerald-950/80 border-emerald-500/40 text-emerald-300 hover:bg-emerald-900/80"
               }`}
               title="Moderate User Submitted Gallery Photos"
             >
-              <PhotoIcon className="w-4 h-4 text-amber-400" />
-              <span>Pending Photos ({allPendingPhotos.length})</span>
+              <PhotoIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400 shrink-0" />
+              <span className="truncate">Pending ({allPendingPhotos.length})</span>
             </button>
 
             <button
               onClick={fetchDestinations}
               disabled={loading}
-              className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-sm font-medium flex items-center gap-2 transition-all disabled:opacity-50"
+              className="flex items-center justify-center gap-1.5 px-2.5 sm:px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-[11px] sm:text-sm font-medium transition-all disabled:opacity-50 truncate"
             >
-              <ArrowPathIcon className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
-              <span>Refresh</span>
+              <ArrowPathIcon className={`w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 ${loading ? "animate-spin" : ""}`} />
+              <span className="truncate">Refresh</span>
             </button>
 
+            {/* Add Destination */}
             <button
               onClick={handleOpenCreateModal}
-              className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-sm shadow-lg shadow-emerald-900/40 flex items-center gap-2 transition-all transform hover:scale-105"
+              className="col-span-2 sm:col-span-1 flex items-center justify-center gap-1.5 px-4 py-2.5 sm:py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-xs sm:text-sm shadow-lg shadow-emerald-900/40 transition-all transform hover:scale-105"
             >
-              <PlusIcon className="w-5 h-5" />
+              <PlusIcon className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
               <span>Add Destination</span>
             </button>
           </div>
@@ -693,17 +707,17 @@ export default function AdminDashboard() {
       </header>
 
       {/* Main Content Container */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-8">
+      <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-4 sm:pt-8 space-y-6 sm:space-y-8">
         {/* Banner Card */}
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-emerald-900/80 via-[#28623a] to-emerald-950 p-6 sm:p-8 border border-emerald-500/30 shadow-2xl">
+        <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-r from-emerald-900/80 via-[#28623a] to-emerald-950 p-5 sm:p-8 border border-emerald-500/30 shadow-2xl">
           <div className="relative z-10 max-w-2xl">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-200 text-xs font-semibold uppercase tracking-wider mb-3">
               <SparklesIcon className="w-4 h-4 text-emerald-400" /> Multi-Admin Destination Control
             </div>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-white">
+            <h2 className="text-xl sm:text-3xl font-extrabold text-white">
               Manage & Assign Multiple Admin Emails
             </h2>
-            <p className="text-sm sm:text-base text-emerald-100/80 mt-2">
+            <p className="text-xs sm:text-base text-emerald-100/80 mt-2">
               Add multiple authorized admin emails to your system. Destinations created or updated can have multiple admin owners stored directly in Firebase Firestore.
             </p>
           </div>
@@ -711,34 +725,34 @@ export default function AdminDashboard() {
         </div>
 
         {/* System Admins Manager Panel */}
-        <div className="bg-white/5 backdrop-blur-md rounded-3xl border border-white/10 p-6 shadow-xl space-y-4">
-          <div className="flex items-center justify-between">
+        <div className="bg-white/5 backdrop-blur-md rounded-2xl sm:rounded-3xl border border-white/10 p-4 sm:p-6 shadow-xl space-y-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <ShieldCheckIcon className="w-6 h-6 text-emerald-400" />
-              <h3 className="text-lg font-bold text-white">
+              <ShieldCheckIcon className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-400 shrink-0" />
+              <h3 className="text-sm sm:text-lg font-bold text-white">
                 Authorized System Admin Emails ({systemAdmins.length})
               </h3>
             </div>
-            <span className="text-xs text-emerald-300/80 font-mono">
+            <span className="text-[11px] text-emerald-300/80 font-mono">
               Stored in System & Firestore
             </span>
           </div>
 
           {/* Add New System Admin Email Form */}
-          <form onSubmit={handleAddSystemAdmin} className="flex gap-2 max-w-lg">
+          <form onSubmit={handleAddSystemAdmin} className="flex flex-col sm:flex-row gap-2 max-w-lg">
             <div className="relative flex-1">
-              <EnvelopeIcon className="w-5 h-5 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <EnvelopeIcon className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 type="email"
                 value={newAdminEmailInput}
                 onChange={(e) => setNewAdminEmailInput(e.target.value)}
                 placeholder="Add new admin email (e.g. sophea@gmail.com)..."
-                className="w-full bg-black/40 border border-white/20 rounded-xl pl-10 pr-4 py-2 text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 font-mono"
+                className="w-full bg-black/40 border border-white/20 rounded-xl pl-9 pr-3 py-2 text-xs sm:text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 font-mono"
               />
             </div>
             <button
               type="submit"
-              className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-xs shadow-md transition-all flex items-center gap-1 shrink-0"
+              className="px-4 py-2.5 sm:py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-xs shadow-md transition-all flex items-center justify-center gap-1 shrink-0"
             >
               <PlusIcon className="w-4 h-4" />
               <span>Add Admin</span>
@@ -1254,14 +1268,14 @@ export default function AdminDashboard() {
                   <label className="block text-xs font-semibold text-emerald-300 uppercase tracking-wider mb-2">
                     Cover Image
                   </label>
-                  <div className="flex gap-2 items-center">
+                  <div className="flex flex-col sm:flex-row gap-2">
                     <input
                       type="text"
                       name="img"
                       value={formData.img}
                       onChange={handleInputChange}
                       placeholder="Upload local picture or paste image URL..."
-                      className="flex-1 bg-black/40 border border-white/20 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                      className="flex-1 w-full bg-black/40 border border-white/20 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
                     />
 
                     {/* Hidden File Input */}
@@ -1277,11 +1291,11 @@ export default function AdminDashboard() {
                       type="button"
                       onClick={() => coverFileInputRef.current?.click()}
                       disabled={isUploadingCover}
-                      className="px-4 py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-medium text-xs flex items-center gap-1.5 shrink-0 transition-all shadow-md shadow-emerald-900/40 disabled:opacity-50"
+                      className="w-full sm:w-auto px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-medium text-xs flex items-center justify-center gap-1.5 shrink-0 transition-all shadow-md shadow-emerald-900/40 disabled:opacity-50"
                     >
                       {isUploadingCover ? (
                         <>
-                          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                          <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                           <span>Uploading...</span>
                         </>
                       ) : (
@@ -1377,46 +1391,48 @@ export default function AdminDashboard() {
                   <label className="block text-xs font-semibold text-emerald-300 uppercase tracking-wider mb-2">
                     Gallery Image URLs & Photos ({Array.isArray(formData.gallery) ? formData.gallery.length : 0})
                   </label>
-                  <div className="flex gap-2 items-center">
-                    <input
-                      type="text"
-                      id="newGalleryUrlInput"
-                      placeholder="Paste image URL here & click + Add URL..."
-                      className="flex-1 bg-black/40 border border-white/20 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault();
-                          const val = e.target.value.trim();
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <div className="flex items-center gap-2 flex-1 w-full">
+                      <input
+                        type="text"
+                        id="newGalleryUrlInput"
+                        placeholder="Paste image URL here..."
+                        className="flex-1 w-full bg-black/40 border border-white/20 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            const val = e.target.value.trim();
+                            if (val) {
+                              setFormData((prev) => ({
+                                ...prev,
+                                gallery: [...(Array.isArray(prev.gallery) ? prev.gallery : []), val],
+                              }));
+                              e.target.value = "";
+                              triggerToast("Added image URL to gallery!");
+                            }
+                          }
+                        }}
+                      />
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const inputEl = document.getElementById("newGalleryUrlInput");
+                          const val = inputEl?.value?.trim();
                           if (val) {
                             setFormData((prev) => ({
                               ...prev,
                               gallery: [...(Array.isArray(prev.gallery) ? prev.gallery : []), val],
                             }));
-                            e.target.value = "";
+                            inputEl.value = "";
                             triggerToast("Added image URL to gallery!");
                           }
-                        }
-                      }}
-                    />
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const inputEl = document.getElementById("newGalleryUrlInput");
-                        const val = inputEl?.value?.trim();
-                        if (val) {
-                          setFormData((prev) => ({
-                            ...prev,
-                            gallery: [...(Array.isArray(prev.gallery) ? prev.gallery : []), val],
-                          }));
-                          inputEl.value = "";
-                          triggerToast("Added image URL to gallery!");
-                        }
-                      }}
-                      className="px-3 py-3 bg-white/10 hover:bg-white/20 text-gray-200 hover:text-white rounded-xl font-medium text-xs shrink-0 transition-all border border-white/20"
-                    >
-                      + Add URL
-                    </button>
+                        }}
+                        className="px-3 py-2.5 bg-white/10 hover:bg-white/20 text-gray-200 hover:text-white rounded-xl font-medium text-xs shrink-0 transition-all border border-white/20 whitespace-nowrap"
+                      >
+                        + Add URL
+                      </button>
+                    </div>
 
                     {/* Hidden File Input for Gallery (Supports Multiple Selection) */}
                     <input
@@ -1432,17 +1448,17 @@ export default function AdminDashboard() {
                       type="button"
                       onClick={() => galleryFileInputRef.current?.click()}
                       disabled={isUploadingGallery}
-                      className="px-3.5 py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-medium text-xs flex items-center gap-1.5 shrink-0 transition-all disabled:opacity-50 shadow-md shadow-emerald-900/40"
+                      className="w-full sm:w-auto px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-medium text-xs flex items-center justify-center gap-1.5 shrink-0 transition-all disabled:opacity-50 shadow-md shadow-emerald-900/40"
                     >
                       {isUploadingGallery ? (
                         <>
-                          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                          <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                           <span>Uploading...</span>
                         </>
                       ) : (
                         <>
                           <PhotoIcon className="w-4 h-4 text-white" />
-                          <span>Upload Pic</span>
+                          <span>Upload Photos</span>
                         </>
                       )}
                     </button>
@@ -1678,30 +1694,38 @@ export default function AdminDashboard() {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-4xl bg-[#142820] border border-emerald-500/30 rounded-3xl shadow-2xl p-6 sm:p-8 z-10 max-h-[90vh] overflow-y-auto text-white space-y-6"
+              className="relative w-full max-w-4xl bg-[#142820] border border-emerald-500/30 rounded-2xl sm:rounded-3xl shadow-2xl p-4 sm:p-8 z-10 max-h-[90vh] overflow-y-auto text-white space-y-6"
             >
-              <div className="flex items-center justify-between pb-4 border-b border-emerald-800/40">
-                <div>
-                  <h2 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-2">
-                    <UserIcon className="w-6 h-6 text-emerald-400" />
-                    Manage About Us Team Members ({teamMembers.length})
-                  </h2>
-                  <p className="text-xs text-emerald-200/70 mt-0.5">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-4 border-b border-emerald-800/40">
+                <div className="w-full sm:w-auto">
+                  <div className="flex items-center justify-between w-full sm:w-auto">
+                    <h2 className="text-base sm:text-2xl font-bold text-white flex items-center gap-2 truncate">
+                      <UserIcon className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-400 shrink-0" />
+                      <span className="truncate">About Us Team ({teamMembers.length})</span>
+                    </h2>
+                    <button
+                      onClick={() => setShowTeamModal(false)}
+                      className="sm:hidden p-1.5 rounded-full bg-white/10 text-gray-300 hover:text-white shrink-0 ml-2"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  <p className="text-xs text-emerald-200/70 mt-1">
                     Update profile pictures, names, roles, and social media links stored in Firestore.
                   </p>
                 </div>
 
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
                   <button
                     onClick={handleOpenCreateMember}
-                    className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition-all shadow-md flex items-center gap-1.5"
+                    className="w-full sm:w-auto px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition-all shadow-md flex items-center justify-center gap-1.5 shrink-0"
                   >
                     <PlusIcon className="w-4 h-4" />
                     <span>Add Member</span>
                   </button>
                   <button
                     onClick={() => setShowTeamModal(false)}
-                    className="p-2 rounded-full bg-white/10 hover:bg-white/20 text-gray-300 hover:text-white transition-colors"
+                    className="hidden sm:flex p-2 rounded-full bg-white/10 hover:bg-white/20 text-gray-300 hover:text-white transition-colors shrink-0"
                   >
                     ✕
                   </button>
