@@ -549,60 +549,60 @@ export default function ExploreDetail() {
           </div>
 
           {/* Reviews Section */}
-          <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100 flex flex-col gap-6">
-            <h2 className="text-2xl font-bold text-gray-900">Review</h2>
+          <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 shadow-sm border border-gray-100 flex flex-col gap-4 sm:gap-6">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Review</h2>
 
             {/* Review Input */}
-            <form onSubmit={handleAddReview} className="flex gap-2 items-center">
+            <form onSubmit={handleAddReview} className="flex gap-2 items-center w-full">
               <input
                 ref={reviewInputRef}
                 type="text"
                 placeholder="Add a review..."
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
-                className="flex-1 text-sm bg-gray-50 border border-gray-200 rounded-2xl py-2 px-4 focus:outline-none focus:ring-2 focus:ring-green-800/30 focus:border-green-800 font-poppins"
+                className="flex-1 min-w-0 text-xs sm:text-sm bg-gray-50 border border-gray-200 rounded-xl sm:rounded-2xl py-2.5 px-3.5 sm:px-4 focus:outline-none focus:ring-2 focus:ring-green-800/30 focus:border-green-800 font-poppins"
               />
               <button
                 type="submit"
-                className="px-4 py-2 bg-green-800 hover:bg-green-950 text-white text-sm font-semibold rounded-2xl shadow-md transition-colors"
+                className="px-4 py-2.5 bg-green-800 hover:bg-green-950 text-white text-xs sm:text-sm font-semibold rounded-xl sm:rounded-2xl shadow-md transition-colors shrink-0"
               >
                 Post
               </button>
             </form>
 
             {/* Reviews List */}
-            <div className="flex flex-col gap-4 overflow-y-auto max-h-[360px] pr-1">
+            <div className="flex flex-col gap-3 sm:gap-4 overflow-y-auto max-h-[360px] pr-1">
               {reviews.map((rev) => (
                 <div
                   key={rev.id}
-                  className="bg-gray-50 hover:bg-gray-100/70 border border-gray-100 rounded-2xl p-4 flex items-center justify-between gap-4 transition-colors"
+                  className="bg-gray-50 hover:bg-gray-100/70 border border-gray-100 rounded-xl sm:rounded-2xl p-3 sm:p-4 flex items-center justify-between gap-2 sm:gap-4 transition-colors"
                 >
-                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
                     <img
                       src={rev.avatar}
                       alt={rev.username}
-                      className="w-11 h-11 rounded-full object-cover border border-white shadow-sm flex-shrink-0"
+                      className="w-9 h-9 sm:w-11 sm:h-11 rounded-full object-cover border border-white shadow-sm flex-shrink-0"
                     />
                     <div className="min-w-0">
-                      <span className="block font-bold text-sm text-gray-900">{rev.username}</span>
-                      <p className="text-gray-500 text-xs truncate mt-0.5 max-w-[280px]">
+                      <span className="block font-bold text-xs sm:text-sm text-gray-900 truncate">{rev.username}</span>
+                      <p className="text-gray-500 text-[11px] sm:text-xs truncate mt-0.5 max-w-[150px] sm:max-w-[280px]">
                         {rev.comment}
                       </p>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3 flex-shrink-0">
+                  <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
                     <button
                       onClick={() => handleLikeReview(rev.id)}
-                      className={`flex items-center gap-1 text-xs hover:text-green-800 transition-colors ${likedReviews[rev.id] ? 'text-green-800 font-semibold' : 'text-gray-400'}`}
+                      className={`flex items-center gap-1 text-[11px] sm:text-xs hover:text-green-800 transition-colors ${likedReviews[rev.id] ? 'text-green-800 font-semibold' : 'text-gray-400'}`}
                     >
-                      {likedReviews[rev.id] ? <IoThumbsUp className="w-4 h-4" /> : <IoThumbsUpOutline className="w-4 h-4" />}
+                      {likedReviews[rev.id] ? <IoThumbsUp className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <IoThumbsUpOutline className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
                       <span>{rev.likes}</span>
                     </button>
 
                     <button
                       onClick={() => setActiveReviewDetail(rev)}
-                      className="text-xs text-blue-500 hover:underline font-semibold"
+                      className="text-[11px] sm:text-xs text-blue-500 hover:underline font-semibold"
                     >
                       See Detail
                     </button>
