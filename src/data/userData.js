@@ -36,7 +36,7 @@ export async function saveUserProfileToDb(user, profileData = {}) {
     if (docSnap.exists()) {
       existingData = docSnap.data();
     }
-  } catch {}
+  } catch { }
 
   const fullName = profileData.name || user.displayName || user.name || existingData.name || "Explorer";
 
@@ -72,7 +72,7 @@ export async function saveUserProfileToDb(user, profileData = {}) {
     const currentLocal = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
     const merged = { ...currentLocal, ...payload };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
-  } catch {}
+  } catch { }
 
   return payload;
 }
@@ -93,7 +93,7 @@ export async function fetchUserProfileFromDb(user) {
       try {
         const currentLocal = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
         localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...currentLocal, ...data }));
-      } catch {}
+      } catch { }
       return data;
     }
   } catch (err) {
@@ -110,7 +110,7 @@ export async function fetchUserFavoritesFromDb(user) {
   let localFavs = [];
   try {
     localFavs = JSON.parse(localStorage.getItem(FAVORITES_KEY)) || [];
-  } catch {}
+  } catch { }
 
   if (!userId) return localFavs;
 
@@ -122,7 +122,7 @@ export async function fetchUserFavoritesFromDb(user) {
       try {
         localStorage.setItem(FAVORITES_KEY, JSON.stringify(dbFavs));
         window.dispatchEvent(new Event("favoritesUpdated"));
-      } catch {}
+      } catch { }
       return dbFavs;
     }
   } catch (err) {
@@ -138,7 +138,7 @@ export async function syncFavoritesToDb(user, favoritesArray) {
   try {
     localStorage.setItem(FAVORITES_KEY, JSON.stringify(favoritesArray));
     window.dispatchEvent(new Event("favoritesUpdated"));
-  } catch {}
+  } catch { }
 
   const userId = sanitizeUserId(user);
   if (!userId) return;
@@ -166,7 +166,7 @@ export async function toggleFavoriteInDb(user, place) {
   let favorites = [];
   try {
     favorites = JSON.parse(localStorage.getItem(FAVORITES_KEY)) || [];
-  } catch {}
+  } catch { }
 
   const placeNameLower = (place.name || "").toLowerCase();
   const existsIndex = favorites.findIndex(

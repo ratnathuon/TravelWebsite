@@ -47,11 +47,34 @@ export default function AdminDashboard() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState("all");
 
-  const currentUser = loadUser();
-  const isAdmin = checkIsAdmin(currentUser);
+  const [currentUser, setCurrentUser] = useState(() => loadUser());
+  const [isAdmin, setIsAdmin] = useState(() => checkIsAdmin(currentUser));
+  const [adminChecked, setAdminChecked] = useState(false);
 
   useEffect(() => {
-    if (!isAdmin) {
+    async function verifyAdminAccess() {
+      const user = loadUser();
+      setCurrentUser(user);
+      if (checkIsAdmin(user)) {
+        setIsAdmin(true);
+        setAdminChecked(true);
+        return;
+      }
+
+      // If local check failed, verify against Firestore directly
+      if (user?.email) {
+        const dbAdmins = await fetchSystemAdminsFromDb();
+        const userEmail = user.email.toLowerCase().trim();
+        if (dbAdmins.some((a) => (a || "").toLowerCase().trim() === userEmail)) {
+          setIsAdmin(true);
+          setAdminChecked(true);
+          return;
+        }
+      }
+
+      // Access denied
+      setIsAdmin(false);
+      setAdminChecked(true);
       window.dispatchEvent(
         new CustomEvent("showToast", {
           detail: "Access Denied: Admin privileges required."
@@ -59,7 +82,10 @@ export default function AdminDashboard() {
       );
       navigate("/");
     }
-  }, [isAdmin, navigate]);
+
+    verifyAdminAccess();
+  }, [navigate]);
+
   const defaultAdminEmail = currentUser?.email || "admin@travelcambodia.com";
 
   // System Admin Emails State
@@ -67,7 +93,7 @@ export default function AdminDashboard() {
     try {
       const saved = JSON.parse(localStorage.getItem("travel_admin_emails"));
       if (Array.isArray(saved) && saved.length > 0) return saved;
-    } catch {}
+    } catch { }
     return [
       defaultAdminEmail
     ];
@@ -458,7 +484,7 @@ export default function AdminDashboard() {
   // Open modal for Edit
   const handleOpenEditModal = (dest) => {
     setEditingDocId(dest.docId);
-    
+
     let existingEmails = defaultAdminEmail;
     if (Array.isArray(dest.adminEmails) && dest.adminEmails.length > 0) {
       existingEmails = dest.adminEmails.join(", ");
@@ -526,7 +552,7 @@ export default function AdminDashboard() {
       const docId = editingDocId || generateSlugId(formData.name);
       const nameClean = formData.name.trim();
       const nameLower = nameClean.toLowerCase();
-      
+
       const searchArray = formData.searchNames
         ? formData.searchNames.split(",").map((s) => s.trim().toLowerCase()).filter(Boolean)
         : [];
@@ -538,8 +564,8 @@ export default function AdminDashboard() {
       const galleryArray = Array.isArray(formData.gallery)
         ? formData.gallery.filter(Boolean)
         : typeof formData.gallery === "string" && formData.gallery.trim()
-        ? [formData.gallery.trim()]
-        : [];
+          ? [formData.gallery.trim()]
+          : [];
 
       let coverImg = formData.img?.trim() || PRESET_IMAGES[0]?.url || "/assets/profile.jpg";
       if (typeof coverImg === "string" && coverImg.startsWith("data:image") && coverImg.length > 100000) {
@@ -623,12 +649,27 @@ export default function AdminDashboard() {
     return matchesSearch && matchesCategory;
   });
 
+  if (!adminChecked) {
+    return (
+      <div className="min-h-screen bg-[#0F2027] flex items-center justify-center font-poppins text-white">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-sm text-emerald-300 font-medium animate-pulse">Verifying Admin Permissions...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return null;
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#0F2027] via-[#1a3a29] to-[#0F2027] text-white font-poppins pb-20">
       {/* Top Header Navigation */}
       <header className="sticky top-0 z-40 bg-[#0F2027]/95 backdrop-blur-md border-b border-emerald-800/40 shadow-xl">
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-          
+
           {/* Dashboard Title Row */}
           <div className="flex items-center justify-between sm:justify-start space-x-2 sm:space-x-3">
             <div className="flex items-center space-x-2">
@@ -674,11 +715,10 @@ export default function AdminDashboard() {
             {/* Pending User Photos Moderation Badge */}
             <button
               onClick={() => setShowPendingPhotosModal(true)}
-              className={`flex items-center justify-center gap-1.5 px-2.5 sm:px-3 py-2 rounded-xl border text-[11px] sm:text-xs font-mono transition-all truncate ${
-                allPendingPhotos.length > 0
+              className={`flex items-center justify-center gap-1.5 px-2.5 sm:px-3 py-2 rounded-xl border text-[11px] sm:text-xs font-mono transition-all truncate ${allPendingPhotos.length > 0
                   ? "bg-amber-500/20 border-amber-500/50 text-amber-300 font-bold animate-pulse shadow-lg"
                   : "bg-emerald-950/80 border-emerald-500/40 text-emerald-300 hover:bg-emerald-900/80"
-              }`}
+                }`}
               title="Moderate User Submitted Gallery Photos"
             >
               <PhotoIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400 shrink-0" />
@@ -835,11 +875,10 @@ export default function AdminDashboard() {
           <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
             <button
               onClick={() => setSelectedCategoryFilter("all")}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all ${
-                selectedCategoryFilter === "all"
+              className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all ${selectedCategoryFilter === "all"
                   ? "bg-emerald-600 text-white shadow-md shadow-emerald-900/50"
                   : "bg-white/10 text-gray-300 hover:bg-white/20"
-              }`}
+                }`}
             >
               All ({destinations.length})
             </button>
@@ -849,11 +888,10 @@ export default function AdminDashboard() {
                 <button
                   key={cat.value}
                   onClick={() => setSelectedCategoryFilter(cat.value)}
-                  className={`px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
-                    selectedCategoryFilter === cat.value
+                  className={`px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all ${selectedCategoryFilter === cat.value
                       ? "bg-emerald-600 text-white shadow-md shadow-emerald-900/50"
                       : "bg-white/10 text-gray-300 hover:bg-white/20"
-                  }`}
+                    }`}
                 >
                   {cat.label} ({count})
                 </button>
@@ -1065,12 +1103,11 @@ export default function AdminDashboard() {
                   <p className="text-[11px] text-gray-300/80">
                     Check which sections on the website this destination will feature in:
                   </p>
-                  
+
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
                     {/* SlideHeader */}
-                    <label className={`flex items-center gap-2.5 p-3 rounded-xl border transition-all cursor-pointer ${
-                      formData.showInSlideHeader ? "bg-emerald-900/70 border-emerald-400 text-white font-medium" : "bg-black/40 border-white/10 text-gray-300 hover:border-gray-500"
-                    }`}>
+                    <label className={`flex items-center gap-2.5 p-3 rounded-xl border transition-all cursor-pointer ${formData.showInSlideHeader ? "bg-emerald-900/70 border-emerald-400 text-white font-medium" : "bg-black/40 border-white/10 text-gray-300 hover:border-gray-500"
+                      }`}>
                       <input
                         type="checkbox"
                         name="showInSlideHeader"
@@ -1082,9 +1119,8 @@ export default function AdminDashboard() {
                     </label>
 
                     {/* Top Destinations */}
-                    <label className={`flex items-center gap-2.5 p-3 rounded-xl border transition-all cursor-pointer ${
-                      formData.showInTopDestinations ? "bg-emerald-900/70 border-emerald-400 text-white font-medium" : "bg-black/40 border-white/10 text-gray-300 hover:border-gray-500"
-                    }`}>
+                    <label className={`flex items-center gap-2.5 p-3 rounded-xl border transition-all cursor-pointer ${formData.showInTopDestinations ? "bg-emerald-900/70 border-emerald-400 text-white font-medium" : "bg-black/40 border-white/10 text-gray-300 hover:border-gray-500"
+                      }`}>
                       <input
                         type="checkbox"
                         name="showInTopDestinations"
@@ -1096,9 +1132,8 @@ export default function AdminDashboard() {
                     </label>
 
                     {/* Explore in Cambodia */}
-                    <label className={`flex items-center gap-2.5 p-3 rounded-xl border transition-all cursor-pointer ${
-                      formData.showInExplore ? "bg-emerald-900/70 border-emerald-400 text-white font-medium" : "bg-black/40 border-white/10 text-gray-300 hover:border-gray-500"
-                    }`}>
+                    <label className={`flex items-center gap-2.5 p-3 rounded-xl border transition-all cursor-pointer ${formData.showInExplore ? "bg-emerald-900/70 border-emerald-400 text-white font-medium" : "bg-black/40 border-white/10 text-gray-300 hover:border-gray-500"
+                      }`}>
                       <input
                         type="checkbox"
                         name="showInExplore"
@@ -1318,11 +1353,10 @@ export default function AdminDashboard() {
                           key={idx}
                           type="button"
                           onClick={() => setFormData((prev) => ({ ...prev, img: preset.url }))}
-                          className={`text-xs px-2.5 py-1 rounded-lg border transition-all ${
-                            formData.img === preset.url
+                          className={`text-xs px-2.5 py-1 rounded-lg border transition-all ${formData.img === preset.url
                               ? "bg-emerald-600 text-white border-emerald-400 font-bold"
                               : "bg-black/30 border-white/10 text-gray-300 hover:bg-white/10"
-                          }`}
+                            }`}
                         >
                           {preset.label || preset.name}
                         </button>
@@ -1342,7 +1376,7 @@ export default function AdminDashboard() {
                         }}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
-                      
+
                       {/* Live Badge Overlay */}
                       <div className="absolute top-3 left-3 flex items-center gap-2">
                         <span className="bg-emerald-600/90 backdrop-blur-md text-white font-bold text-[10px] uppercase tracking-wider px-2.5 py-1 rounded-full shadow-md border border-emerald-400/40">
@@ -1352,7 +1386,7 @@ export default function AdminDashboard() {
                           📸 Live Cover Preview
                         </span>
                       </div>
-                      
+
                       <div className="absolute top-3 right-3 bg-black/70 backdrop-blur-md text-amber-300 font-bold text-xs px-2.5 py-1 rounded-full border border-amber-400/30 flex items-center gap-1">
                         <StarIcon className="w-3.5 h-3.5 text-amber-400" />
                         <span>{formData.rating || 5}.0</span>
@@ -1473,7 +1507,7 @@ export default function AdminDashboard() {
                         </p>
                         <span className="text-[10px] text-gray-400">Hover photo & click ✕ to delete</span>
                       </div>
-                      
+
                       <div className="grid grid-cols-3 sm:grid-cols-4 gap-2.5">
                         {formData.gallery.map((url, idx) => (
                           <div

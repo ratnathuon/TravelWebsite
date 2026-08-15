@@ -11,6 +11,7 @@ import AccountInfo from "./components/Account_Info"
 import ExploreDetail from "./Pages/ExploreDetail"
 import AdminDashboard from "./Pages/AdminDashboard"
 import { migrateDataToFirestore } from "./data/migrate";
+import { subscribeToSystemAdmins, fetchSystemAdminsFromDb } from "./data/adminData";
 
 import { saveUserProfileToDb, fetchUserProfileFromDb } from "./data/userData";
 import { fetchUserFavoritesFromDb, saveUserFavoritesToDb } from "./data/favoritesData";
@@ -33,6 +34,11 @@ function App() {
 
   useEffect(() => {
     migrateDataToFirestore();
+    const unsubAdmins = subscribeToSystemAdmins();
+    fetchSystemAdminsFromDb();
+    return () => {
+      if (typeof unsubAdmins === "function") unsubAdmins();
+    };
   }, []);
 
   useEffect(() => {
@@ -85,6 +91,7 @@ function App() {
           setIsAccountOpen(false);
           await saveUserProfileToDb(enriched);
           await fetchUserFavoritesFromDb(enriched);
+          await fetchSystemAdminsFromDb();
         }}
       />
       {/* Global Toast notification at bottom right */}

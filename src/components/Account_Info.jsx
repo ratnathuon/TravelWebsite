@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { auth } from '../firebase';
 import { updateProfile } from 'firebase/auth';
-import { useSearchParams, useNavigate } from 'react-router-dom';
-import { clearUser } from './Header';
+import { useSearchParams, useNavigate, Link } from 'react-router-dom';
+import { clearUser, checkIsAdmin } from './Header';
 import { saveUserProfileToDb, fetchUserProfileFromDb } from '../data/userData';
+import { fetchSystemAdminsFromDb } from '../data/adminData';
 import FavoritePlace from './Favorite_Place';
 
 export default function AccountInfo({ user, onUpdateUser, onSignOut }) {
@@ -21,6 +22,7 @@ export default function AccountInfo({ user, onUpdateUser, onSignOut }) {
     };
     const navigate = useNavigate();
 
+    const [isAdmin, setIsAdmin] = useState(() => checkIsAdmin(user));
     const [isSaving, setIsSaving] = useState(false);
     const [saveSuccess, setSaveSuccess] = useState(false);
     const [pendingPhotoFile, setPendingPhotoFile] = useState(null);
@@ -28,6 +30,18 @@ export default function AccountInfo({ user, onUpdateUser, onSignOut }) {
     const [removePhoto, setRemovePhoto] = useState(false);
 
     const currentDisplayPhoto = removePhoto ? null : (previewPhotoURL || displayUser.photoURL);
+
+    useEffect(() => {
+        setIsAdmin(checkIsAdmin(user));
+        if (user?.email) {
+            fetchSystemAdminsFromDb().then((admins) => {
+                const clean = user.email.toLowerCase().trim();
+                if (admins.some((a) => (a || "").toLowerCase().trim() === clean)) {
+                    setIsAdmin(true);
+                }
+            });
+        }
+    }, [user]);
 
     const getNames = (fullName) => {
         const parts = (fullName || '').trim().split(/\s+/);
@@ -100,7 +114,7 @@ export default function AccountInfo({ user, onUpdateUser, onSignOut }) {
 
         if (removePhoto) {
             finalPhotoURL = null;
-            if (auth.currentUser) updateProfile(auth.currentUser, { photoURL: null }).catch(()=>{});
+            if (auth.currentUser) updateProfile(auth.currentUser, { photoURL: null }).catch(() => { });
         } else if (pendingPhotoFile && previewPhotoURL) {
             finalPhotoURL = previewPhotoURL;
         }
@@ -108,7 +122,7 @@ export default function AccountInfo({ user, onUpdateUser, onSignOut }) {
         const fullName = `${formData.firstName.trim()} ${formData.lastName.trim()}`.trim();
 
         if (auth.currentUser) {
-            updateProfile(auth.currentUser, { displayName: fullName }).catch(()=>{});
+            updateProfile(auth.currentUser, { displayName: fullName }).catch(() => { });
         }
 
         const profilePayload = {
@@ -124,8 +138,8 @@ export default function AccountInfo({ user, onUpdateUser, onSignOut }) {
         await saveUserProfileToDb(user, profilePayload);
 
         if (onUpdateUser) {
-            onUpdateUser({ 
-                ...displayUser, 
+            onUpdateUser({
+                ...displayUser,
                 ...profilePayload,
             });
         }
@@ -200,7 +214,14 @@ export default function AccountInfo({ user, onUpdateUser, onSignOut }) {
                                     )}
                                 </div>
                                 <div className="overflow-hidden">
-                                    <h3 className="font-bold text-sm sm:text-xl truncate text-white">{displayUser.name}</h3>
+                                    <div className="flex items-center gap-1.5">
+                                        <h3 className="font-bold text-sm sm:text-xl truncate text-white">{displayUser.name}</h3>
+                                        {isAdmin && (
+                                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/30 text-emerald-200 border border-emerald-400/40 font-mono font-bold shrink-0">
+                                                ADMIN
+                                            </span>
+                                        )}
+                                    </div>
                                     <p className="text-xs text-gray-300 truncate opacity-80">{displayUser.email}</p>
                                 </div>
                             </div>
@@ -250,6 +271,19 @@ export default function AccountInfo({ user, onUpdateUser, onSignOut }) {
                                     <span className="text-xs sm:text-[15px]">{tab.label}</span>
                                 </button>
                             ))}
+
+                            {/* Direct Admin Dashboard link in Sidebar if user is admin */}
+                            {isAdmin && (
+                                <Link
+                                    to="/admin"
+                                    className="flex items-center space-x-2 sm:space-x-4 px-3.5 sm:px-5 py-2.5 sm:py-4 rounded-xl sm:rounded-2xl transition-all duration-300 whitespace-nowrap bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-semibold border border-emerald-500/40 mt-1 md:mt-3 shrink-0"
+                                >
+                                    <svg className="w-4 h-4 sm:w-5 sm:h-5 opacity-90 shrink-0 text-emerald-400" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fillRule="evenodd" d="M10 1.944A11.954 11.954 0 012.166 5C2.056 5.649 2 6.319 2 7c0 5.225 3.34 9.67 8 11.317C14.66 16.67 18 12.225 18 7c0-.682-.057-1.35-.166-2.001A11.954 11.954 0 0110 1.944zM11 14a1 1 0 11-2 0 1 1 0 012 0zm0-7a1 1 0 10-2 0v4a1 1 0 102 0V7z" clipRule="evenodd" />
+                                    </svg>
+                                    <span className="text-xs sm:text-[15px]">Admin Dashboard</span>
+                                </Link>
+                            )}
                         </nav>
                     </div>
 
@@ -323,7 +357,8 @@ export default function AccountInfo({ user, onUpdateUser, onSignOut }) {
                                         <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">Email Address</label>
                                         <input
                                             type="email"
-                                            defaultValue={user.email}
+                                            value={displayUser.email || user?.email || ""}
+                                            readOnly
                                             disabled
                                             className="w-full px-4 sm:px-5 py-3 sm:py-3.5 bg-gray-100 rounded-xl border border-gray-200/60 text-sm text-gray-500 cursor-not-allowed"
                                         />

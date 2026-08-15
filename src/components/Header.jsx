@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "motion/react";
+import { DEFAULT_SYSTEM_ADMINS, fetchSystemAdminsFromDb, isEmailAdmin } from "../data/adminData";
+
 // ─── localStorage helpers ───────────────────────────────────────────────────
 const STORAGE_KEY = "travel_cambodia_user";
 const DB_KEY = "travel_cambodia_users_db";
@@ -53,26 +55,8 @@ export function enrichUserFromDb(userData) {
 
 export function checkIsAdmin(user) {
   if (!user || !user.email) return false;
-  const email = user.email.toLowerCase().trim();
   if (user.role === "admin" || user.isAdmin === true) return true;
-  
-  const defaultAdmins = [
-    "admin@travelcambodia.com",
-    "sophea.admin@travelcambodia.com",
-    "ratna.admin@travelcambodia.com",
-    "ratnathuon@gmail.com",
-  ];
-  if (defaultAdmins.some((a) => a.toLowerCase() === email)) return true;
-  
-  try {
-    const savedAdmins = JSON.parse(localStorage.getItem("travel_admin_emails") || "[]");
-    if (Array.isArray(savedAdmins) && savedAdmins.some((a) => (a || "").toLowerCase() === email)) {
-      return true;
-    }
-  } catch {}
-  
-  if (email.includes("admin@") || email.startsWith("admin")) return true;
-  return false;
+  return isEmailAdmin(user.email);
 }
 
 export default function Header({ user, onOpenAccount, onSignOut }) {
@@ -80,13 +64,37 @@ export default function Header({ user, onOpenAccount, onSignOut }) {
   const [navDropdownOpen, setNavDropdownOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(() => checkIsAdmin(user));
 
   const location = useLocation();
   const navigate = useNavigate();
   const userDropdownRef = useRef(null);
   const navDropdownRef = useRef(null);
 
-  const isAdmin = checkIsAdmin(user);
+  useEffect(() => {
+    // Check initially
+    setIsAdmin(checkIsAdmin(user));
+
+    // Listen to admin list updates from Firestore
+    const handleAdminsUpdate = () => {
+      setIsAdmin(checkIsAdmin(user));
+    };
+    window.addEventListener("adminsUpdated", handleAdminsUpdate);
+
+    // If user is logged in, verify against Firestore to guarantee latest permissions
+    if (user?.email) {
+      fetchSystemAdminsFromDb().then((admins) => {
+        const clean = user.email.toLowerCase().trim();
+        if (admins.some((a) => (a || "").toLowerCase().trim() === clean)) {
+          setIsAdmin(true);
+        }
+      });
+    }
+
+    return () => {
+      window.removeEventListener("adminsUpdated", handleAdminsUpdate);
+    };
+  }, [user]);
 
   useEffect(() => {
     function handleClickOutside(e) {
@@ -258,9 +266,11 @@ export default function Header({ user, onOpenAccount, onSignOut }) {
                           <Link
                             to="/admin"
                             onClick={() => setUserDropdownOpen(false)}
-                            className="block px-4 py-2 text-sm font-semibold text-emerald-300 hover:bg-emerald-700 hover:text-white rounded"
+                            className="flex items-center justify-between px-4 py-2 text-sm font-semibold text-emerald-300 hover:bg-emerald-700/80 hover:text-white rounded transition-colors"
                           >
-                            Admin Dashboard
+                            <span className="flex items-center gap-1.5">
+                              Admin Dashboard
+                            </span>
                           </Link>
                         </li>
                       )}

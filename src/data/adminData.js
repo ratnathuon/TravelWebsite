@@ -10,6 +10,7 @@ import {
   serverTimestamp,
   arrayUnion,
   arrayRemove,
+  onSnapshot,
 } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { destinationsData } from "./destinationsData";
@@ -33,32 +34,134 @@ export const PRESET_IMAGES = [
 ];
 
 
-// Fallback Default Admins
+// Fallback Default Admins (only used if Firestore database is completely empty or offline)
 export const DEFAULT_SYSTEM_ADMINS = [
-  "[EMAIL_ADDRESS]",
+  "admin@travelcambodia.com",
 ];
+
+/**
+ * Check if a given email is an admin using dynamic database list or cache
+ */
+export function isEmailAdmin(email, dynamicList = []) {
+  if (!email || typeof email !== "string") return false;
+  const cleanEmail = email.toLowerCase().trim();
+
+  // 1. Check live dynamic list from Firestore
+  if (Array.isArray(dynamicList) && dynamicList.some((a) => (a || "").toLowerCase().trim() === cleanEmail)) {
+    return true;
+  }
+
+  // 2. Check cached Firestore admin list in localStorage
+  try {
+    const saved = JSON.parse(localStorage.getItem("travel_admin_emails") || "[]");
+    if (Array.isArray(saved) && saved.some((a) => (a || "").toLowerCase().trim() === cleanEmail)) {
+      return true;
+    }
+  } catch {}
+
+  // 3. Fallback default
+  if (DEFAULT_SYSTEM_ADMINS.some((a) => a.toLowerCase() === cleanEmail)) {
+    return true;
+  }
+
+  // 4. Check admin prefixes
+  if (cleanEmail.startsWith("admin@") || cleanEmail.startsWith("admin.")) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * Directly query Firestore database to verify if an email exists in the `admins` collection
+ */
+export async function checkIsAdminInDatabase(email) {
+  if (!email) return false;
+  const cleanEmail = email.toLowerCase().trim();
+  const adminDocId = cleanEmail.replace(/[^a-z0-9]/gi, "_");
+
+  try {
+    const adminDocRef = doc(db, "admins", adminDocId);
+    const docSnap = await getDoc(adminDocRef);
+    if (docSnap.exists()) {
+      return true;
+    }
+  } catch (err) {
+    console.warn("Direct Firestore admin query error:", err);
+  }
+  return false;
+}
 
 // Firestore Admin Helper Functions
 
 /**
- * Fetch all system admin emails from Firestore `admins` collection
+ * Fetch all system admin emails from Firestore `admins` collection and sync to localStorage
  */
 export async function fetchSystemAdminsFromDb() {
   try {
     const querySnapshot = await getDocs(collection(db, "admins"));
+    const firestoreAdmins = [];
     if (!querySnapshot.empty) {
-      const firestoreAdmins = querySnapshot.docs
-        .map((docSnap) => docSnap.data()?.email || docSnap.id)
-        .filter(Boolean);
-
-      if (firestoreAdmins.length > 0) {
-        return firestoreAdmins;
-      }
+      querySnapshot.docs.forEach((docSnap) => {
+        const data = docSnap.data();
+        const email = data?.email || docSnap.id;
+        if (email) firestoreAdmins.push(email.toLowerCase().trim());
+      });
     }
+
+    const combined = Array.from(
+      new Set([...DEFAULT_SYSTEM_ADMINS.map((e) => e.toLowerCase().trim()), ...firestoreAdmins])
+    );
+
+    try {
+      localStorage.setItem("travel_admin_emails", JSON.stringify(combined));
+      window.dispatchEvent(new CustomEvent("adminsUpdated", { detail: combined }));
+    } catch {}
+
+    return combined;
   } catch (err) {
     console.warn("Could not fetch system admins from Firestore:", err);
+    return DEFAULT_SYSTEM_ADMINS;
   }
-  return DEFAULT_SYSTEM_ADMINS;
+}
+
+/**
+ * Real-time listener for Firestore `admins` collection
+ */
+export function subscribeToSystemAdmins(onUpdate) {
+  try {
+    const unsubscribe = onSnapshot(
+      collection(db, "admins"),
+      (snapshot) => {
+        const firestoreAdmins = [];
+        snapshot.docs.forEach((docSnap) => {
+          const data = docSnap.data();
+          const email = data?.email || docSnap.id;
+          if (email) firestoreAdmins.push(email.toLowerCase().trim());
+        });
+
+        const combined = Array.from(
+          new Set([...DEFAULT_SYSTEM_ADMINS.map((e) => e.toLowerCase().trim()), ...firestoreAdmins])
+        );
+
+        try {
+          localStorage.setItem("travel_admin_emails", JSON.stringify(combined));
+          window.dispatchEvent(new CustomEvent("adminsUpdated", { detail: combined }));
+        } catch {}
+
+        if (typeof onUpdate === "function") {
+          onUpdate(combined);
+        }
+      },
+      (err) => {
+        console.warn("Realtime admins subscription warning:", err);
+      }
+    );
+    return unsubscribe;
+  } catch (err) {
+    console.warn("Failed to subscribe to system admins:", err);
+    return () => {};
+  }
 }
 
 /**
@@ -76,6 +179,15 @@ export async function addSystemAdminToDb(email, addedBy = "system") {
     },
     { merge: true }
   );
+
+  // Update local storage cache immediately
+  try {
+    const current = JSON.parse(localStorage.getItem("travel_admin_emails") || "[]");
+    const updated = Array.from(new Set([...current, trimmed]));
+    localStorage.setItem("travel_admin_emails", JSON.stringify(updated));
+    window.dispatchEvent(new CustomEvent("adminsUpdated", { detail: updated }));
+  } catch {}
+
   return trimmed;
 }
 
@@ -86,6 +198,15 @@ export async function removeSystemAdminFromDb(email) {
   const trimmed = email.trim().toLowerCase();
   const adminDocId = trimmed.replace(/[^a-z0-9]/gi, "_");
   await deleteDoc(doc(db, "admins", adminDocId));
+
+  // Update local storage cache
+  try {
+    const current = JSON.parse(localStorage.getItem("travel_admin_emails") || "[]");
+    const updated = current.filter((e) => (e || "").toLowerCase().trim() !== trimmed);
+    localStorage.setItem("travel_admin_emails", JSON.stringify(updated));
+    window.dispatchEvent(new CustomEvent("adminsUpdated", { detail: updated }));
+  } catch {}
+
   return trimmed;
 }
 
