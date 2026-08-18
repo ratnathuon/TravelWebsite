@@ -1,5 +1,5 @@
 import { db } from '../firebase';
-import { collection, doc, setDoc } from 'firebase/firestore';
+import { collection, doc, setDoc, getDocs } from 'firebase/firestore';
 import { destinationsData } from './destinationsData';
 import { slidesRawData } from './Sliderdata';
 import memberData from './memberdata';
@@ -26,72 +26,80 @@ export async function migrateDataToFirestore() {
     return;
   }
 
-  console.log("Starting Firestore migration...");
-
   try {
+    // 1. Destinations: Seed only if collection in Firestore is completely empty
     if (!destDone) {
       const destinationsCol = collection(db, "destinations");
+      const destSnap = await getDocs(destinationsCol);
 
-      // Since destinationsData has duplicate entries, we deduplicate by ID
-      const uniqueDestinations = [];
-      const seenIds = new Set();
+      if (destSnap.empty) {
+        console.log("Seeding initial destinations to Firestore...");
+        const uniqueDestinations = [];
+        const seenIds = new Set();
 
-      for (const item of destinationsData) {
-        if (!seenIds.has(item.id)) {
-          seenIds.add(item.id);
-          uniqueDestinations.push(item);
+        for (const item of destinationsData) {
+          if (!seenIds.has(item.id)) {
+            seenIds.add(item.id);
+            uniqueDestinations.push(item);
+          }
+        }
+
+        for (const destination of uniqueDestinations) {
+          const docRef = doc(destinationsCol, destination.id);
+          const publicImgPath = imgPathMap[destination.id] || "/assets/profile.jpg";
+
+          const cleanedDestination = {
+            id: destination.id,
+            name: destination.name,
+            searchNames: destination.searchNames || [],
+            location: destination.location || "",
+            rating: Number(destination.rating) || 5,
+            img: publicImgPath,
+            gallery: destination.gallery || [],
+            cat: destination.cat || "",
+            about: destination.about || "",
+            mapSearch: destination.mapSearch || "",
+            reviews: destination.reviews || []
+          };
+
+          await setDoc(docRef, cleanedDestination);
         }
       }
-
-      for (const destination of uniqueDestinations) {
-        const docRef = doc(destinationsCol, destination.id);
-
-        // Determine the correct public path for the image
-        const publicImgPath = imgPathMap[destination.id] || "/assets/profile.jpg";
-
-        const cleanedDestination = {
-          id: destination.id,
-          name: destination.name,
-          searchNames: destination.searchNames || [],
-          location: destination.location || "",
-          rating: Number(destination.rating) || 5,
-          img: publicImgPath,
-          gallery: destination.gallery || [],
-          cat: destination.cat || "",
-          about: destination.about || "",
-          mapSearch: destination.mapSearch || "",
-          reviews: destination.reviews || []
-        };
-
-        await setDoc(docRef, cleanedDestination);
-        console.log(`Uploaded destination: ${destination.id}`);
-      }
-
       localStorage.setItem("destinations_migrated_v1", "true");
     }
 
+    // 2. Slides: Seed only if collection in Firestore is completely empty
     if (!slidesDone) {
       const slidesCol = collection(db, "slides");
-      for (const slide of slidesRawData) {
-        const docRef = doc(slidesCol, slide.id);
-        await setDoc(docRef, slide);
-        console.log(`Uploaded slide: ${slide.id}`);
+      const slidesSnap = await getDocs(slidesCol);
+
+      if (slidesSnap.empty) {
+        console.log("Seeding initial slides to Firestore...");
+        for (const slide of slidesRawData) {
+          const docRef = doc(slidesCol, slide.id);
+          await setDoc(docRef, slide);
+        }
       }
       localStorage.setItem("slides_migrated_v1", "true");
     }
 
+    // 3. Team Members: Seed only if collection in Firestore is completely empty
     if (!membersDone) {
       const membersCol = collection(db, "team_members");
-      for (const member of memberData) {
-        const docRef = doc(membersCol, member.id);
-        await setDoc(docRef, member);
-        console.log(`Uploaded team member: ${member.id}`);
+      const membersSnap = await getDocs(membersCol);
+
+      if (membersSnap.empty) {
+        console.log("Seeding initial team members to Firestore...");
+        for (const member of memberData) {
+          const docRef = doc(membersCol, member.id);
+          await setDoc(docRef, member);
+        }
       }
       localStorage.setItem("team_members_migrated_v1", "true");
     }
 
-    console.log("Firestore migration complete!");
+    console.log("Firestore check / seeding complete!");
   } catch (error) {
-    console.error("Error during Firestore migration:", error);
+    console.error("Error during Firestore check / seeding:", error);
   }
 }

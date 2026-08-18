@@ -3,7 +3,7 @@ import { motion, useAnimationControls } from "framer-motion";
 import { FaFacebook, FaGithub, FaLinkedin } from "react-icons/fa";
 import defaultMembers from "../data/memberdata";
 import { db } from "../firebase";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, onSnapshot } from "firebase/firestore";
 
 const MemberCard = ({ name, position, image, facebook, github, linkedin, onHoverStart, onHoverEnd }) => (
   <motion.div
@@ -57,9 +57,9 @@ export const AboutUsCard = () => {
   const startTimeRef = useRef(null);
 
   useEffect(() => {
-    const fetchMembers = async () => {
-      try {
-        const querySnapshot = await getDocs(collection(db, "team_members"));
+    const unsub = onSnapshot(
+      collection(db, "team_members"),
+      (querySnapshot) => {
         if (!querySnapshot.empty) {
           const data = querySnapshot.docs.map((doc) => ({
             id: doc.id,
@@ -67,11 +67,13 @@ export const AboutUsCard = () => {
           }));
           setMemberList(data);
         }
-      } catch (err) {
-        console.error("Error fetching team members from Firestore:", err);
+      },
+      (err) => {
+        console.error("Error subscribing to team members from Firestore:", err);
       }
-    };
-    fetchMembers();
+    );
+
+    return () => unsub();
   }, []);
 
   // Duplicate for seamless loop
