@@ -3,39 +3,39 @@ import { motion, AnimatePresence } from "motion/react";
 
 const faqs = [
   {
-    title: "What services does your agency provide?",
+    title: "What destinations can I explore in Cambodia?",
     description:
-      "We offer a range of travel services, including flight bookings, hotel reservations, tour packages, cruise bookings, travel insurance, visa assistance, and customized itineraries.",
-    icon: "briefcase",
-  },
-  {
-    title: "What are your payment options?",
-    description:
-      "We accept major credit/debit cards, bank transfers, and online payment gateways. Flexible payment plans are available for select travel packages.",
-    icon: "credit-card",
-  },
-  {
-    title: "How do I book a trip with your agency?",
-    description:
-      "Booking is easy: choose your destination, select travel dates, enter your preferences, and our team will handle the rest for a seamless experience.",
-    icon: "rocket-launch",
-  },
-  {
-    title: "Do you offer travel insurance?",
-    description:
-      "Yes. We provide travel insurance plans that cover cancellations, medical emergencies, lost luggage, and more for peace of mind during your journey.",
-    icon: "shield-check",
-  },
-  {
-    title: "Can I customize my travel itinerary?",
-    description:
-      "Absolutely! We specialize in tailored travel experiences so you can customize flights, accommodations, tours, and activities to suit your needs.",
+      "Users can explore popular tourist destinations and attractions across Cambodia.",
     icon: "map-pin",
   },
   {
-    title: "Can you help with visa applications?",
+    title: "Can I explore destinations by province?",
     description:
-      "Yes, our team guides you through the visa process, supports document preparation, and keeps you updated on requirements and timelines.",
+      "Yes. Users can browse travel destinations organized by each province in Cambodia.",
+    icon: "credit-card",
+  },
+  {
+    title: "Can I save my favorite destinations?",
+    description:
+      "Yes. Users can add places they like to their favorites and view them later.",
+    icon: "rocket-launch",
+  },
+  {
+    title: "Where can I find information about a destination?",
+    description:
+      "Each destination has a brief description with useful information about the place.",
+    icon: "shield-check",
+  },
+  {
+    title: "Can I see reviews of each destination?",
+    description:
+      "Yes. Users can view reviews and see what other visitors think about a destination.",
+    icon: "map-pin",
+  },
+  {
+    title: "How can I find a destination I want to visit?",
+    description:
+      "Users can browse the destinations or explore them by province to find places they are interested in.",
     icon: "document-text",
   },
 ];
