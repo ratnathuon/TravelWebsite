@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "motion/react";
+import { DEFAULT_SYSTEM_ADMINS, fetchSystemAdminsFromDb, isEmailAdmin } from "../data/adminData";
+
 // ─── localStorage helpers ───────────────────────────────────────────────────
 const STORAGE_KEY = "travel_cambodia_user";
 const DB_KEY = "travel_cambodia_users_db";
@@ -50,18 +52,49 @@ export function enrichUserFromDb(userData) {
     photoURL: userData.photoURL || savedData.photoURL,
   };
 }
-// ───────────────────────────────────────────────────────────────────────────
+
+export function checkIsAdmin(user) {
+  if (!user || !user.email) return false;
+  if (user.role === "admin" || user.isAdmin === true) return true;
+  return isEmailAdmin(user.email);
+}
 
 export default function Header({ user, onOpenAccount, onSignOut }) {
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [navDropdownOpen, setNavDropdownOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(() => checkIsAdmin(user));
 
   const location = useLocation();
   const navigate = useNavigate();
   const userDropdownRef = useRef(null);
   const navDropdownRef = useRef(null);
+
+  useEffect(() => {
+    // Check initially
+    setIsAdmin(checkIsAdmin(user));
+
+    // Listen to admin list updates from Firestore
+    const handleAdminsUpdate = () => {
+      setIsAdmin(checkIsAdmin(user));
+    };
+    window.addEventListener("adminsUpdated", handleAdminsUpdate);
+
+    // If user is logged in, verify against Firestore to guarantee latest permissions
+    if (user?.email) {
+      fetchSystemAdminsFromDb().then((admins) => {
+        const clean = user.email.toLowerCase().trim();
+        if (admins.some((a) => (a || "").toLowerCase().trim() === clean)) {
+          setIsAdmin(true);
+        }
+      });
+    }
+
+    return () => {
+      window.removeEventListener("adminsUpdated", handleAdminsUpdate);
+    };
+  }, [user]);
 
   useEffect(() => {
     function handleClickOutside(e) {
@@ -101,6 +134,19 @@ export default function Header({ user, onOpenAccount, onSignOut }) {
     }, 1500);
   };
 
+  const handleDestinationSelect = (categoryValue) => {
+    setNavDropdownOpen(false);
+    setMobileMenuOpen(false);
+
+    window.dispatchEvent(
+      new CustomEvent("selectCategory", { detail: categoryValue })
+    );
+
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }, 100);
+  };
+
   const navLinkClass = (path) =>
     `block py-2 px-3 rounded-sm md:p-0 transition-colors duration-200 ${
       location.pathname === path
@@ -110,8 +156,8 @@ export default function Header({ user, onOpenAccount, onSignOut }) {
 
   return (
     <>
-      <nav className=" bg-gradient-to-r from-[#0F2027] via-[#28623a] to-[#28623a] mb-4 font-poppins">
-        <div className="max-w-screen-xl mx-auto flex flex-wrap items-center justify-between px-5 py-4">
+      <nav className="sticky top-0 z-50 bg-gradient-to-r from-[#0F2027] via-[#28623a] to-[#28623a] shadow-md font-poppins">
+        <div className="max-w-screen-xl mx-auto flex flex-nowrap items-center justify-between px-3 sm:px-5 py-3 sm:py-4">
           {/* Logo */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
@@ -123,14 +169,15 @@ export default function Header({ user, onOpenAccount, onSignOut }) {
               delay: 0.2,
               duration: 1.2,
             }}
+            className="flex-shrink-0"
           >
-            <Link to="/" className="flex items-center space-x-2">
+            <Link to="/" className="flex items-center space-x-1.5 sm:space-x-2">
               <img
                 src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSyUwFbJZraL5nOMSB7uJrRe52nmS2NBafiGA&s"
-                className="h-8"
+                className="h-6 sm:h-8"
                 alt="Logo"
               />
-              <span className="self-center text-2xl font-semibold whitespace-nowrap text-white">
+              <span className="self-center text-lg sm:text-2xl font-semibold whitespace-nowrap text-white">
                 Travel Cambodia
               </span>
             </Link>
@@ -146,7 +193,7 @@ export default function Header({ user, onOpenAccount, onSignOut }) {
               delay: 0.2,
               duration: 1.2,
             }}
-            className="flex items-center md:order-2 space-x-3 relative"
+            className="flex items-center md:order-2 space-x-1.5 sm:space-x-3 relative shrink-0"
           >
             {!user ? (
               // ✅ opens the Account modal
@@ -163,7 +210,7 @@ export default function Header({ user, onOpenAccount, onSignOut }) {
                   className="flex items-center space-x-2 focus:ring-4 focus:ring-gray-300 rounded-full transition-all"
                 >
                   <span className="sr-only">Open user menu</span>
-                  <div className="flex items-center justify-center w-10 h-10 rounded-full bg-[#E5DFFF] text-[#3D1A6A] font-bold text-sm overflow-hidden">
+                  <div className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#E5DFFF] text-[#3D1A6A] font-bold text-xs sm:text-sm overflow-hidden">
                     {user.photoURL ? (
                       <img
                         src={user.photoURL}
@@ -187,7 +234,7 @@ export default function Header({ user, onOpenAccount, onSignOut }) {
                       height: userDropdownOpen ? "auto" : 0,
                     }}
                     transition={{ duration: 0.3 }}
-                    className="absolute right-0 mt-2 z-50 text-base list-none bg-gradient-to-r from-[#0F2027] via-[#28623a] to-[#28623a] divide-y divide-gray-600 rounded-lg shadow-lg w-50"
+                    className="absolute right-0 mt-2 z-50 text-base list-none bg-gradient-to-r from-[#0F2027]/85 via-[#28623a]/85 to-[#28623a]/85 backdrop-blur-md border border-white/20 divide-y divide-gray-600 rounded-lg shadow-lg w-50"
                   >
                     <div className="px-4 py-3">
                       <span className="block text-sm text-white font-bold">
@@ -214,6 +261,19 @@ export default function Header({ user, onOpenAccount, onSignOut }) {
                           Favorite places
                         </Link>
                       </li>
+                      {isAdmin && (
+                        <li>
+                          <Link
+                            to="/admin"
+                            onClick={() => setUserDropdownOpen(false)}
+                            className="flex items-center justify-between px-4 py-2 text-sm font-semibold text-emerald-300 hover:bg-emerald-700/80 hover:text-white rounded transition-colors"
+                          >
+                            <span className="flex items-center gap-1.5">
+                              Admin Dashboard
+                            </span>
+                          </Link>
+                        </li>
+                      )}
                       <li>
                         <button
                           onClick={handleSignOut}
@@ -258,7 +318,7 @@ export default function Header({ user, onOpenAccount, onSignOut }) {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-300 rounded-lg md:hidden hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-600"
+              className="inline-flex items-center p-1.5 sm:p-2 w-8 h-8 sm:w-10 sm:h-10 justify-center text-sm text-gray-300 rounded-lg md:hidden hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-600 "
             >
               <span className="sr-only">Open main menu</span>
               <svg
@@ -280,25 +340,35 @@ export default function Header({ user, onOpenAccount, onSignOut }) {
 
           {/* Nav Links */}
           <motion.div
-            initial={{ opacity: 0, y: -50 }}
+            initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{
               type: "spring",
               stiffness: 120,
               damping: 10,
-              delay: 0.2,
-              duration: 1.2,
+              delay: 0.1,
+              duration: 0.4,
             }}
-            className={`${mobileMenuOpen ? "flex" : "hidden"} items-center justify-between w-full md:flex md:w-auto md:order-1`}
+            className={`${
+              mobileMenuOpen ? "block" : "hidden"
+            } absolute top-full left-0 right-0 w-full p-4 shadow-2xl md:static md:w-auto md:bg-transparent md:border-0 md:p-0 md:shadow-none md:flex md:items-center md:order-1 ${mobileMenuOpen ? "bg-gradient-to-r from-[#0F2027]/85 via-[#28623a]/85 to-[#28623a]/85" : ""}`}
           >
-            <ul className="flex flex-col font-medium p-2 md:p-0 mt-4 border border-gray-700 rounded-lg md:space-x-16 md:flex-row md:mt-0 md:border-0">
+            <ul className="flex flex-col font-medium w-full md:w-auto space-y-2 md:space-y-0 md:space-x-6 lg:space-x-12 md:flex-row ">
               <li>
-                <Link to="/" className={navLinkClass("/")}>
+                <Link
+                  to="/"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={navLinkClass("/")}
+                >
                   Home
                 </Link>
               </li>
               <li>
-                <Link to="/about" className={navLinkClass("/about")}>
+                <Link
+                  to="/about"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={navLinkClass("/about")}
+                >
                   About
                 </Link>
               </li>
@@ -337,13 +407,13 @@ export default function Header({ user, onOpenAccount, onSignOut }) {
                       height: navDropdownOpen ? "auto" : 0,
                     }}
                     transition={{ duration: 0.3 }}
-                    className="absolute left-0 mt-2 z-[100] rounded-lg shadow-lg w-52 bg-gradient-to-r from-[#0F2027] via-[#28623a] to-[#28623a] border border-gray-600"
+                    className={`absolute left-0 mt-2 z-[100] rounded-lg shadow-lg w-52 ${mobileMenuOpen ? "bg-gradient-to-r from-[#0F2027]/85 via-[#28623a]/85 to-[#28623a]/85 backdrop-blur-md border border-white/20" : "bg-gradient-to-r from-[#0F2027] via-[#28623a] to-[#28623a]"}`}
                   >
                     <ul className="p-2 text-sm font-medium">
                       <li>
                         <Link
                           to="/#all"
-                          onClick={() => setNavDropdownOpen(false)}
+                          onClick={() => handleDestinationSelect("all")}
                           className="inline-flex items-center w-full p-2 text-gray-200 hover:bg-blue-600 hover:text-white rounded"
                         >
                           All Category
@@ -352,7 +422,7 @@ export default function Header({ user, onOpenAccount, onSignOut }) {
                       <li>
                         <Link
                           to="/#plains"
-                          onClick={() => setNavDropdownOpen(false)}
+                          onClick={() => handleDestinationSelect("plains")}
                           className="inline-flex items-center w-full p-2 text-gray-200 hover:bg-blue-600 hover:text-white rounded"
                         >
                           The Plains Region
@@ -361,7 +431,7 @@ export default function Header({ user, onOpenAccount, onSignOut }) {
                       <li>
                         <Link
                           to="/#tonle"
-                          onClick={() => setNavDropdownOpen(false)}
+                          onClick={() => handleDestinationSelect("tonle")}
                           className="inline-flex items-center w-full p-2 text-gray-200 hover:bg-blue-600 hover:text-white rounded"
                         >
                           Tonle Sap Lake Area
@@ -370,7 +440,7 @@ export default function Header({ user, onOpenAccount, onSignOut }) {
                       <li>
                         <Link
                           to="/#coastal"
-                          onClick={() => setNavDropdownOpen(false)}
+                          onClick={() => handleDestinationSelect("coastal")}
                           className="inline-flex items-center w-full p-2 text-gray-200 hover:bg-blue-600 hover:text-white rounded"
                         >
                           Coastal Region
@@ -379,7 +449,7 @@ export default function Header({ user, onOpenAccount, onSignOut }) {
                       <li>
                         <Link
                           to="/#mountain"
-                          onClick={() => setNavDropdownOpen(false)}
+                          onClick={() => handleDestinationSelect("mountain")}
                           className="inline-flex items-center w-full p-2 text-gray-200 hover:bg-blue-600 hover:text-white rounded"
                         >
                           Mountain and Plateau Region

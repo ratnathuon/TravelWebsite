@@ -75,28 +75,28 @@ export default function Search() {
   };
 
   return (
-    <section className="flex justify-center">
+    <section className="flex justify-center px-4 sm:px-0">
       <form
         onSubmit={handleSearchSubmit}
-        className="relative w-full max-w-2xl rounded-2xl p-2  ring-1 ring-white/10 z-50"
+        className="relative w-full max-w-2xl rounded-2xl p-1 sm:p-2 ring-1 ring-white/10 z-10"
       >
         <label htmlFor="destination-search" className="sr-only">
           Search destinations
         </label>
-        <div className="flex items-center gap-3 px-4 py-2 rounded-3xl border shadow-sm focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-500/20">
+        <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 rounded-3xl border shadow-sm focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-500/20 bg-white/90 backdrop-blur-md">
           {/* Dropdown Button Inside Search Bar */}
           <div className="relative">
             <button
               type="button"
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="text-slate-600 hover:text-slate-900 transition-colors font-medium text-sm whitespace-nowrap"
+              className="text-slate-600 hover:text-slate-900 transition-colors font-medium text-xs sm:text-sm max-w-[110px] sm:max-w-none truncate block"
             >
               {selectedCategory}
             </button>
 
             {/* Dropdown Menu */}
             {isDropdownOpen && (
-              <div className="absolute left-0 top-full mt-1 bg-white border border-slate-200 rounded-xl shadow-2xl overflow-hidden min-w-max z-[9999]">
+              <div className="absolute left-0 top-full mt-1 bg-white border border-slate-200 rounded-xl shadow-2xl overflow-hidden min-w-max z-30">
                 {categories.map((category) => (
                   <button
                     key={category}
@@ -112,22 +112,22 @@ export default function Search() {
           </div>
 
           {/* Divider */}
-          <div className="w-px h-6 bg-slate-200"></div>
+          <div className="w-px h-6 bg-slate-200 shrink-0"></div>
 
-          <MdSearch className="h-6 w-6 text-slate-500" />
+          <MdSearch className="h-5 w-5 sm:h-6 sm:w-6 text-slate-500 shrink-0" />
           <input
             id="destination-search"
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search places like Angkor Wat, Kep, or Koh Rong"
-            className="w-full bg-transparent text-slate-900 placeholder:text-slate-400 outline-none border-none focus:outline-none focus:ring-0"
+            placeholder="Search Angkor Wat, Kep..."
+            className="w-full bg-transparent text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 outline-none border-none focus:outline-none focus:ring-0"
           />
           {query && (
             <button
               type="button"
               onClick={() => setQuery("")}
-              className="text-slate-400 hover:text-slate-600 transition-colors"
+              className="text-slate-400 hover:text-slate-600 transition-colors shrink-0"
             >
               <MdClose className="h-5 w-5" />
             </button>
@@ -135,7 +135,7 @@ export default function Search() {
         </div>
 
         {normalizedQuery && (
-          <div className="absolute left-4 right-4 top-[calc(100%-1rem)] z-[9999] rounded-3xl border border-slate-200 bg-white p-4 text-slate-900 shadow-2xl">
+          <div className="absolute left-4 right-4 top-[calc(100%-1rem)] z-30 rounded-3xl border border-slate-200 bg-white p-4 text-slate-900 shadow-2xl">
             {filteredPlaces.length > 0 ? (
               <div className="space-y-3">
                 <p className="text-sm font-semibold text-slate-700">

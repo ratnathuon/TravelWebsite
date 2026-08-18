@@ -13,11 +13,11 @@ export default function Home() {
       <Search />
 
       <SliderHeader/>
-      <h1 className='text-center font-bold text-5xl m-8 text-green-900 font-poppins italic'>Top Destinations</h1>
+      <h1 className='text-center font-bold text-5xl m-8 text-green-900 font-poppins italic max-md:text-3xl max-sm:text-2xl max-xs:text-xl'>Top Destinations</h1>
       {/* <Destinations /> */}
       <TopPlace/>
       <HeroSection/>
-      <h1 className='text-center font-bold text-5xl m-8 text-green-900 font-poppins italic'>Top Explore in Cambodia</h1>
+      <h1 className='text-center font-bold text-5xl m-8 text-green-900 font-poppins italic max-md:text-3xl max-sm:text-2xl max-xs:text-xl'>Top Explore in Cambodia</h1>
       <Category/>
       <Question/>
       <Footer />
