@@ -382,29 +382,183 @@ export async function rejectPendingUserPhotoInDb(docId, photoItem) {
 }
 
 /**
+ * Default About Page Content
+ */
+export const DEFAULT_ABOUT_INFO = {
+  headerPrefix: "We’re Students",
+  headerKeywords: ["of RUPP", "ITE", "Engineering"],
+  description:
+    "Powered by a team of IT Engineering students at RUPP, Travel Cambodia is a digital initiative dedicated to showcasing the beauty of our home. We combine engineering precision with local insight to help you navigate the Kingdom of Wonder effortlessly.",
+  disclaimer:
+    "This website was created by our team for educational and non-commercial learning purposes. We sincerely apologize if any image or media source was used without explicit permission or proper credit. Thank you for your understanding.",
+  sourcesTitle: "Source of Content & Media",
+  sources: [
+    {
+      id: "google_maps",
+      name: "Google Maps",
+      category: "Maps & Data",
+      url: "https://maps.google.com",
+    },
+    {
+      id: "pixabay",
+      name: "Pixabay",
+      category: "Free Images",
+      url: "https://pixabay.com",
+    },
+    {
+      id: "cambodia_tourism",
+      name: "Cambodia Tourism",
+      category: "Cultural Info",
+      url: "https://tourism.gov.kh/",
+    },
+  ],
+};
+
+/**
+ * Fetch About Page Information from Firestore `site_settings/about`
+ */
+export async function fetchAboutInfoFromDb() {
+  try {
+    const docRef = doc(db, "site_settings", "about");
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+      const merged = { ...DEFAULT_ABOUT_INFO, ...data };
+      try {
+        localStorage.setItem("travel_about_info", JSON.stringify(merged));
+      } catch {}
+      return merged;
+    }
+  } catch (error) {
+    console.warn("Could not fetch about info from Firestore:", error);
+  }
+
+  // Fallback to local cache or defaults
+  try {
+    const cached = JSON.parse(localStorage.getItem("travel_about_info") || "null");
+    if (cached) return cached;
+  } catch {}
+
+  return DEFAULT_ABOUT_INFO;
+}
+
+/**
+ * Real-time subscription to About Page Information in Firestore `site_settings/about`
+ */
+export function subscribeToAboutInfo(onUpdate) {
+  try {
+    const docRef = doc(db, "site_settings", "about");
+    const unsub = onSnapshot(
+      docRef,
+      (docSnap) => {
+        if (docSnap.exists()) {
+          const data = { ...DEFAULT_ABOUT_INFO, ...docSnap.data() };
+          try {
+            localStorage.setItem("travel_about_info", JSON.stringify(data));
+          } catch {}
+          if (typeof onUpdate === "function") onUpdate(data);
+        } else {
+          if (typeof onUpdate === "function") onUpdate(DEFAULT_ABOUT_INFO);
+        }
+      },
+      (err) => {
+        console.warn("Error subscribing to about info from Firestore:", err);
+      }
+    );
+    return unsub;
+  } catch (err) {
+    console.warn("Failed to subscribe to about info:", err);
+    return () => {};
+  }
+}
+
+/**
+ * Save About Page Information to Firestore `site_settings/about`
+ */
+export async function saveAboutInfoToDb(aboutObj) {
+  const docRef = doc(db, "site_settings", "about");
+  const payload = {
+    ...aboutObj,
+    updatedAt: serverTimestamp(),
+  };
+
+  await setDoc(docRef, payload, { merge: true });
+
+  try {
+    localStorage.setItem("travel_about_info", JSON.stringify(payload));
+    window.dispatchEvent(new CustomEvent("aboutInfoUpdated", { detail: payload }));
+  } catch {}
+
+  return payload;
+}
+
+/**
  * Fetch team members from Firestore `team_members` collection.
- * If collection is empty, populates it with default members.
+ * Does NOT overwrite Firestore if the collection is empty.
  */
 export async function fetchTeamMembersFromDb() {
   try {
     const querySnapshot = await getDocs(collection(db, "team_members"));
     if (!querySnapshot.empty) {
-      return querySnapshot.docs.map((docSnap) => ({
+      const list = querySnapshot.docs.map((docSnap) => ({
         id: docSnap.id,
         ...docSnap.data(),
       }));
+      try {
+        localStorage.setItem("travel_team_members", JSON.stringify(list));
+      } catch {}
+      return list;
     }
 
-    // Seed initial default members into Firestore if empty
-    for (const m of defaultMembers) {
-      const ref = doc(db, "team_members", m.id);
-      await setDoc(ref, m, { merge: true });
-    }
+    // Check cached list if Firestore was empty
+    try {
+      const cached = JSON.parse(localStorage.getItem("travel_team_members") || "null");
+      if (Array.isArray(cached) && cached.length > 0) return cached;
+    } catch {}
 
     return defaultMembers;
   } catch (error) {
     console.error("Error fetching team members from Firestore:", error);
+    try {
+      const cached = JSON.parse(localStorage.getItem("travel_team_members") || "null");
+      if (Array.isArray(cached) && cached.length > 0) return cached;
+    } catch {}
     return defaultMembers;
+  }
+}
+
+/**
+ * Real-time listener for Firestore `team_members` collection
+ */
+export function subscribeToTeamMembers(onUpdate) {
+  try {
+    const unsub = onSnapshot(
+      collection(db, "team_members"),
+      (snapshot) => {
+        if (!snapshot.empty) {
+          const list = snapshot.docs.map((docSnap) => ({
+            id: docSnap.id,
+            ...docSnap.data(),
+          }));
+          try {
+            localStorage.setItem("travel_team_members", JSON.stringify(list));
+          } catch {}
+          if (typeof onUpdate === "function") onUpdate(list);
+        } else {
+          try {
+            localStorage.setItem("travel_team_members", JSON.stringify([]));
+          } catch {}
+          if (typeof onUpdate === "function") onUpdate([]);
+        }
+      },
+      (err) => {
+        console.warn("Realtime team members subscription warning:", err);
+      }
+    );
+    return unsub;
+  } catch (err) {
+    console.warn("Failed to subscribe to team members:", err);
+    return () => {};
   }
 }
 
@@ -421,6 +575,21 @@ export async function saveTeamMemberToDb(memberObj) {
   };
 
   await setDoc(memberRef, payload, { merge: true });
+
+  // Update local cache
+  try {
+    const cached = JSON.parse(localStorage.getItem("travel_team_members") || "[]");
+    const idx = cached.findIndex((m) => m.id === memberId);
+    let updated;
+    if (idx >= 0) {
+      updated = [...cached];
+      updated[idx] = { ...updated[idx], ...payload };
+    } else {
+      updated = [...cached, payload];
+    }
+    localStorage.setItem("travel_team_members", JSON.stringify(updated));
+  } catch {}
+
   return payload;
 }
 
@@ -430,6 +599,13 @@ export async function saveTeamMemberToDb(memberObj) {
 export async function deleteTeamMemberFromDb(memberId) {
   if (!memberId) return;
   await deleteDoc(doc(db, "team_members", memberId));
+
+  // Update local cache
+  try {
+    const cached = JSON.parse(localStorage.getItem("travel_team_members") || "[]");
+    const updated = cached.filter((m) => m.id !== memberId);
+    localStorage.setItem("travel_team_members", JSON.stringify(updated));
+  } catch {}
 }
 
 

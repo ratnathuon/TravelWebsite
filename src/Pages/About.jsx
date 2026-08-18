@@ -5,33 +5,63 @@ import Footer from '../components/Footer';
 import Typewriter from '../components/Typewriter';
 import { SiGooglemaps, SiPixabay } from 'react-icons/si';
 import { MdTravelExplore } from 'react-icons/md';
+import { DEFAULT_ABOUT_INFO, subscribeToAboutInfo } from '../data/adminData';
 
 export default function About() {
-  const words = ["of RUPP", "ITE", "Engineering"];
+  const [aboutInfo, setAboutInfo] = useState(() => {
+    try {
+      const cached = JSON.parse(localStorage.getItem("travel_about_info") || "null");
+      if (cached) return cached;
+    } catch {}
+    return DEFAULT_ABOUT_INFO;
+  });
+
   const [index, setIndex] = useState(0);
 
   useEffect(() => {
+    const unsub = subscribeToAboutInfo((data) => {
+      if (data) {
+        setAboutInfo(data);
+      }
+    });
+
+    return () => {
+      if (typeof unsub === "function") unsub();
+    };
+  }, []);
+
+  const rawKeywords = aboutInfo?.headerKeywords;
+  const words = Array.isArray(rawKeywords) && rawKeywords.length > 0
+    ? rawKeywords.map((w) => String(w).trim()).filter(Boolean)
+    : (typeof rawKeywords === "string" ? rawKeywords.split(",").map(w => w.trim()).filter(Boolean) : DEFAULT_ABOUT_INFO.headerKeywords);
+
+  const activeWords = words.length > 0 ? words : DEFAULT_ABOUT_INFO.headerKeywords;
+
+  useEffect(() => {
+    if (activeWords.length <= 1) return;
     const interval = setInterval(() => {
-      setIndex((prev) => (prev + 1) % words.length);
+      setIndex((prev) => (prev + 1) % activeWords.length);
     }, 2000);
     return () => clearInterval(interval);
-  }, []);
+  }, [activeWords.length]);
+
+  const currentWord = activeWords[index % activeWords.length] || activeWords[0] || "";
 
   return (
     <div className="font-poppins text-gray-800">
       <Typewriter />
       
       <div className='text-center mt-5 mb-8'>
-        <span className='mt-10 italic text-2xl'>We’re Students </span>
+        <span className='mt-10 italic text-2xl'>{aboutInfo.headerPrefix || "We’re Students"} </span>
         <AnimatePresence mode="wait">
           <motion.span className='mt-10 italic text-2xl font-semibold text-green-800'
-            key={words[index]}
+            key={currentWord}
             initial={{ rotateX: 90, opacity: 0 }}
             animate={{ rotateX: 0, opacity: 1 }}
             exit={{ rotateX: -90, opacity: 0 }}
             transition={{ duration: 0.4 }}
           >
-            {words[index]}
+            {currentWord}
           </motion.span>
         </AnimatePresence>
       </div>
@@ -45,13 +75,15 @@ export default function About() {
       </motion.div>
 
       {/* About Description */}
-      <p className='max-w-4xl mx-auto text-black px-6 py-8 text-center text-lg leading-relaxed'>
-        Powered by a team of IT Engineering students at RUPP, Travel Cambodia is a digital initiative dedicated to showcasing the beauty of our home. We combine engineering precision with local insight to help you navigate the Kingdom of Wonder effortlessly.
+      <p className='max-w-4xl mx-auto text-black px-6 py-8 text-center text-lg leading-relaxed whitespace-pre-line'>
+        {aboutInfo.description || DEFAULT_ABOUT_INFO.description}
       </p>
 
       {/* Sources & Logos Section */}
       <div className='max-w-4xl mx-auto px-6 my-10 py-8 text-center'>
-        <h3 className='text-2xl font-bold text-gray-900 mb-6'>Source of Content & Media</h3>
+        <h3 className='text-2xl font-bold text-gray-900 mb-6'>
+          {aboutInfo.sourcesTitle || "Source of Content & Media"}
+        </h3>
 
         {/* Source Logos */}
         <div className='flex flex-wrap justify-center items-center gap-6 md:gap-10 mb-8'>
@@ -101,8 +133,8 @@ export default function About() {
         </div>
 
         {/* Learning Disclaimer */}
-        <p className='text-gray-600 text-sm max-w-2xl mx-auto leading-relaxed italic'>
-          This website was created by our team for educational and non-commercial learning purposes. We sincerely apologize if any image or media source was used without explicit permission or proper credit. Thank you for your understanding.
+        <p className='text-gray-600 text-sm max-w-2xl mx-auto leading-relaxed italic whitespace-pre-line'>
+          {aboutInfo.disclaimer || DEFAULT_ABOUT_INFO.disclaimer}
         </p>
       </div>
 
@@ -110,3 +142,4 @@ export default function About() {
     </div>
   )
 }
+

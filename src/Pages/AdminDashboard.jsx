@@ -6,6 +6,7 @@ import {
   CATEGORIES,
   PRESET_IMAGES,
   DEFAULT_SYSTEM_ADMINS,
+  DEFAULT_ABOUT_INFO,
   fetchSystemAdminsFromDb,
   addSystemAdminToDb,
   removeSystemAdminFromDb,
@@ -19,6 +20,9 @@ import {
   fetchTeamMembersFromDb,
   saveTeamMemberToDb,
   deleteTeamMemberFromDb,
+  fetchAboutInfoFromDb,
+  saveAboutInfoToDb,
+  subscribeToAboutInfo,
 } from "../data/adminData";
 import {
   PlusIcon,
@@ -37,6 +41,8 @@ import {
   UserGroupIcon,
   ShieldCheckIcon,
   XMarkIcon,
+  DocumentTextIcon,
+  InformationCircleIcon,
 } from "@heroicons/react/24/solid";
 import { MdLocationPin } from "react-icons/md";
 
@@ -307,9 +313,19 @@ export default function AdminDashboard() {
     }
   };
 
-  // About Us Team Management State
+  // About Page Information & Team Management State
   const [teamMembers, setTeamMembers] = useState([]);
   const [showTeamModal, setShowTeamModal] = useState(false);
+  const [aboutActiveTab, setAboutActiveTab] = useState("team"); // "team" | "content"
+  const [aboutPageForm, setAboutPageForm] = useState(() => {
+    try {
+      const cached = JSON.parse(localStorage.getItem("travel_about_info") || "null");
+      if (cached) return cached;
+    } catch {}
+    return DEFAULT_ABOUT_INFO;
+  });
+  const [isSavingAboutInfo, setIsSavingAboutInfo] = useState(false);
+
   const [isEditMemberModalOpen, setIsEditMemberModalOpen] = useState(false);
   const [isSavingMember, setIsSavingMember] = useState(false);
   const [memberFormData, setMemberFormData] = useState({
@@ -332,11 +348,51 @@ export default function AdminDashboard() {
     }
   };
 
+  const fetchAboutInfo = async () => {
+    try {
+      const data = await fetchAboutInfoFromDb();
+      setAboutPageForm(data);
+    } catch (err) {
+      console.error("Error fetching about page info:", err);
+    }
+  };
+
   useEffect(() => {
     fetchDestinations();
     fetchSystemAdmins();
     fetchTeamMembers();
+    fetchAboutInfo();
   }, []);
+
+  const handleSaveAboutPageContent = async (e) => {
+    e?.preventDefault();
+    setIsSavingAboutInfo(true);
+    try {
+      let keywordsArr = aboutPageForm.headerKeywords;
+      if (typeof keywordsArr === "string") {
+        keywordsArr = keywordsArr.split(",").map((k) => k.trim()).filter(Boolean);
+      } else if (!Array.isArray(keywordsArr)) {
+        keywordsArr = DEFAULT_ABOUT_INFO.headerKeywords;
+      }
+
+      const payload = {
+        ...aboutPageForm,
+        headerPrefix: aboutPageForm.headerPrefix?.trim() || "We’re Students",
+        headerKeywords: keywordsArr.length > 0 ? keywordsArr : DEFAULT_ABOUT_INFO.headerKeywords,
+        description: aboutPageForm.description?.trim() || DEFAULT_ABOUT_INFO.description,
+        disclaimer: aboutPageForm.disclaimer?.trim() || DEFAULT_ABOUT_INFO.disclaimer,
+      };
+
+      await saveAboutInfoToDb(payload);
+      setAboutPageForm(payload);
+      triggerToast("About page content saved & synced to database!");
+    } catch (err) {
+      console.error("Error saving about page info:", err);
+      triggerToast("Failed to save About page content.");
+    } finally {
+      setIsSavingAboutInfo(false);
+    }
+  };
 
   const handleOpenCreateMember = () => {
     setMemberFormData({
@@ -702,14 +758,14 @@ export default function AdminDashboard() {
               <span className="truncate">Admins ({systemAdmins.length})</span>
             </button>
 
-            {/* Manage About Us Team Button */}
+            {/* Manage About Us Page & Team Button */}
             <button
               onClick={() => setShowTeamModal(true)}
               className="flex items-center justify-center gap-1.5 px-2.5 sm:px-3 py-2 rounded-xl bg-emerald-950/80 border border-emerald-500/40 text-[11px] sm:text-xs font-mono text-emerald-300 hover:bg-emerald-900/80 transition-all shadow-sm truncate"
-              title="Manage About Us Team Members"
+              title="Manage About Page Content & Team Members"
             >
               <UserIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400 shrink-0" />
-              <span className="truncate">Team ({teamMembers.length})</span>
+              <span className="truncate">About & Team ({teamMembers.length})</span>
             </button>
 
             {/* Pending User Photos Moderation Badge */}
@@ -1712,7 +1768,7 @@ export default function AdminDashboard() {
         )}
       </AnimatePresence>
 
-      {/* About Us Team Members Management Modal */}
+      {/* About Page & Team Management Modal */}
       <AnimatePresence>
         {showTeamModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
@@ -1730,12 +1786,13 @@ export default function AdminDashboard() {
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               className="relative w-full max-w-4xl bg-[#142820] border border-emerald-500/30 rounded-2xl sm:rounded-3xl shadow-2xl p-4 sm:p-8 z-10 max-h-[90vh] overflow-y-auto text-white space-y-6"
             >
+              {/* Header */}
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-4 border-b border-emerald-800/40">
                 <div className="w-full sm:w-auto">
                   <div className="flex items-center justify-between w-full sm:w-auto">
                     <h2 className="text-base sm:text-2xl font-bold text-white flex items-center gap-2 truncate">
-                      <UserIcon className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-400 shrink-0" />
-                      <span className="truncate">About Us Team ({teamMembers.length})</span>
+                      <BuildingLibraryIcon className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-400 shrink-0" />
+                      <span className="truncate">About Page & Team Management</span>
                     </h2>
                     <button
                       onClick={() => setShowTeamModal(false)}
@@ -1745,69 +1802,219 @@ export default function AdminDashboard() {
                     </button>
                   </div>
                   <p className="text-xs text-emerald-200/70 mt-1">
-                    Update profile pictures, names, roles, and social media links stored in Firestore.
+                    Manage the About page headline, rotating keywords, description text, and team members stored in Firestore.
                   </p>
                 </div>
 
-                <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
-                  <button
-                    onClick={handleOpenCreateMember}
-                    className="w-full sm:w-auto px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition-all shadow-md flex items-center justify-center gap-1.5 shrink-0"
-                  >
-                    <PlusIcon className="w-4 h-4" />
-                    <span>Add Member</span>
-                  </button>
-                  <button
-                    onClick={() => setShowTeamModal(false)}
-                    className="hidden sm:flex p-2 rounded-full bg-white/10 hover:bg-white/20 text-gray-300 hover:text-white transition-colors shrink-0"
-                  >
-                    ✕
-                  </button>
-                </div>
+                <button
+                  onClick={() => setShowTeamModal(false)}
+                  className="hidden sm:flex p-2 rounded-full bg-white/10 hover:bg-white/20 text-gray-300 hover:text-white transition-colors shrink-0"
+                >
+                  ✕
+                </button>
               </div>
 
-              {/* Members Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {teamMembers.map((member) => (
-                  <div
-                    key={member.id || member.name}
-                    className="bg-black/40 border border-white/10 rounded-2xl p-4 flex flex-col items-center text-center justify-between space-y-3 hover:border-emerald-500/40 transition-all shadow-lg"
-                  >
-                    <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-emerald-400/40 bg-gray-800 shadow-md shrink-0">
-                      <img
-                        src={member.image || "/assets/Profile/Ratna.jpg"}
-                        alt={member.name}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          e.target.src = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop";
-                        }}
+              {/* Tab Navigation */}
+              <div className="flex items-center gap-2 p-1 bg-black/40 rounded-2xl border border-emerald-500/20 w-fit">
+                <button
+                  onClick={() => setAboutActiveTab("team")}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
+                    aboutActiveTab === "team"
+                      ? "bg-emerald-600 text-white shadow-md"
+                      : "text-emerald-200/70 hover:text-white hover:bg-white/5"
+                  }`}
+                >
+                  <UserIcon className="w-4 h-4" />
+                  <span>Team Members ({teamMembers.length})</span>
+                </button>
+                <button
+                  onClick={() => setAboutActiveTab("content")}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
+                    aboutActiveTab === "content"
+                      ? "bg-emerald-600 text-white shadow-md"
+                      : "text-emerald-200/70 hover:text-white hover:bg-white/5"
+                  }`}
+                >
+                  <DocumentTextIcon className="w-4 h-4" />
+                  <span>About Page Content</span>
+                </button>
+              </div>
+
+              {/* TAB 1: TEAM MEMBERS */}
+              {aboutActiveTab === "team" && (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-emerald-300 uppercase tracking-wider">
+                      Current Team Members
+                    </span>
+                    <button
+                      onClick={handleOpenCreateMember}
+                      className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition-all shadow-md flex items-center gap-1.5 shrink-0"
+                    >
+                      <PlusIcon className="w-4 h-4" />
+                      <span>Add Member</span>
+                    </button>
+                  </div>
+
+                  {teamMembers.length === 0 ? (
+                    <div className="p-8 text-center bg-black/30 rounded-2xl border border-white/5">
+                      <p className="text-sm text-gray-400">No team members currently configured.</p>
+                      <button
+                        onClick={handleOpenCreateMember}
+                        className="mt-3 px-4 py-2 bg-emerald-700 hover:bg-emerald-600 text-white rounded-xl text-xs font-semibold"
+                      >
+                        Add First Member
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                      {teamMembers.map((member) => (
+                        <div
+                          key={member.id || member.name}
+                          className="bg-black/40 border border-white/10 rounded-2xl p-4 flex flex-col items-center text-center justify-between space-y-3 hover:border-emerald-500/40 transition-all shadow-lg"
+                        >
+                          <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-emerald-400/40 bg-gray-800 shadow-md shrink-0">
+                            <img
+                              src={member.image || "/assets/Profile/Ratna.jpg"}
+                              alt={member.name}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                e.target.src = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop";
+                              }}
+                            />
+                          </div>
+
+                          <div>
+                            <h4 className="font-bold text-sm text-white line-clamp-1">{member.name}</h4>
+                            <span className="text-xs text-emerald-300 font-medium block mt-0.5">{member.position}</span>
+                          </div>
+
+                          <div className="flex items-center justify-center gap-2 pt-2 border-t border-white/10 w-full">
+                            <button
+                              onClick={() => handleOpenEditMember(member)}
+                              className="flex-1 py-1.5 bg-emerald-700/80 hover:bg-emerald-600 text-white rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1"
+                            >
+                              <PencilSquareIcon className="w-3.5 h-3.5" />
+                              <span>Edit</span>
+                            </button>
+                            <button
+                              onClick={() => handleDeleteTeamMember(member.id, member.name)}
+                              className="p-1.5 bg-red-600/80 hover:bg-red-600 text-white rounded-lg transition-all"
+                              title="Delete Member"
+                            >
+                              <TrashIcon className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* TAB 2: ABOUT PAGE CONTENT */}
+              {aboutActiveTab === "content" && (
+                <form onSubmit={handleSaveAboutPageContent} className="space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {/* Header Prefix */}
+                    <div>
+                      <label className="block text-xs font-semibold text-emerald-300 uppercase tracking-wider mb-2">
+                        Header Prefix
+                      </label>
+                      <input
+                        type="text"
+                        value={aboutPageForm.headerPrefix || ""}
+                        onChange={(e) => setAboutPageForm((prev) => ({ ...prev, headerPrefix: e.target.value }))}
+                        placeholder="e.g. We’re Students"
+                        className="w-full bg-black/40 border border-white/20 rounded-xl px-4 py-2.5 text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
                       />
                     </div>
 
+                    {/* Rotating Keywords */}
                     <div>
-                      <h4 className="font-bold text-sm text-white line-clamp-1">{member.name}</h4>
-                      <span className="text-xs text-emerald-300 font-medium block mt-0.5">{member.position}</span>
-                    </div>
-
-                    <div className="flex items-center justify-center gap-2 pt-2 border-t border-white/10 w-full">
-                      <button
-                        onClick={() => handleOpenEditMember(member)}
-                        className="flex-1 py-1.5 bg-emerald-700/80 hover:bg-emerald-600 text-white rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1"
-                      >
-                        <PencilSquareIcon className="w-3.5 h-3.5" />
-                        <span>Edit</span>
-                      </button>
-                      <button
-                        onClick={() => handleDeleteTeamMember(member.id, member.name)}
-                        className="p-1.5 bg-red-600/80 hover:bg-red-600 text-white rounded-lg transition-all"
-                        title="Delete Member"
-                      >
-                        <TrashIcon className="w-3.5 h-3.5" />
-                      </button>
+                      <label className="block text-xs font-semibold text-emerald-300 uppercase tracking-wider mb-2">
+                        Rotating Keywords (comma-separated)
+                      </label>
+                      <input
+                        type="text"
+                        value={
+                          Array.isArray(aboutPageForm.headerKeywords)
+                            ? aboutPageForm.headerKeywords.join(", ")
+                            : aboutPageForm.headerKeywords || ""
+                        }
+                        onChange={(e) =>
+                          setAboutPageForm((prev) => ({
+                            ...prev,
+                            headerKeywords: e.target.value.split(",").map((k) => k.trim()),
+                          }))
+                        }
+                        placeholder="e.g. of RUPP, ITE, Engineering"
+                        className="w-full bg-black/40 border border-white/20 rounded-xl px-4 py-2.5 text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                      />
                     </div>
                   </div>
-                ))}
-              </div>
+
+                  {/* Main Description */}
+                  <div>
+                    <label className="block text-xs font-semibold text-emerald-300 uppercase tracking-wider mb-2">
+                      Main Story / About Description
+                    </label>
+                    <textarea
+                      rows={4}
+                      value={aboutPageForm.description || ""}
+                      onChange={(e) => setAboutPageForm((prev) => ({ ...prev, description: e.target.value }))}
+                      placeholder="Write the main description for the About page..."
+                      className="w-full bg-black/40 border border-white/20 rounded-xl px-4 py-2.5 text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 leading-relaxed"
+                    />
+                  </div>
+
+                  {/* Disclaimer */}
+                  <div>
+                    <label className="block text-xs font-semibold text-emerald-300 uppercase tracking-wider mb-2">
+                      Learning & Legal Disclaimer
+                    </label>
+                    <textarea
+                      rows={3}
+                      value={aboutPageForm.disclaimer || ""}
+                      onChange={(e) => setAboutPageForm((prev) => ({ ...prev, disclaimer: e.target.value }))}
+                      placeholder="Enter legal / educational disclaimer..."
+                      className="w-full bg-black/40 border border-white/20 rounded-xl px-4 py-2.5 text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 leading-relaxed"
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between pt-4 border-t border-emerald-800/40">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (window.confirm("Reset About page content to initial defaults?")) {
+                          setAboutPageForm(DEFAULT_ABOUT_INFO);
+                        }
+                      }}
+                      className="px-4 py-2 rounded-xl text-xs text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 transition-colors"
+                    >
+                      Reset to Default Text
+                    </button>
+
+                    <button
+                      type="submit"
+                      disabled={isSavingAboutInfo}
+                      className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-sm font-bold shadow-lg shadow-emerald-900/40 transition-all flex items-center gap-2 disabled:opacity-50"
+                    >
+                      {isSavingAboutInfo ? (
+                        <>
+                          <ArrowPathIcon className="w-4 h-4 animate-spin" />
+                          <span>Saving to Firestore...</span>
+                        </>
+                      ) : (
+                        <>
+                          <SparklesIcon className="w-4 h-4" />
+                          <span>Save About Page Content</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </form>
+              )}
             </motion.div>
           </div>
         )}
