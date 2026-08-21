@@ -724,79 +724,84 @@ export default function AdminDashboard() {
     <div className="min-h-screen bg-gradient-to-b from-[#0F2027] via-[#1a3a29] to-[#0F2027] text-white font-poppins pb-20">
       {/* Top Header Navigation */}
       <header className="sticky top-0 z-40 bg-[#0F2027]/95 backdrop-blur-md border-b border-emerald-800/40 shadow-xl">
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-3.5 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
 
-          {/* Dashboard Title Row */}
-          <div className="flex items-center justify-between sm:justify-start space-x-2 sm:space-x-3">
-            <div className="flex items-center space-x-2">
+          {/* Dashboard Title & Status Row */}
+          <div className="flex items-center justify-between gap-3 min-w-0">
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0">
               <Link
                 to="/"
-                className="p-2 rounded-full bg-emerald-900/50 hover:bg-emerald-800/70 text-white transition-colors shrink-0"
+                className="p-2 rounded-xl bg-emerald-900/50 hover:bg-emerald-800/70 text-white transition-all shrink-0 hover:scale-105 active:scale-95 shadow-sm"
                 title="Return to Home"
               >
                 <ArrowLeftIcon className="w-4 h-4 sm:w-5 sm:h-5" />
               </Link>
-              <BuildingLibraryIcon className="w-6 h-6 sm:w-7 sm:h-7 text-emerald-400 shrink-0" />
-              <h1 className="text-base sm:text-2xl font-bold tracking-tight text-white truncate">
+              <div className="p-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 shrink-0">
+                <BuildingLibraryIcon className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-400" />
+              </div>
+              <h1 className="text-lg sm:text-2xl font-bold tracking-tight text-white truncate">
                 Admin Dashboard
               </h1>
             </div>
-            <span className="text-[10px] sm:text-xs px-2 sm:px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-mono border border-emerald-500/30 shrink-0">
+            <span className="inline-flex items-center gap-1.5 text-[10px] sm:text-xs px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-mono border border-emerald-500/30 shrink-0 whitespace-nowrap shadow-sm">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
               Firestore Sync
             </span>
           </div>
 
-          {/* Action Buttons Grid / Responsive Row */}
-          <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 sm:gap-2.5 w-full sm:w-auto">
+          {/* Action Buttons Toolbar */}
+          <div className="flex flex-wrap items-center gap-2 sm:gap-2.5 w-full lg:w-auto">
             {/* System Admins Toggle Badge */}
             <button
               onClick={() => setShowManageAdmins(!showManageAdmins)}
-              className="flex items-center justify-center gap-1.5 px-2.5 sm:px-3 py-2 rounded-xl bg-emerald-950/80 border border-emerald-500/40 text-[11px] sm:text-xs font-mono text-emerald-300 hover:bg-emerald-900/80 transition-all truncate"
+              className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-950/80 border border-emerald-500/40 text-xs font-mono text-emerald-300 hover:bg-emerald-900/80 transition-all shrink-0 active:scale-95 shadow-sm"
               title="Manage System Admins"
             >
-              <UserGroupIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400 shrink-0" />
-              <span className="truncate">Admins ({systemAdmins.length})</span>
+              <UserGroupIcon className="w-4 h-4 text-emerald-400 shrink-0" />
+              <span className="whitespace-nowrap font-medium">Admins ({systemAdmins.length})</span>
             </button>
 
             {/* Manage About Us Page & Team Button */}
             <button
               onClick={() => setShowTeamModal(true)}
-              className="flex items-center justify-center gap-1.5 px-2.5 sm:px-3 py-2 rounded-xl bg-emerald-950/80 border border-emerald-500/40 text-[11px] sm:text-xs font-mono text-emerald-300 hover:bg-emerald-900/80 transition-all shadow-sm truncate"
+              className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-950/80 border border-emerald-500/40 text-xs font-mono text-emerald-300 hover:bg-emerald-900/80 transition-all shrink-0 active:scale-95 shadow-sm"
               title="Manage About Page Content & Team Members"
             >
-              <UserIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400 shrink-0" />
-              <span className="truncate">About & Team ({teamMembers.length})</span>
+              <UserIcon className="w-4 h-4 text-emerald-400 shrink-0" />
+              <span className="whitespace-nowrap font-medium">About & Team ({teamMembers.length})</span>
             </button>
 
             {/* Pending User Photos Moderation Badge */}
             <button
               onClick={() => setShowPendingPhotosModal(true)}
-              className={`flex items-center justify-center gap-1.5 px-2.5 sm:px-3 py-2 rounded-xl border text-[11px] sm:text-xs font-mono transition-all truncate ${allPendingPhotos.length > 0
+              className={`flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-mono transition-all shrink-0 active:scale-95 shadow-sm ${
+                allPendingPhotos.length > 0
                   ? "bg-amber-500/20 border-amber-500/50 text-amber-300 font-bold animate-pulse shadow-lg"
                   : "bg-emerald-950/80 border-emerald-500/40 text-emerald-300 hover:bg-emerald-900/80"
-                }`}
+              }`}
               title="Moderate User Submitted Gallery Photos"
             >
-              <PhotoIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400 shrink-0" />
-              <span className="truncate">Pending ({allPendingPhotos.length})</span>
+              <PhotoIcon className="w-4 h-4 text-amber-400 shrink-0" />
+              <span className="whitespace-nowrap font-medium">Pending ({allPendingPhotos.length})</span>
             </button>
 
             <button
               onClick={fetchDestinations}
               disabled={loading}
-              className="flex items-center justify-center gap-1.5 px-2.5 sm:px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-[11px] sm:text-sm font-medium transition-all disabled:opacity-50 truncate"
+              className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs sm:text-sm font-medium transition-all disabled:opacity-50 shrink-0 active:scale-95"
+              title="Refresh Destinations"
             >
-              <ArrowPathIcon className={`w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 ${loading ? "animate-spin" : ""}`} />
-              <span className="truncate">Refresh</span>
+              <ArrowPathIcon className={`w-4 h-4 shrink-0 ${loading ? "animate-spin" : ""}`} />
+              <span className="hidden xs:inline sm:inline whitespace-nowrap">Refresh</span>
             </button>
 
             {/* Add Destination */}
             <button
               onClick={handleOpenCreateModal}
-              className="col-span-2 sm:col-span-1 flex items-center justify-center gap-1.5 px-4 py-2.5 sm:py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-xs sm:text-sm shadow-lg shadow-emerald-900/40 transition-all transform hover:scale-105"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs sm:text-sm shadow-lg shadow-emerald-900/40 transition-all shrink-0 hover:scale-[1.02] active:scale-95"
             >
               <PlusIcon className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
-              <span>Add Destination</span>
+              <span className="whitespace-nowrap">Add Destination</span>
             </button>
           </div>
         </div>
@@ -805,15 +810,15 @@ export default function AdminDashboard() {
       {/* Main Content Container */}
       <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-4 sm:pt-8 space-y-6 sm:space-y-8">
         {/* Banner Card */}
-        <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-r from-emerald-900/80 via-[#28623a] to-emerald-950 p-5 sm:p-8 border border-emerald-500/30 shadow-2xl">
+        <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-r from-emerald-900/80 via-[#28623a] to-emerald-950 p-5 sm:p-7 md:p-8 border border-emerald-500/30 shadow-2xl">
           <div className="relative z-10 max-w-2xl">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-200 text-xs font-semibold uppercase tracking-wider mb-3">
-              <SparklesIcon className="w-4 h-4 text-emerald-400" /> Multi-Admin Destination Control
+              <SparklesIcon className="w-4 h-4 text-emerald-400 shrink-0" /> Multi-Admin Destination Control
             </div>
-            <h2 className="text-xl sm:text-3xl font-extrabold text-white">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-white leading-tight">
               Manage & Assign Multiple Admin Emails
             </h2>
-            <p className="text-xs sm:text-base text-emerald-100/80 mt-2">
+            <p className="text-xs sm:text-sm md:text-base text-emerald-100/80 mt-2 leading-relaxed">
               Add multiple authorized admin emails to your system. Destinations created or updated can have multiple admin owners stored directly in Firebase Firestore.
             </p>
           </div>
@@ -835,40 +840,42 @@ export default function AdminDashboard() {
           </div>
 
           {/* Add New System Admin Email Form */}
-          <form onSubmit={handleAddSystemAdmin} className="flex flex-col sm:flex-row gap-2 max-w-lg">
-            <div className="relative flex-1">
-              <EnvelopeIcon className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <form onSubmit={handleAddSystemAdmin} className="flex flex-col sm:flex-row gap-2.5 w-full max-w-xl">
+            <div className="relative flex-1 min-w-0">
+              <EnvelopeIcon className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2 shrink-0 pointer-events-none" />
               <input
                 type="email"
                 value={newAdminEmailInput}
                 onChange={(e) => setNewAdminEmailInput(e.target.value)}
                 placeholder="Add new admin email (e.g. sophea@gmail.com)..."
-                className="w-full bg-black/40 border border-white/20 rounded-xl pl-9 pr-3 py-2 text-xs sm:text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 font-mono"
+                className="w-full bg-black/40 border border-white/20 rounded-xl pl-9 pr-3 py-2.5 text-xs sm:text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 font-mono"
               />
             </div>
             <button
               type="submit"
-              className="px-4 py-2.5 sm:py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-xs shadow-md transition-all flex items-center justify-center gap-1 shrink-0"
+              className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs shadow-md transition-all flex items-center justify-center gap-1.5 shrink-0 whitespace-nowrap active:scale-95"
             >
-              <PlusIcon className="w-4 h-4" />
+              <PlusIcon className="w-4 h-4 shrink-0" />
               <span>Add Admin</span>
             </button>
           </form>
 
           {/* System Admins List Pills */}
-          <div className="flex flex-wrap gap-2 pt-2">
+          <div className="flex flex-wrap gap-2 pt-2 items-center">
             {systemAdmins.map((email) => (
               <div
                 key={email}
-                className="flex items-center gap-2 bg-emerald-950/80 border border-emerald-500/30 px-3 py-1.5 rounded-xl text-xs font-mono text-emerald-200 shadow-sm"
+                className="inline-flex items-center gap-2 bg-emerald-950/90 border border-emerald-500/30 px-3 py-1.5 rounded-xl text-xs font-mono text-emerald-200 shadow-sm max-w-full hover:border-emerald-400/50 transition-all"
               >
-                <UserIcon className="w-3.5 h-3.5 text-emerald-400" />
-                <span>{email}</span>
+                <UserIcon className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                <span className="truncate whitespace-nowrap leading-normal max-w-[200px] sm:max-w-xs md:max-w-sm" title={email}>
+                  {email}
+                </span>
                 {systemAdmins.length > 1 && (
                   <button
                     type="button"
                     onClick={() => handleRemoveSystemAdmin(email)}
-                    className="p-0.5 rounded-full hover:bg-red-600/40 text-gray-400 hover:text-red-300 transition-colors ml-1"
+                    className="p-0.5 rounded-full hover:bg-red-600/40 text-gray-400 hover:text-red-300 transition-colors ml-0.5 shrink-0"
                     title={`Remove ${email}`}
                   >
                     <XMarkIcon className="w-3.5 h-3.5" />
@@ -880,61 +887,63 @@ export default function AdminDashboard() {
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-5 shadow-lg">
-            <p className="text-xs text-gray-400 font-medium uppercase tracking-wider">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+          <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-4 sm:p-5 shadow-lg flex flex-col justify-between">
+            <p className="text-[11px] sm:text-xs text-gray-400 font-semibold uppercase tracking-wider">
               Total Destinations
             </p>
-            <p className="text-3xl font-extrabold text-white mt-1">
+            <p className="text-2xl sm:text-3xl font-extrabold text-white mt-1">
               {destinations.length}
             </p>
           </div>
-          <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-5 shadow-lg">
-            <p className="text-xs text-gray-400 font-medium uppercase tracking-wider">
+          <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-4 sm:p-5 shadow-lg flex flex-col justify-between">
+            <p className="text-[11px] sm:text-xs text-gray-400 font-semibold uppercase tracking-wider">
               System Admin Emails
             </p>
-            <p className="text-3xl font-extrabold text-emerald-400 mt-1">
+            <p className="text-2xl sm:text-3xl font-extrabold text-emerald-400 mt-1">
               {systemAdmins.length}
             </p>
           </div>
-          <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-5 shadow-lg">
-            <p className="text-xs text-gray-400 font-medium uppercase tracking-wider">
+          <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-4 sm:p-5 shadow-lg flex flex-col justify-between">
+            <p className="text-[11px] sm:text-xs text-gray-400 font-semibold uppercase tracking-wider">
               Plains & Coastal
             </p>
-            <p className="text-3xl font-extrabold text-teal-400 mt-1">
+            <p className="text-2xl sm:text-3xl font-extrabold text-teal-400 mt-1">
               {destinations.filter((d) => d.cat === "plains" || d.cat === "coastal").length}
             </p>
           </div>
-          <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-5 shadow-lg">
-            <p className="text-xs text-gray-400 font-medium uppercase tracking-wider">
+          <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-4 sm:p-5 shadow-lg flex flex-col justify-between">
+            <p className="text-[11px] sm:text-xs text-gray-400 font-semibold uppercase tracking-wider">
               Mountain & Tonle Sap
             </p>
-            <p className="text-3xl font-extrabold text-amber-400 mt-1">
+            <p className="text-2xl sm:text-3xl font-extrabold text-amber-400 mt-1">
               {destinations.filter((d) => d.cat === "mountain" || d.cat === "tonle").length}
             </p>
           </div>
         </div>
 
         {/* Controls: Search and Filter */}
-        <div className="flex flex-col sm:flex-row gap-4 items-center justify-between bg-white/5 backdrop-blur-md p-4 rounded-2xl border border-white/10 shadow-lg">
-          <div className="relative w-full sm:w-80">
-            <MagnifyingGlassIcon className="w-5 h-5 absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+        <div className="flex flex-col lg:flex-row gap-3 sm:gap-4 items-stretch lg:items-center justify-between bg-white/5 backdrop-blur-md p-3.5 sm:p-4 rounded-2xl border border-white/10 shadow-lg">
+          <div className="relative w-full lg:w-80 shrink-0 min-w-0">
+            <MagnifyingGlassIcon className="w-5 h-5 absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
             <input
               type="text"
               placeholder="Search destination name or location..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-black/40 border border-white/20 rounded-xl pl-10 pr-4 py-2 text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+              className="w-full bg-black/40 border border-white/20 rounded-xl pl-10 pr-4 py-2.5 text-xs sm:text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
             />
           </div>
 
-          <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
+          {/* Category Filter Pills with smooth horizontal scrolling */}
+          <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto w-full lg:w-auto py-1 px-0.5 no-scrollbar scroll-smooth">
             <button
               onClick={() => setSelectedCategoryFilter("all")}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all ${selectedCategoryFilter === "all"
+              className={`shrink-0 px-3.5 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all active:scale-95 ${
+                selectedCategoryFilter === "all"
                   ? "bg-emerald-600 text-white shadow-md shadow-emerald-900/50"
-                  : "bg-white/10 text-gray-300 hover:bg-white/20"
-                }`}
+                  : "bg-white/10 text-gray-300 hover:bg-white/20 hover:text-white"
+              }`}
             >
               All ({destinations.length})
             </button>
@@ -944,10 +953,11 @@ export default function AdminDashboard() {
                 <button
                   key={cat.value}
                   onClick={() => setSelectedCategoryFilter(cat.value)}
-                  className={`px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all ${selectedCategoryFilter === cat.value
+                  className={`shrink-0 px-3.5 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all active:scale-95 ${
+                    selectedCategoryFilter === cat.value
                       ? "bg-emerald-600 text-white shadow-md shadow-emerald-900/50"
-                      : "bg-white/10 text-gray-300 hover:bg-white/20"
-                    }`}
+                      : "bg-white/10 text-gray-300 hover:bg-white/20 hover:text-white"
+                  }`}
                 >
                   {cat.label} ({count})
                 </button>
@@ -973,7 +983,7 @@ export default function AdminDashboard() {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {filteredDestinations.map((dest) => {
               const creatorEmail =
                 dest.createdByEmail ||
@@ -1011,9 +1021,9 @@ export default function AdminDashboard() {
                   </div>
 
                   {/* Info Content */}
-                  <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
+                  <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between space-y-4">
                     <div>
-                      <h3 className="text-lg font-bold text-white group-hover:text-emerald-300 transition-colors line-clamp-1">
+                      <h3 className="text-base sm:text-lg font-bold text-white group-hover:text-emerald-300 transition-colors line-clamp-1">
                         {dest.name}
                       </h3>
                       <div className="flex items-center gap-1 text-xs text-gray-300 mt-1">
@@ -1022,9 +1032,9 @@ export default function AdminDashboard() {
                       </div>
 
                       {/* Single Creator Admin Email Tag */}
-                      <div className="flex items-center gap-1.5 text-[11px] text-emerald-300 font-mono bg-emerald-950/70 border border-emerald-500/30 px-2.5 py-1 rounded-lg w-fit mt-2.5 shadow-sm">
+                      <div className="inline-flex items-center gap-1.5 text-[11px] text-emerald-300 font-mono bg-emerald-950/70 border border-emerald-500/30 px-2.5 py-1 rounded-lg max-w-full mt-2.5 shadow-sm">
                         <EnvelopeIcon className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                        <span className="truncate max-w-[200px]" title={`Added by ${creatorEmail}`}>
+                        <span className="truncate whitespace-nowrap leading-normal max-w-[180px] sm:max-w-[220px]" title={`Added by ${creatorEmail}`}>
                           {creatorEmail}
                         </span>
                       </div>
@@ -1065,7 +1075,7 @@ export default function AdminDashboard() {
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => handleOpenEditModal(dest)}
-                          className="p-2 rounded-xl bg-white/10 hover:bg-emerald-600/30 text-gray-200 hover:text-white transition-colors"
+                          className="p-2 rounded-xl bg-white/10 hover:bg-emerald-600/30 text-gray-200 hover:text-white transition-colors active:scale-95"
                           title="Edit Destination"
                         >
                           <PencilSquareIcon className="w-4 h-4 text-emerald-400" />
@@ -1089,7 +1099,7 @@ export default function AdminDashboard() {
                         ) : (
                           <button
                             onClick={() => setDeleteConfirmId(dest.docId)}
-                            className="p-2 rounded-xl bg-white/10 hover:bg-red-600/30 text-gray-200 hover:text-red-400 transition-colors"
+                            className="p-2 rounded-xl bg-white/10 hover:bg-red-600/30 text-gray-200 hover:text-red-400 transition-colors active:scale-95"
                             title="Delete Destination"
                           >
                             <TrashIcon className="w-4 h-4 text-red-400" />
@@ -1867,7 +1877,7 @@ export default function AdminDashboard() {
                       </button>
                     </div>
                   ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                       {teamMembers.map((member) => (
                         <div
                           key={member.id || member.name}
